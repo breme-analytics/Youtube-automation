@@ -1,16 +1,27 @@
 # Old Wisdom, Decoded (Youtube-automation)
 
-A bot that makes original long-form YouTube videos on its own: public-domain classics of the mind (James Allen,
-Haanel, Wattles, Emerson, the Kybalion) explained in modern English and checked against modern psychology,
+A bot that makes original long-form YouTube videos on its own: public-domain classics of the mind (starting with
+James Allen's *As a Man Thinketh*) explained in modern English and checked against modern psychology,
 narrated by George, an older British storyteller (Kokoro `bm_george`). Every picture is chosen to show what
 George is saying at that moment: stock footage checked by a free vision model, or a painting of the scene.
 Captions, chapter titles and on-screen book quotes are burned in. Everything runs on free tiers.
 
 It runs itself on **GitHub Actions** twice a week, with no computer of yours switched on: it writes, narrates,
-renders and delivers a video, then cleans up after posting. **Setup: [docs/DEPLOY.md](docs/DEPLOY.md).**
+renders, stores and delivers a video, then deletes the stored copy after posting. There is no separate app:
+GitHub is the control panel.
+
+**Start here:**
+
+| Document | What's in it |
+|---|---|
+| [docs/GUIDE.md](docs/GUIDE.md) | How to use and steer the bot: where every control is, how it tells you things, what to do when something goes wrong |
+| [docs/STATUS.md](docs/STATUS.md) | Is it finished? What's proven, what isn't, decisions for you, and your checklist |
+| [docs/DEPLOY.md](docs/DEPLOY.md) | Setup, the storage rules, and every caveat with its fix |
+| [docs/REQUESTS.md](docs/REQUESTS.md) | Everything you've asked for or raised, and what was done |
+| [docs/DEVLOG.md](docs/DEVLOG.md) | Every change, newest first: what, why, and what was checked |
 
 **Steer the bot** in `steering/instructions.md` (type plain English) or upload a PDF, Word or text document into
-`steering/references/`. **What has been built, and why:** `docs/DEVLOG.md`.
+`steering/references/`.
 
 ## Set up (any machine)
 

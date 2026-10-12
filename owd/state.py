@@ -97,3 +97,9 @@ def next_chapter(state: State, books: list[dict], chapter_counts: dict[str, int]
             if number not in used:
                 return book["id"], number
     return None
+
+
+def chapters_left(state: State, books: list[dict], chapter_counts: dict[str, int]) -> int:
+    """How many chapters, across all books, have no video yet."""
+    return sum(len(set(range(1, chapter_counts.get(book["id"], 0) + 1)) - state.used_chapters(book["id"]))
+               for book in books)

@@ -46,6 +46,17 @@ jobs:
 
       - name: Check the keys are set
         run: |
+          # Names only: GitHub never shows a secret's value, and neither does this step.
+          {
+            echo "### Secrets this run can see"
+            for name in PIXABAY_API_KEY OPENROUTER_API_KEY GEMINI_API_KEY CLOUDFLARE_ACCOUNT_ID CLOUDFLARE_AI_TOKEN \
+                        YOUTUBE_CLIENT_ID YOUTUBE_CLIENT_SECRET YOUTUBE_REFRESH_TOKEN; do
+              if [ -n "${!name}" ]; then echo "- $name: set"; else echo "- $name: not set"; fi
+            done
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ -z "$CLOUDFLARE_ACCOUNT_ID" ] || [ -z "$CLOUDFLARE_AI_TOKEN" ]; then
+            echo "::warning::CLOUDFLARE_ACCOUNT_ID or CLOUDFLARE_AI_TOKEN isn't set, so there are no paintings: scenes no clip fits use the closest clip."
+          fi
           missing=""
           for name in PIXABAY_API_KEY OPENROUTER_API_KEY GEMINI_API_KEY; do
             [ -n "${!name}" ] || missing="$missing $name"
@@ -103,4 +114,28 @@ jobs:
             git commit -m "Bot: progress from run ${{ github.run_number }}"
             git pull --rebase --autostash
             git push
+          fi
+
+      # GitHub emails about a scheduled run only the person who first created the workflow, so a failure
+      # could go unnoticed. An issue reaches the owner (GitHub emails watchers about new issues).
+      - name: If this run failed, open an issue so you hear about it
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          cat > "$RUNNER_TEMP/failed.md" <<EOF
+          The **${GITHUB_WORKFLOW}** run of $(date -u '+%d %b %Y, %H:%M UTC') failed.
+
+          - **What happened:** ${RUN_URL} (the reason is at the top of that page, or in the last lines of the red step).
+          - **What to do:** docs/GUIDE.md, "When something goes wrong". Close this issue once it's sorted.
+          EOF
+          gh label create bot-problem --color D93F0B --description "The bot needs attention" --force || true
+          number=$(gh issue list --label bot-problem --state open --json number --jq '.[0].number // empty' || true)
+          if [ -n "$number" ]; then
+            gh issue comment "$number" --body-file "$RUNNER_TEMP/failed.md"
+          else
+            gh issue create --title "The bot needs attention: a run failed" --label bot-problem --body-file "$RUNNER_TEMP/failed.md" ||
+              gh issue create --title "The bot needs attention: a run failed" --body-file "$RUNNER_TEMP/failed.md"
           fi

@@ -14,7 +14,9 @@ its fix.
 | When the environment changes | `image.yml` | Builds the Docker image and tests inside it |
 
 Any of them can be run by hand: **Actions** tab → the workflow → **Run workflow**. `produce` takes an optional angle
-for that one video. `produce` and `cleanup` queue behind each other, never at the same time.
+for that one video. `produce` and `cleanup` queue behind each other, never at the same time. If either fails, it
+opens an issue "The bot needs attention: a run failed" with a link to the run (later failures add comments to the
+same issue). How to use it day to day: `docs/GUIDE.md`.
 
 ## Where videos are stored, and when they're deleted
 
@@ -57,6 +59,9 @@ about 550 MB. The rules (`channel.toml` `[storage]`, code in `owd/storage.py`):
    allowance instead of billing for it (see "Caveats" below).
 4. **Turn on two-factor sign-in** for the GitHub account (Settings → Password and authentication): the repository
    holds the keys to your channel.
+5. **Hear from the bot:** on the repository's main page, **Watch** → **All Activity**; and at
+   github.com/settings/notifications, under **Watching**, tick **Email**. The bot tells you everything through
+   issues (caveat 13).
 
 ## 2. Secrets (Settings → Secrets and variables → Actions → New repository secret)
 
@@ -103,7 +108,7 @@ Edit `steering/instructions.md` on GitHub (the pencil icon), or upload a PDF, Wo
 
 ## Caveats and fixes
 
-Checked against Google's and GitHub's documentation on 12 October 2026.
+Checked against Google's and GitHub's documentation on 12 and 13 October 2026.
 
 | # | Caveat | What the bot does | Fix |
 |---|---|---|---|
@@ -119,6 +124,8 @@ Checked against Google's and GitHub's documentation on 12 October 2026.
 | 10 | **GitHub's terms allow limiting "excessive" file hosting.** | Storage is capped at 4 videos and deleted after posting, so use stays small. | Nothing needed; don't raise `max_videos` far. |
 | 11 | **Workflow caches**: 10 GB per repository; entries unused for 7 days are removed. | Footage unused for 30 days is dropped from the cache, and old caches are deleted daily. | Nothing needed. |
 | 12 | **Free AI models are sometimes busy or limited** (OpenRouter's free models about 50 requests a day; Gemini's free tier is small). | Each model is tried in turn (`channel.toml` `[llm]`); if all fail, the run fails and the next one tries again. | Run `produce` by hand later, or reorder the models in `channel.toml`. |
+| 13 | **GitHub emails about a scheduled run only the person who first created the workflow** (GitHub's docs). The workflows were pushed with a deploy key, so that may not be you, and a failed run could go unnoticed. | A failed `produce` or `cleanup` run opens an issue "The bot needs attention: a run failed" with a link; later failures comment on it. GitHub emails you about new issues in repositories you watch. | Watch the repository with email on (step 1.5). |
+| 14 | **Only one book is loaded:** *As a Man Thinketh*, 7 chapters, so about 3 to 4 weeks of videos at two a week. | From 4 chapters left, each video's issue carries a heads-up; with none left, runs fail with "Add a book" (and open the issue in 13). | Add books (`docs/GUIDE.md`, "Adding a book"; candidates in `docs/STATUS.md`). |
 
 ## What it costs: nothing
 
@@ -135,6 +142,9 @@ Checked against Google's and GitHub's documentation on 12 October 2026.
 No service here has a card on file, so none of them can charge you.
 
 ## If something goes wrong
+
+A failed run opens an issue "The bot needs attention" with a link to it; `docs/GUIDE.md`, "When something goes
+wrong", lists the common reasons. In short:
 
 - **A run failed**: Actions → the red run → read the last lines. The video's entry in `state/videos.json` says
   `failed` with the reason; the next run makes the same chapter again, and the cleanup deletes any half-stored copy.

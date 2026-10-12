@@ -6,6 +6,61 @@ entry here for each change (see `AGENTS.md`). The owner's standing instructions 
 
 ---
 
+## 2026-10-13 (early morning): Everything documented; the bot tells the owner when it needs her
+
+**Owner's message:** document everything, including every concern she raises and the caveats in my replies. Is
+there no UI? Is everything complete? Where will she steer the bot from? She has set the repository secrets
+(including the Cloudflare AI token, which she also put in `.env`) and set workflow permissions to Read and write.
+
+### Documentation
+
+- **`docs/GUIDE.md` (new):** there's no separate app; GitHub is the control panel. Why: GitHub Pages works only
+  for public repositories on a free account (GitHub's docs), and a separately hosted app needs its own login and
+  keys. Also: where every control is, how the bot tells her things, what to do when something goes wrong, phone
+  use, and adding a book. On phones, GitHub's docs list notifications and issues for the mobile app, not editing
+  files or running workflows, so those are done in the phone's browser.
+- **`docs/STATUS.md` (new):** is it finished (not yet), what's proven, what's built but not proven, decisions for
+  her, her checklist, and what the developer can and can't see.
+- **`docs/REQUESTS.md` (new):** every request and concern she has raised since 11 October, with what was done,
+  where it's written up, and its status.
+- **`AGENTS.md`:** standing documentation rules: every concern goes into `REQUESTS.md`, every caveat into
+  `DEPLOY.md`, `STATUS.md` stays true, and anything said in chat that she'll need later is written down.
+- **README:** a start-here table. Corrected the book list: only *As a Man Thinketh* is loaded, and Haanel's *The
+  Master Key System* isn't on Project Gutenberg.
+- **DEPLOY.md:** caveats 13 and 14, and a step to watch the repository.
+
+### The bot now tells her when it needs her
+
+- **Failure issue:** GitHub's docs say emails about scheduled runs go to "the user who initially created the
+  workflow". These workflows were pushed with a deploy key, so that may not be her, and a failure could go
+  unnoticed. `produce.yml` and `cleanup.yml` now end with a step that, if the run failed, opens an issue "The bot
+  needs attention: a run failed" (label `bot-problem`) with the run's link, or comments on the one already open.
+- **Secrets on the run page:** produce's first step lists which secrets the run can see (names only) in the run
+  summary, and warns when paintings are off. She can confirm her secrets without anyone seeing their values.
+- **Running out of chapters:** this used to end silently with "Nothing to do". Now each video's issue carries a
+  heads-up from 4 chapters left, and a run with none left fails with "Add a book", which opens the failure issue.
+
+### Findings
+
+- The Mac's `.env` has no `CLOUDFLARE_AI_TOKEN` line, and was last saved on 11 October (checked by key name and
+  file date; no values read). Paintings work on GitHub if the secret is set there, and the first run's summary
+  will show it. On the Mac they stay off until the line is added.
+- `.env.example` is committed, so it was checked: no values in any version.
+- The two videos made on the Mac (chapters 2 and 4) aren't in `state/videos.json`, so the bot would make those
+  chapters again. Left to the owner (`STATUS.md`, decision 2).
+- The book has 7 chapters: 5 new videos if the Mac videos count, the last on 29 October.
+
+### Checked
+
+- 193 tests pass (fast and slow), 3 of them new: no heads-up with plenty of chapters; a heads-up in the issue when
+  few are left; a clear failure when none are.
+- Both workflow files parse. The new shell steps were run on the Mac with a stand-in for GitHub's `gh` tool:
+  the first failure opened an issue and the second commented on it; the secrets list showed names only; missing
+  required secrets still stop the run.
+- Not checked: the new steps on GitHub itself.
+
+---
+
 ## 2026-10-13 (night): Milestone 5, on GitHub; every video stored, deleted after posting
 
 **Owner's request:** she added this Mac's deploy key. Make storage of the videos a requirement: stored

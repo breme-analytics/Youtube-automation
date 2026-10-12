@@ -4,7 +4,8 @@
     1. catch up: which waiting videos were posted or discarded (their issues) or published (YouTube)
     2. make room: at most [storage] max_videos are stored; copies of posted videos are deleted early
        if needed, and if every stored video is still waiting to be posted, stop (no new video)
-    3. pick the next chapter -> write the storyboard -> render the video
+    3. pick the next chapter (a heads-up in the issue when 4 or fewer are left; the run fails, which opens
+       a "needs attention" issue, when none are) -> write the storyboard -> render the video
     4. store it in the cloud: a GitHub release in this repository, always, in both modes
     5. deliver it:
        review: an issue tells the owner (GitHub emails her) to post the stored copy.
@@ -26,7 +27,7 @@ import json
 import os
 import re
 import shutil
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Callable
@@ -36,7 +37,8 @@ from owd.books import chapters, find_chapter
 from owd.channel import load_cast, load_settings
 from owd.config import OUTPUT_DIR, ROOT, cache_dir
 from owd.env import load_dotenv
-from owd.state import STATE_FILE, WAITING, State, VideoRecord, load_state, next_chapter, now_iso, save_state
+from owd.state import (STATE_FILE, WAITING, State, VideoRecord, chapters_left, load_state, next_chapter, now_iso,
+                       save_state)
 from owd.storage import FILE_LIMIT, StoragePolicy, expired, make_room, summary
 from owd.storyboard import dump_storyboard, load_storyboard
 
@@ -62,6 +64,7 @@ class Context:
     settings: dict
     env: dict
     log: Log
+    notices: list[str] = field(default_factory=list)  # heads-ups for the owner, shown in the video's issue
 
     @property
     def schedule(self) -> dict:
@@ -121,21 +124,38 @@ def _youtube(ctx: Context):
 # Making a video
 
 
-def write_next(ctx: Context, state: State, angle: str = "") -> tuple[VideoRecord, Path] | None:
+LOW_SUPPLY = 4  # warn when this few chapters are left: two weeks' notice at two videos a week
+OUT_OF_CHAPTERS = ("Every chapter of every book in channel.toml already has a video, so there is nothing new to make. "
+                   "Add a book (docs/GUIDE.md, \"Adding a book\") and the next run carries on.")
+
+
+def pick_chapter(ctx: Context, state: State) -> tuple[dict, int]:
+    """The next (book, chapter number) to make. Warns when few are left; fails when none are."""
+    books = ctx.settings.get("books", [])
+    counts = {book["id"]: len(chapters(ROOT / book["file"])) for book in books}
+    pick = next_chapter(state, books, counts)
+    if pick is None:
+        raise RuntimeError(OUT_OF_CHAPTERS)
+    left = chapters_left(state, books, counts) - 1  # after this one
+    if left <= LOW_SUPPLY:
+        notice = ("This is the last chapter the bot has: the next run will stop." if left == 0 else
+                  f"Only {left} chapter{'s' if left != 1 else ''} left after this one.")
+        notice += " Add a book (docs/GUIDE.md, \"Adding a book\") so it keeps going."
+        ctx.notices.append(notice)
+        ctx.warn(notice)
+    book = next(b for b in books if b["id"] == pick[0])
+    return book, pick[1]
+
+
+def write_next(ctx: Context, state: State, angle: str = "") -> tuple[VideoRecord, Path]:
     from owd.llm import LLM, models_from_settings
     from owd.news import collect, load_feeds, research_for
     from owd.quotes import check_quotes
     from owd.steering import llm_condenser, load_steering
     from owd.writer import Targets, write_video
 
-    books = ctx.settings.get("books", [])
-    counts = {book["id"]: len(chapters(ROOT / book["file"])) for book in books}
-    pick = next_chapter(state, books, counts)
-    if pick is None:
-        ctx.log("Every chapter of every book in channel.toml has a video: add a book to keep going.")
-        return None
-    book_id, number = pick
-    book = next(b for b in books if b["id"] == book_id)
+    book, number = pick_chapter(ctx, state)
+    book_id = book["id"]
     book_file = ROOT / book["file"]
     chapter = find_chapter(book_file, str(number))
     ctx.log(f"next: {book['cite']}, chapter {number} ({chapter.title.title()})")
@@ -249,6 +269,8 @@ def _issue_body(ctx: Context, record: VideoRecord, metadata: dict, links: dict[s
             flat = " ".join(problem.split())
             head += f"\n\n> **YouTube didn't take it:** {flat}\n>\n> {explain(problem)}"
         action = "### Post it\n" + POSTING_STEPS.format(keep=keep)
+    for notice in ctx.notices:
+        head += f"\n\n> **Heads-up:** {notice}"
     return f"""{head}
 
 ### Stored copy
@@ -501,10 +523,7 @@ def run(angle: str = "", log: Log = print) -> VideoRecord | None:
                  "not planned, and the next run carries on. Waiting: " + "; ".join(r.title for r in waiting))
         _storage_report(ctx, state)
         return None
-    written = write_next(ctx, state, angle)
-    if written is None:
-        return None
-    record, _ = written
+    record, _ = write_next(ctx, state, angle)
     try:
         result = render(ctx, record)
         deliver(ctx, state, record, result, github)

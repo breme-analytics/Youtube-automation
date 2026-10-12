@@ -416,6 +416,39 @@ def test_github_actions_warnings_are_escaped(capsys):
     assert capsys.readouterr().out == "::warning::50%25 full%0Asecond line\n"
 
 
+# Running out of chapters (As a Man Thinketh has 7)
+
+BOOK = {"id": "as-a-man-thinketh", "file": "sources/as-a-man-thinketh.txt", "cite": "James Allen (1903)"}
+
+
+def made(*numbers):
+    return State([VideoRecord(f"c{n}", f"C{n}", BOOK["id"], n, "s", status="posted") for n in numbers])
+
+
+def test_plenty_of_chapters_means_no_heads_up(bot):
+    bot.settings["books"] = [BOOK]
+    ctx = bot.ctx()
+    assert autopilot.pick_chapter(ctx, made(2)) == (BOOK, 1) and ctx.notices == []
+
+
+def test_a_heads_up_when_few_chapters_are_left(bot):
+    bot.settings["books"] = [BOOK]
+    ctx = bot.ctx()
+    assert autopilot.pick_chapter(ctx, made(1, 2, 4))[1] == 3
+    assert ctx.notices == ['Only 3 chapters left after this one. Add a book (docs/GUIDE.md, "Adding a book") so it keeps going.']
+    body = autopilot._issue_body(ctx, record("x", "released"), {"duration": 600}, {}, "u", "")
+    assert "> **Heads-up:** Only 3 chapters left" in body
+    last = bot.ctx()
+    autopilot.pick_chapter(last, made(1, 2, 3, 4, 5, 6))
+    assert last.notices[0].startswith("This is the last chapter the bot has")
+
+
+def test_no_chapters_left_fails_the_run_with_the_fix(bot):
+    bot.settings["books"] = [BOOK]
+    with pytest.raises(RuntimeError, match="Add a book"):
+        autopilot.pick_chapter(bot.ctx(), made(*range(1, 8)))
+
+
 def test_old_state_files_still_load(tmp_path):
     path = tmp_path / "videos.json"
     path.write_text(json.dumps({"videos": [{"slug": "a", "title": "A", "book": "b", "chapter": 1, "storyboard": "s",

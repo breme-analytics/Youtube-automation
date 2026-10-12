@@ -207,7 +207,8 @@ def cmd_run(args: argparse.Namespace) -> None:
     from owd.autopilot import run
 
     record = run(angle=args.angle or "", log=print)
-    print("Nothing to do." if record is None else f"Done: {record.title} ({record.status})")
+    print("No new video this time (see the storage note above)." if record is None else
+          f"Done: {record.title} ({record.status})")
 
 
 def cmd_cleanup(args: argparse.Namespace) -> None:
