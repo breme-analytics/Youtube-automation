@@ -131,6 +131,20 @@ def subject(query: str) -> str | None:
     return (nouns or words or [None])[0]
 
 
+# Clips tagged with any of these are skipped unless the search itself names one: a calm lake
+# shouldn't come with a dog in it (owner's feedback, 11 Oct), and holiday scenes date a video.
+AVOID_TAGS = frozenset(
+    _stem(word)
+    for word in (
+        "animal animals wildlife pet pets dog dogs puppy cat cats kitten bird birds horse cow sheep goat pig "
+        "deer fox wolf bear lion tiger zebra elephant giraffe monkey owl eagle duck swan goose pigeon parrot "
+        "crow raven magpie elster chicken insect bee butterfly ant spider fish whale dolphin shark snake frog "
+        "turtle rabbit squirrel mouse rat "
+        "christmas xmas advent santa halloween easter valentine"
+    ).split()
+)
+
+
 def score(
     video: StockVideo,
     query: str,
@@ -151,6 +165,8 @@ def score(
     if size[0] > size[1] and rendition.width / rendition.height < MIN_LANDSCAPE_RATIO:
         return None
     wanted, tags = _terms(query), {term for tag in video.tags for term in _terms(tag)}
+    if tags & AVOID_TAGS and not wanted & AVOID_TAGS:
+        return None  # an animal or a holiday the scene didn't ask for
     if require_subject and subject(query) not in tags:
         return None
     relevance = len(wanted & tags) / max(len(wanted), 1)

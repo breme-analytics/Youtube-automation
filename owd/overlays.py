@@ -47,9 +47,9 @@ class OverlayStyle:
     quote_max_lines: int = 6
     cite_size: int = 34
     chapter_size: int = 84
-    chapter_label_size: int = 32
+    chapter_label_size: int = 40
     quote_dim: int = 0x66  # ASS alpha of the black layer behind quotes: 0x00 opaque ... 0xFF clear
-    chapter_dim: int = 0xA0
+    chapter_dim: int = 0x88
     fade_in: int = 450  # milliseconds
     fade_out: int = 600
     lead: float = 0.3  # a quote card appears this long before the first word...
@@ -174,7 +174,7 @@ def overlays_ass(
                 end = min(end, q_start - 0.05)
         if end - start < 1.5:
             continue  # too little room before a quote card: skip the title rather than flash it
-        label = f"{{\\fs{style.chapter_label_size}\\fsp6\\c{cite}}}{roman(card.number)}"
+        label = f"{{\\fs{style.chapter_label_size}\\fsp6\\c{cite}}}CHAPTER {roman(card.number)}"
         lines.append(_dim(start, end, style.chapter_dim, size, (350, 500)))
         lines.append(
             f"Dialogue: 1,{ass_time(start)},{ass_time(end)},Chapter,,0,0,0,,"

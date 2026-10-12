@@ -54,8 +54,8 @@ def test_overlays_have_dimmed_quote_cards_and_roman_chapter_cards():
     assert "— James Allen, As a Man Thinketh (1903)" in quotes[0]
     assert ass_color(STYLE.quote_color, None) in quotes[0]
     assert quotes[0].split(",")[1] == "0:00:19.70" and quotes[0].split(",")[2] == "0:00:27.30"
-    # Chapter II would start under the quote card, so it is dropped; chapter I shows as "I"
-    assert len(chapters) == 1 and "}I\\N" in chapters[0] and "The Garden" in chapters[0]
+    # Chapter II would start under the quote card, so it is dropped; chapter I is labelled "CHAPTER I"
+    assert len(chapters) == 1 and "CHAPTER I\\N" in chapters[0] and "The Garden" in chapters[0]
     assert len(dims) == 2 and all("\\p1" in d for d in dims)
     assert "PlayResX: 1920" in ass and "PlayResY: 1080" in ass
 

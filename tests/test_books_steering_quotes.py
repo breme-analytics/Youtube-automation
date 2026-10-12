@@ -53,11 +53,11 @@ def test_steering_loads_instructions_and_references_but_not_switched_off_ones(tm
     assert [name for name, _ in capped.references] == ["a.md"] and "b.md" in capped.warnings[0]
 
 
-def test_the_real_steering_area_loads_within_limits():
+def test_the_real_steering_area_loads():
+    """steering/ is the owner's to edit freely: only check that it loads into a prompt."""
     steering = load_steering()
-    names = {name for name, _ in steering.references}
-    assert {"titles-power-of-bad.md", "retention-mario-joos.md", "youtube-guardrails.md", "visual-style.md"} <= names
-    assert "George" in steering.instructions and steering.warnings == ()
+    assert steering.as_prompt().startswith("OWNER INSTRUCTIONS")
+    assert all(text.strip() for _, text in steering.references)
 
 
 def test_repair_quote_finds_the_books_wording():

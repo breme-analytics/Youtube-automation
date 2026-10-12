@@ -53,13 +53,49 @@ def _spelling(word: str) -> str:
     return re.sub(r"(?<=..)tre$", "ter", word)
 
 
+# Names the speech recogniser spells another way, mapped to the form the scripts use.
+SOUNDS_ALIKE = {"alan": "allen", "allan": "allen"}
+
+_ONES = ("zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen "
+         "sixteen seventeen eighteen nineteen").split()
+_TENS = "twenty thirty forty fifty sixty seventy eighty ninety".split()
+
+
+def number_words(n: int) -> list[str]:
+    """0 to 9999 in words ("90" -> ["ninety"]); larger numbers stay as digits. Applied to both the
+    script and the transcript, so "ninety percent" and "90%" count as the same words."""
+    if n < 20:
+        return [_ONES[n]]
+    if n < 100:
+        tens, ones = divmod(n, 10)
+        return [_TENS[tens - 2], *([_ONES[ones]] if ones else [])]
+    if n < 1000:
+        hundreds, rest = divmod(n, 100)
+        return [_ONES[hundreds], "hundred", *(number_words(rest) if rest else [])]
+    if n < 10_000:
+        thousands, rest = divmod(n, 1000)
+        return [*number_words(thousands), "thousand", *(number_words(rest) if rest else [])]
+    return [str(n)]
+
+
 def normalize(text: str) -> list[str]:
-    """Lower-case words with punctuation removed and spelling unified; hyphenated words count as
-    separate words."""
-    text = text.lower().replace("’", "'").replace("‘", "'")
+    """Lower-case words with punctuation removed, spelling unified, numbers spelled out and known
+    name spellings mapped; hyphenated words count as separate words."""
+    text = text.lower().replace("’", "'").replace("‘", "'").replace("%", " percent ")
+    text = re.sub(r"(?<=\d),(?=\d{3}\b)", "", text)  # 1,000 -> 1000
     text = re.sub(r"[-–—]", " ", text)
     text = re.sub(r"[^a-z0-9' ]+", " ", text)
-    return [_spelling(word.strip("'")) for word in text.split() if word.strip("'")]
+    words: list[str] = []
+    for word in text.split():
+        word = word.strip("'")
+        if not word:
+            continue
+        if word.isdigit():
+            words.extend(number_words(int(word)))
+        else:
+            word = _spelling(word)
+            words.append(SOUNDS_ALIKE.get(word, word))
+    return words
 
 
 @dataclass(frozen=True)

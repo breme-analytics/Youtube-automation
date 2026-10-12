@@ -74,12 +74,21 @@ def test_quote_paragraphs_are_numbered_and_read_by_the_narrator_by_default():
         Cast(narrator="george")
 
 
-def test_channel_settings_one_voice_long_form_and_feeds():
+def test_channel_settings_are_valid():
+    """channel.toml is the owner's to change: check it's usable, not what it says."""
+    from owd.books import chapters
+    from owd.llm import models_from_settings
+    from owd.storyboard import FORMATS
+
     settings = load_settings()
-    assert load_cast() == Cast(narrator="bm_george", narrator_speed=1.0, quote=None, quote_speed=0.95)
-    assert settings["video"]["format"] == "long"
-    assert {book["id"] for book in settings["books"]} == {"as-a-man-thinketh"}
-    assert {"research", "platform"} == {feed.kind for feed in load_feeds(settings)}
+    assert isinstance(load_cast(), Cast)  # the voices exist (Cast validates them)
+    assert settings["video"]["format"] in FORMATS
+    assert 0 < settings["video"]["min_words"] <= settings["video"]["max_words"]
+    for book in settings["books"]:
+        assert (ROOT / book["file"]).is_file() and chapters(ROOT / book["file"]), book["id"]
+        assert book["cite"]
+    assert models_from_settings(settings)
+    assert all(feed.kind in ("research", "platform") for feed in load_feeds(settings))
 
 
 def test_dump_storyboard_round_trips():

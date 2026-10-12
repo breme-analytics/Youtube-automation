@@ -62,6 +62,16 @@ def test_long_videos_only_take_landscape_clips():
     assert [v.id for v, _ in rank(clips, "owl", 4.0, LONG)] == [1]
 
 
+def test_animals_and_holidays_are_skipped_unless_the_search_asks_for_them():
+    clips = [video(1, "lake, calm, dog, beech"), video(2, "lake, calm, water"), video(3, "candle, christmas time"),
+             video(4, "dogs, running, animal")]
+    assert [v.id for v, _ in rank(clips, "lake calm", 4.0, LONG)] == [2]
+    assert rank(clips, "candle flame", 4.0, LONG) == []
+    assert rank(clips, "candle flame", 4.0, LONG, require_subject=False) == [] or all(
+        v.id == 2 for v, _ in rank(clips, "candle flame", 4.0, LONG, require_subject=False))
+    assert {v.id for v, _ in rank(clips, "dog running", 4.0, LONG)} == {1, 4}  # the scene is about a dog
+
+
 def test_rank_needs_the_subject_and_skips_ai_low_quality_and_short_clips():
     found = [
         video(1, "cow herd, cows, farm"),  # 'herd' only: no zebra

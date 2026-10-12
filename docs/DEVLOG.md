@@ -87,6 +87,43 @@ document every step; push to GitHub.
   the description.
 - A live script was written from *As a Man Thinketh* chapter 2: all 5 quotes found word for word in the book.
 
+### First bot-written long video
+
+`storyboards/2026-10-12-the-mindset-mistake-keeping-your-life-stuck.toml`, rendered to
+`output/videos/2026-10-12-the-mindset-mistake-keeping-your-life-stuck/`:
+
+- **Title:** "The Mindset Mistake Keeping Your Life Stuck", with three alternatives in `metadata.json`.
+- **Length:** 10:38, 1,353 spoken words, 6 chapters, 51 scenes, 5 quotes.
+- **Picture:** 114 shots from 109 Pixabay clips; 1920x1080 H.264 High at about 7.3 Mbps; -14.2 LUFS.
+- **Render time on the Mac:** 23 minutes (narration 1.5 min, footage 15 min with first downloads, final
+  encode 6 min).
+
+### Fixes after watching it
+
+- **Chapter cards:** the Roman numeral was too small to read. Now "CHAPTER II" at 40 px, with the footage
+  dimmed a little more under it.
+- **Narration check noise:** "Alan" for Allen and "90%" for "ninety percent" were counted as errors. Numbers
+  are now spelled out on both sides, and known name spellings are mapped (`SOUNDS_ALIKE` in `owd/qa.py`).
+  Differences fell from 23 to 11; the rest are worth a listen (2:07 "bind", 8:42 "impure").
+- **Animals and holidays crept back:** 3 of 114 clips had a dog, birds or a Christmas cat in them ("lake
+  calm", "tree seasons", "candle flame"). Clips tagged with an animal or a holiday are now skipped unless the
+  scene's search asks for one (`AVOID_TAGS` in `owd/stock.py`).
+- **Tests no longer pin the owner's choices:** the tests for `channel.toml` and `steering/` check that they
+  load and are valid, not what they say, so editing them never breaks the build.
+- **GitHub:** a deploy key limited to `breme-analytics/Trading-bot` was created on this Mac
+  (`~/.ssh/owd_breme_analytics_deploy`) and set for this repository only (`git config core.sshCommand`).
+  The push waits until the owner adds the public key on GitHub with write access.
+
+### Next
+
+1. Push to GitHub (waiting for the deploy key) and check that both workflows pass on GitHub's runners.
+2. `CLOUDFLARE_AI_TOKEN` with Workers AI permission, for concept images and the last text fallback.
+3. Telegram approval: the bot sends the thumbnail, title options and review list, plus an R2 download link
+   for the video; Approve or Redo.
+4. Scheduled runs on GitHub Actions: write and render one long video a week. The time on a 2-core runner is
+   not measured yet; a rough estimate is 1 to 1.5 hours a video, well inside the 2,000 free minutes.
+5. Review list: point to the exact time of each narration difference, so the owner can listen in seconds.
+
 ---
 
 ## 2026-10-11: Milestone 2, wildlife sample, Pixabay, reproducibility, news
