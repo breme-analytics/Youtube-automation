@@ -1,11 +1,15 @@
-# Old Wisdom, Decoded
+# Old Wisdom, Decoded (Youtube-automation)
 
-A bot that makes original long-form YouTube videos: public-domain classics of the mind (James Allen, Haanel,
-Wattles, Emerson, the Kybalion) explained in modern English and checked against modern psychology, narrated
-by George, an older British storyteller (Kokoro `bm_george`), over mind-and-spirit footage. Quotes from the
-books appear on screen as he reads them. Everything runs on free tools and free tiers.
+A bot that makes original long-form YouTube videos on its own: public-domain classics of the mind (James Allen,
+Haanel, Wattles, Emerson, the Kybalion) explained in modern English and checked against modern psychology,
+narrated by George, an older British storyteller (Kokoro `bm_george`). Every picture is chosen to show what
+George is saying at that moment: stock footage checked by a free vision model, or a painting of the scene.
+Captions, chapter titles and on-screen book quotes are burned in. Everything runs on free tiers.
 
-**Steer the bot** in `steering/instructions.md` (plain English) and the reference files in
+It runs itself on **GitHub Actions** twice a week, with no computer of yours switched on: it writes, narrates,
+renders and delivers a video, then cleans up after posting. **Setup: [docs/DEPLOY.md](docs/DEPLOY.md).**
+
+**Steer the bot** in `steering/instructions.md` (type plain English) or upload a PDF, Word or text document into
 `steering/references/`. **What has been built, and why:** `docs/DEVLOG.md`.
 
 ## Set up (any machine)
@@ -43,8 +47,12 @@ before posting (title options, every factual claim, every quote, the narration c
 
 | Command | What it does |
 |---|---|
+| `python -m owd run [--angle "..."]` | Everything at once, as the schedule does: next chapter → script → video → delivery |
 | `python -m owd write --chapter N [--book ID] [--angle "..."]` | Write a long-form storyboard from one chapter of a book in `channel.toml` |
 | `python -m owd render STORYBOARD [--preview]` | Make the video. `--preview` downloads smaller footage (for slow connections) |
+| `python -m owd cleanup` | Delete the download files of posted (or old) videos |
+| `python -m owd youtube-login` | Sign in to YouTube once (any device) and print the token for automatic posting |
+| `python -m owd steering` | Read the steering documents and condense long uploads |
 | `python -m owd news [--topic words] [--kind platform]` | Research stories the scripts can cite, or YouTube platform news |
 | `python -m owd voices` | Read a sample paragraph in each candidate voice |
 | `python -m owd fetch-models` | Download the pinned models ahead of time |
@@ -55,20 +63,23 @@ Prefix each with `uv run` outside the dev container.
 ## How a video is made
 
 1. **Script** (`write`): one chapter of a public-domain book (as numbered sentences), recent research from the
-   news feeds, and the owner's steering go to a free language model. Quotes come back as sentence numbers, so
-   the bot inserts the book's exact words. Short drafts are expanded one chapter at a time. Every factual claim
-   is listed for review.
-2. **Storyboard** (`storyboards/*.toml`): chapters and scenes, each with narration and a footage search such as
-   `"candle flame"`. Paragraphs starting with `>` are book quotes. Edit freely before rendering.
+   news feeds, and the owner's steering go to free language models (OpenRouter first, then Gemini). Quotes come
+   back as sentence numbers, so the bot inserts the book's exact words. The hook opens a question that only the
+   end answers, chapters end on cliffhangers, and `[pause]` marks a beat of silence before a reveal. Short
+   drafts are expanded one chapter at a time. Every factual claim is listed for review.
+2. **Storyboard** (`storyboards/*.toml`): chapters and scenes. Each scene has its narration, a footage search
+   and a painting description. Paragraphs starting with `>` are book quotes. Edit freely before rendering.
 3. **Quote check**: every quote must appear word for word in its source text (`sources/`), or nothing renders.
-4. **Narration**: Kokoro reads the script, with word timings for cuts and on-screen text.
+4. **Narration**: Kokoro reads the script, with word timings for cuts, captions and on-screen text.
 5. **Narration check**: faster-whisper transcribes the audio and compares it with the script.
-6. **Footage**: landscape Pixabay clips tagged with each scene's subject (no AI-generated or low-quality clips),
-   with one shared colour grade. Searches are cached for 24 hours, as Pixabay requires.
-7. **Video**: crossfades on the pauses inside a chapter, a dip through black between chapters, chapter titles,
-   and quote cards (footage dimmed, the book's words in Libre Baskerville). Loudness at YouTube's -14 LUFS.
-8. **Thumbnail, description and review**: YouTube chapters, sources, research links, footage credits and an AI
-   note in the description; `review.md` lists what to check before posting.
+6. **Pictures that match the words**: for each scene, a free vision model (Gemini Flash-Lite) looks at the best
+   Pixabay clips next to the sentence and scores them; the best one that fits is used. If none fits, the scene
+   gets a painting of the moment (Cloudflare FLUX, or Pollinations without a key). One picture per scene, so
+   it never wanders away from the words.
+7. **Video**: crossfades inside a chapter, a dip through black between chapters, chapter titles, quote cards
+   (footage dimmed, the book's words in Libre Baskerville) and captions (spoken word in gold). -14 LUFS.
+8. **Delivery and cleanup**: a GitHub release with the files and an issue that tells the owner to post it, or
+   (after YouTube's audit) a scheduled upload. The files are deleted a few days after posting.
 
 ## Settings
 

@@ -42,6 +42,7 @@ class Rendition:
     width: int
     height: int
     size: int
+    thumbnail: str = ""  # Pixabay's preview still for this rendition
 
 
 @dataclass(frozen=True)
@@ -60,7 +61,7 @@ class StockVideo:
     def from_api(cls, hit: dict) -> "StockVideo":
         renditions = tuple(
             Rendition(name, item.get("url", ""), int(item.get("width") or 0), int(item.get("height") or 0),
-                      int(item.get("size") or 0))
+                      int(item.get("size") or 0), str(item.get("thumbnail") or ""))
             for name, item in (hit.get("videos") or {}).items()
             if item and item.get("url")
         )
@@ -79,6 +80,12 @@ class StockVideo:
     @property
     def credit(self) -> str:
         return f"{self.user} on Pixabay: {self.page_url}"
+
+    @property
+    def preview_url(self) -> str:
+        """The smallest rendition's preview still (Pixabay serves one per rendition)."""
+        usable = [r for r in self.renditions if r.thumbnail]
+        return min(usable, key=lambda r: r.width * r.height).thumbnail if usable else ""
 
 
 def fill_scale(width: int, height: int, size: tuple[int, int]) -> float:
@@ -264,6 +271,24 @@ class Pixabay:
                 raise StockError(f"Pixabay search failed ({response.status_code}): {response.text[:200]}")
             return response.json()
         raise StockError("Pixabay rate limit still exceeded after waiting")
+
+    def preview(self, video: StockVideo) -> bytes | None:
+        """The clip's preview still (JPEG), cached; None if Pixabay has none."""
+        url = video.preview_url
+        if not url:
+            return None
+        path = self.cache_dir / "previews" / f"{video.id}.jpg"
+        if path.is_file() and path.stat().st_size:
+            return path.read_bytes()
+        try:
+            response = self.http.get(url, follow_redirects=True)
+        except httpx.HTTPError:
+            return None
+        if response.status_code != 200 or not response.headers.get("content-type", "").startswith("image"):
+            return None
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(response.content)
+        return response.content
 
     def download(self, video: StockVideo, rendition: Rendition) -> Path:
         dest = self.cache_dir / "clips" / f"{video.id}-{rendition.name}.mp4"

@@ -23,18 +23,20 @@ both produce and edit it.
 
     [[scene]]
     chapter = "The garden nobody tends"  # starts a new chapter (and a YouTube chapter)
-    visual = "old book pages"            # stock footage search
+    visual = "book pages"                # stock footage search
+    image = "an old gardener kneeling in a moonlit, overgrown garden"  # a painting, if no clip fits
     text = '''
-    A hundred years ago...
+    A hundred years ago... [pause] someone noticed.
     '''
 
 In `text`, a paragraph whose lines start with ">" is a quote from a source, shown on screen as
-it's read. Everything else is the narrator's own words.
+it's read. "[pause]" holds a beat of silence (for suspense). Everything else is the narrator's own words.
 """
 
 from __future__ import annotations
 
 import json
+import re
 import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -50,6 +52,7 @@ class Scene:
     text: str
     category: str | None = None
     chapter: str | None = None  # set on the first scene of each chapter
+    image: str | None = None  # a painting prompt: shown instead of stock footage when no clip fits
 
 
 @dataclass(frozen=True)
@@ -87,7 +90,8 @@ class Storyboard:
 
     @property
     def script(self) -> str:
-        return "\n\n".join(scene.text.strip() for scene in self.scenes)
+        """Everything George says, without "[pause]" markers."""
+        return "\n\n".join(re.sub(r"\s*\[(?:pause|beat)\]\s*", " ", scene.text, flags=re.I).strip() for scene in self.scenes)
 
     def chapter_starts(self) -> list[tuple[int, str]]:
         """(scene index, title) for every chapter, in order."""
@@ -109,9 +113,9 @@ def parse_storyboard(data: dict, base: Path = ROOT) -> Storyboard:
             problems.append(f"scene {index} has no visual")
         if not text:
             problems.append(f"scene {index} has no text")
-        category, chapter = raw.get("category"), raw.get("chapter")
+        category, chapter, image = raw.get("category"), raw.get("chapter"), raw.get("image")
         scenes.append(Scene(visual, text, str(category).strip() if category else None,
-                            str(chapter).strip() if chapter else None))
+                            str(chapter).strip() if chapter else None, str(image).strip() if image else None))
     if not scenes:
         problems.append("there are no [[scene]] entries")
     sources = []
@@ -190,6 +194,8 @@ def dump_storyboard(board: Storyboard, header: str = "") -> str:
         if scene.chapter:
             lines.append(f"chapter = {_string(scene.chapter)}")
         lines.append(f"visual = {_string(scene.visual)}")
+        if scene.image:
+            lines.append(f"image = {_string(scene.image)}")
         if scene.category:
             lines.append(f"category = {_string(scene.category)}")
         lines.append(f"text = {_string(scene.text if chr(10) in scene.text else scene.text + chr(10))}")

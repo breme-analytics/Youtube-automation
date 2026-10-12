@@ -30,9 +30,9 @@ def test_extract_json_handles_fences_and_chatter():
             extract_json(bad)
 
 
-def test_models_from_settings_keep_provider_order():
-    settings = {"llm": {"openrouter": ["o1"], "gemini": ["g1", "g2"], "cloudflare": ["c1"]}}
-    assert [m.label for m in models_from_settings(settings)] == ["gemini:g1", "gemini:g2", "openrouter:o1", "cloudflare:c1"]
+def test_models_from_settings_follow_the_order_in_channel_toml():
+    settings = {"llm": {"openrouter": ["o1"], "gemini": ["g1", "g2"], "cloudflare": ["c1"], "other": ["x"]}}
+    assert [m.label for m in models_from_settings(settings)] == ["openrouter:o1", "gemini:g1", "gemini:g2", "cloudflare:c1"]
 
 
 def test_gemini_request_and_thinking_parts_are_skipped():

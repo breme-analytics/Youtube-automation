@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import shutil
 import tempfile
 import time
@@ -110,18 +111,26 @@ def cmd_demo(args: argparse.Namespace) -> None:
 
 def cmd_render(args: argparse.Namespace) -> None:
     """Make a finished video, captions, thumbnail and metadata from a storyboard file."""
-    from owd.channel import load_cast
+    from owd.channel import load_cast, load_settings
     from owd.config import cache_dir
-    from owd.env import require
+    from owd.env import load_dotenv, require
+    from owd.images import SceneImages
     from owd.produce import produce
     from owd.stock import Pixabay
     from owd.storyboard import load_storyboard
+    from owd.vision import VisionJudge
 
+    load_dotenv()
+    settings = load_settings().get("video", {})
     board = load_storyboard(args.storyboard)
     out = Path(args.out) if args.out else OUTPUT_DIR / "videos" / Path(args.storyboard).stem
     stock = Pixabay(require("PIXABAY_API_KEY"), cache_dir() / "pixabay")
+    log = lambda line: print(f"  {line}")  # noqa: E731
+    judge = VisionJudge(os.environ.get("GEMINI_API_KEY"), log=log) if settings.get("match_visuals", True) else None
+    images = SceneImages(cache_dir() / "images", log=log) if settings.get("paintings", True) else None
     started = time.perf_counter()
-    result = produce(board, out, cast=load_cast(), stock=stock, max_upscale=1.4 if args.preview else 1.0)
+    result = produce(board, out, cast=load_cast(), stock=stock, judge=judge, images=images,
+                     burn_captions=bool(settings.get("captions", True)), max_upscale=1.4 if args.preview else 1.0)
     print(f"Done in {time.perf_counter() - started:.0f}s: {result.folder}")
     print(f"Before posting, read {result.review}")
     for warning in result.warnings:
@@ -144,7 +153,7 @@ def cmd_write(args: argparse.Namespace) -> None:
     from owd.llm import LLM, models_from_settings
     from owd.news import collect, load_feeds, research_for
     from owd.quotes import check_quotes
-    from owd.steering import load_steering
+    from owd.steering import llm_condenser, load_steering
     from owd.storyboard import dump_storyboard
     from owd.writer import Targets, write_video
 
@@ -160,8 +169,8 @@ def cmd_write(args: argparse.Namespace) -> None:
     video = settings.get("video", {})
     targets = Targets(min_words=int(video.get("min_words", 1250)), max_words=int(video.get("max_words", 1700)))
     llm = LLM(models_from_settings(settings), log=lambda line: print(f"  model {line}"))
-    draft = write_video(chapter, book_file, book["cite"], research, load_steering(), llm, targets=targets,
-                        angle=args.angle or "", log=lambda line: print(f"  {line}"))
+    draft = write_video(chapter, book_file, book["cite"], research, load_steering(condense=llm_condenser(llm)), llm,
+                        targets=targets, angle=args.angle or "", log=lambda line: print(f"  {line}"))
 
     problems = check_quotes(draft.storyboard)
     if problems:
@@ -189,6 +198,47 @@ def cmd_write(args: argparse.Namespace) -> None:
     for warning in draft.warnings:
         print(f"WARNING: {warning}")
     print(f"Saved: {out}")
+
+
+def cmd_run(args: argparse.Namespace) -> None:
+    """Write, render and deliver the next video on its own (what the scheduled workflow runs)."""
+    from owd.autopilot import run
+
+    record = run(angle=args.angle or "", log=print)
+    print("Nothing to do." if record is None else f"Done: {record.title} ({record.status})")
+
+
+def cmd_cleanup(args: argparse.Namespace) -> None:
+    """Delete review files for videos that are posted (or older than keep_days)."""
+    from owd.autopilot import cleanup
+
+    cleaned = cleanup(log=print)
+    print(f"Cleaned {len(cleaned)} video(s).")
+
+
+def cmd_youtube_login(args: argparse.Namespace) -> None:
+    """Sign in to YouTube once, from any device, and print the refresh token to store as a secret."""
+    from owd.env import require
+    from owd.youtube import device_login
+
+    token = device_login(require("YOUTUBE_CLIENT_ID"), require("YOUTUBE_CLIENT_SECRET"))
+    print("\nSigned in. Add this as the GitHub secret YOUTUBE_REFRESH_TOKEN (Settings > Secrets and variables > "
+          "Actions), and keep it private:\n")
+    print(token)
+
+
+def cmd_steering(args: argparse.Namespace) -> None:
+    """Read every steering document and condense long ones (saved next to them as .digest.md)."""
+    from owd.channel import load_settings
+    from owd.llm import LLM, models_from_settings
+    from owd.steering import llm_condenser, load_steering
+
+    llm = LLM(models_from_settings(load_settings()), log=lambda line: print(f"  model {line}"))
+    steering = load_steering(condense=llm_condenser(llm))
+    for name, text in steering.references:
+        print(f"{name}: {len(text.split())} words")
+    for warning in steering.warnings:
+        print(f"WARNING: {warning}")
 
 
 def cmd_fetch_models(args: argparse.Namespace) -> None:
@@ -221,6 +271,19 @@ def cmd_news(args: argparse.Namespace) -> None:
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(prog="python -m owd")
     commands = parser.add_subparsers(dest="command", required=True)
+
+    run = commands.add_parser("run", help="write, render and deliver the next video (what the schedule runs)")
+    run.add_argument("--angle", help="an idea or angle to steer this one video")
+    run.set_defaults(run=cmd_run)
+
+    clean = commands.add_parser("cleanup", help="delete review files of posted (or old) videos")
+    clean.set_defaults(run=cmd_cleanup)
+
+    login = commands.add_parser("youtube-login", help="sign in to YouTube once and print the refresh token")
+    login.set_defaults(run=cmd_youtube_login)
+
+    steer = commands.add_parser("steering", help="read the steering documents and condense long ones")
+    steer.set_defaults(run=cmd_steering)
 
     write = commands.add_parser("write", help="write a long-form storyboard from a book chapter")
     write.add_argument("--book", default="as-a-man-thinketh", help="a book id from channel.toml")

@@ -1,0 +1,97 @@
+name: produce
+
+# Makes the next video on its own: picks the next book chapter, writes the script with free models,
+# narrates and renders it, then delivers it (see channel.toml [schedule] mode):
+#   review: a GitHub release holds the files and an issue tells you (GitHub emails you) to post them.
+#   auto:   uploads to YouTube and schedules it for the next posting slot (after YouTube's API audit).
+# Runs Mondays and Thursdays, or any time from the Actions tab (Run workflow). Setup: docs/DEPLOY.md.
+on:
+  schedule:
+    - cron: "15 3 * * 1,4"   # 03:15 UTC (06:15 Nairobi) on Monday and Thursday
+  workflow_dispatch:
+    inputs:
+      angle:
+        description: "Optional: an idea or angle for this one video"
+        required: false
+
+permissions:
+  contents: write   # commit state/videos.json and the storyboard back
+  issues: write     # the "ready to post" issue
+  # (releases are covered by contents: write)
+
+concurrency:
+  group: produce
+  cancel-in-progress: false
+
+jobs:
+  produce:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 300
+    env:
+      HF_HOME: ${{ github.workspace }}/.hf
+      HF_HUB_DISABLE_TELEMETRY: "1"
+      OWD_CACHE_DIR: ${{ github.workspace }}/.owd-cache
+      GITHUB_TOKEN: ${{ github.token }}
+      PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_AI_TOKEN: ${{ secrets.CLOUDFLARE_AI_TOKEN }}
+      YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+      YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+      YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the keys are set
+        run: |
+          missing=""
+          for name in PIXABAY_API_KEY OPENROUTER_API_KEY GEMINI_API_KEY; do
+            [ -n "${!name}" ] || missing="$missing $name"
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Add these repository secrets (Settings > Secrets and variables > Actions):$missing"
+            exit 1
+          fi
+
+      - name: ffmpeg (with libass for captions)
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends ffmpeg
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.13.0"
+          enable-cache: true
+
+      - run: uv sync --frozen
+
+      - name: Model cache
+        uses: actions/cache@v4
+        with:
+          path: .hf
+          key: models-${{ hashFiles('owd/models.py', 'channel.toml') }}
+
+      - name: Footage, painting and news cache
+        uses: actions/cache@v4
+        with:
+          path: .owd-cache
+          key: owd-cache-${{ github.run_id }}
+          restore-keys: owd-cache-
+
+      - run: uv run --frozen python -m owd fetch-models
+
+      - name: Make and deliver the next video
+        run: uv run --frozen python -m owd run --angle "${{ inputs.angle }}"
+
+      - name: Save progress (state and storyboard) to the repository
+        if: always()
+        run: |
+          git config user.name "breme-analytics"
+          git config user.email "341067996+breme-analytics@users.noreply.github.com"
+          git add state storyboards steering/references
+          if git diff --cached --quiet; then
+            echo "Nothing to save."
+          else
+            git commit -m "Bot: progress from run ${{ github.run_number }}"
+            git pull --rebase --autostash
+            git push
+          fi

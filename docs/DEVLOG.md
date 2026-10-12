@@ -6,6 +6,116 @@ entry here for each change (see `AGENTS.md`). The owner's standing instructions 
 
 ---
 
+## 2026-10-12 (evening): Milestone 4, pictures that match the words, captions, suspense, runs on its own
+
+**Owner's feedback on the first long video:** great video, but the stock footage wasn't in sync with the
+narration and distracted instead of helping; add captions; add suspense (Mario Joos); let me steer by uploading
+documents; read the Kindle book; commits should show "breme-analytics"; run anywhere for $0, reproducibly;
+post or schedule on its own (no Kiro, free OpenRouter models); clean up videos after posting so storage never
+fills up; document everything. The repository is `breme-analytics/Youtube-automation` (not Trading-bot).
+
+### Pictures that match what George is saying
+
+- **Why it was off:** each scene's clips were picked by tags alone ("candle"), which says what's in a clip, not
+  what it means; long scenes then cycled through several unrelated clips.
+- **Fix (`owd/vision.py`, `owd/visuals.py`):** for every scene, the best 4 tag-matched clips are shown (one
+  preview still each) to a free vision model (Gemini Flash-Lite) next to the sentence George is reading. It
+  scores each from 0 to 10, in meaning and mood as well as subject. The best clip scoring 6 or more is used.
+  Tested on the real Pixabay candle clips: it picked a dark, solitary candle (9/10) for a sentence about hope
+  burning out, over the cosy and festive ones.
+- **When no clip fits:** the scene gets a painting of the moment (`owd/images.py`). The writer now gives every
+  scene an `image` description. Paintings come from Cloudflare Workers AI FLUX.2 [klein] when
+  `CLOUDFLARE_AI_TOKEN` is set, otherwise from Pollinations, which is free and needs no key (about 1024x576;
+  the corner mark is cropped off). Paintings drift very slowly (Mario Joos: no needless camera moves).
+- **One picture per scene:** a scene that runs over several shots stays on its one picture (another part of
+  the same clip), so the picture never wanders away from the words. Shots in long videos can last up to 9 s.
+- **Writer:** one scene is one idea in 35 to 60 words, with a footage search that literally shows that idea.
+
+### Captions
+
+- Burned-in captions on long videos (`owd/captions.py`): a short phrase at the bottom in Lato Bold (SIL Open
+  Font License), the spoken word in gold. They hide while a quote card or chapter title is on screen.
+  `captions = true` in `channel.toml`; `captions.srt` is still uploaded for YouTube's own subtitles.
+
+### Suspense (Mario Joos)
+
+- Read Mario Joos's two LinkedIn posts of retention tips and added them to `steering/references/retention-mario-joos.md`
+  (now 27 principles, each sourced).
+- **Silence before reveals:** a `[pause]` in a script makes George hold a 1.1-second beat (principle 16).
+- **Open loop:** the hook raises one question (`open_loop`) that only the last chapter answers.
+- **Cliffhangers:** every chapter but the last ends on a turn, a question or a reveal.
+- The writer's checks require an open loop and 2 to 8 pauses, and ask for a revision if either is missing.
+
+### Steering by document
+
+- `steering/references/` now accepts PDF, Word (.docx), text and Markdown files, uploaded on GitHub (Add file >
+  Upload files). Documents over 12,000 characters are condensed once by a free model into
+  `<name>.digest.md`, saved next to them so the owner can read (and edit) exactly what the bot took. A broken
+  or empty upload is skipped with a warning, never stopping a run.
+- **The Kindle book:** not read. Signing in to the owner's Amazon account with her password, and extracting a
+  copy-protected ebook, would break Amazon's terms and copyright. She can export her highlights or notes instead.
+  She should also change the password she shared in the chat.
+
+### Runs on its own, for $0
+
+- **`python -m owd run`** (`owd/autopilot.py`): picks the next unused chapter (`state/videos.json`), writes the
+  script, renders the video and delivers it.
+- **Delivery, `review` mode (default):** a GitHub release holds the video, thumbnail, captions and metadata
+  (GitHub releases have no storage or bandwidth limit; files under 2 GiB), and an issue "Ready to post: ..."
+  with download links and the checklist (GitHub emails the owner).
+- **Delivery, `auto` mode:** uploads to YouTube as private with `publishAt` set to the next posting slot
+  (Tue/Fri 18:00 Nairobi by default), `containsSyntheticMedia` true, category Education, plus thumbnail and
+  captions (`owd/youtube.py`). The one-time sign-in uses Google's device flow (`python -m owd youtube-login`),
+  so it works from a phone.
+- **Why review mode first:** YouTube locks every API upload as private until the project passes YouTube's free
+  API audit, and it can't be unlocked afterwards.
+- **Cleanup (`python -m owd cleanup`, daily workflow):** a video is "posted" when its YouTube time has passed or
+  the owner closes its issue. Its release files are deleted `keep_days` (7) after that, or 7 days after it was
+  made if nobody posts it, and the issue is closed. Old workflow caches and run logs are deleted too.
+- **Workflows:** `produce.yml` (Mon and Thu), `cleanup.yml` (daily), plus `tests.yml` and `image.yml`. Each run
+  commits `state/` and the storyboard back, so any machine can pick up where the last run stopped.
+- **Models:** OpenRouter's free models now come first (`channel.toml` `[llm]`, five of them), because Gemini's
+  free text quota is small and is better spent on the picture checks.
+- **Cloudflare R2 dropped:** from this network, every R2 host fails the TLS handshake (even a random
+  account's), while api.cloudflare.com works. GitHub releases do the same job for free, so `owd/storage.py` was
+  removed and the R2 keys are no longer needed.
+
+### Findings
+
+- **OpenRouter free models alone** wrote a complete script for *As a Man Thinketh* chapter 4 with no problems
+  flagged: 1,500 words, 6 chapters, 4 quotes (all found word for word), 4 pauses, a painting for every scene;
+  about 15 minutes.
+  - **Model results that day:** Nemotron Ultra answered in 2 to 3 minutes; Nemotron Super sometimes cut off,
+    other times answered; Gemma 4 31B was rate-limited; Inkling refused the key (403).
+  - **Two flaws found and fixed:** the model pasted research ids into the narration ("...the night. R1"), so
+    George would have read them aloud; they're now removed automatically. It also overstated one-study findings
+    ("rewires", "protects the heart"); the prompt now demands the study's own wording, and the sample's lines
+    were softened by hand.
+- Gemini's free image models (Nano Banana) answered "quota exceeded" on this key, so they aren't used.
+
+### GitHub
+
+- The remote is now `git@github.com:breme-analytics/Youtube-automation.git`. Commits from this repository show
+  `breme-analytics` (`341067996+breme-analytics@users.noreply.github.com`), set for this repository only.
+- The key the owner added (ending `...dlBLcSs6s`, fingerprint `SHA256:HkFZLtQt...`) has its private half on
+  another computer, not this Mac, so this Mac can't use it. A deploy key for this Mac was made instead
+  (`~/.ssh/youtube_automation_deploy`); pushing waits until the owner adds it. The old, never-registered
+  Trading-bot key was deleted. The Mac's `id_ed25519` turned out to be a deploy key for `Trading-bot` and is
+  left alone.
+
+### Checked
+
+- 151 tests pass (fast and slow). New tests cover:
+  - the vision judge (scores, pacing, rate limits, a refused key);
+  - scene visuals (vision pick, painting fallback, tag fallback);
+  - the image makers (cache, crop, fallback, Cloudflare multipart);
+  - pauses, captions hidden under cards, PDF and Word steering, digests;
+  - state and next chapter, posting slots, the GitHub client, the YouTube upload, schedule, thumbnail,
+    captions and device login, and cleanup timing.
+- Live: the vision check on Pixabay candles; Pollinations paintings; a full OpenRouter-only script.
+
+---
+
 ## 2026-10-12: Milestone 3, long-form only, one voice, mind and spirit visuals
 
 **Owner's feedback on the wildlife Short (11 Oct):** video quality great; the crop cut out too much; wildlife

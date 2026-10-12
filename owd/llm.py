@@ -64,8 +64,11 @@ def extract_json(text: str) -> dict:
 
 
 def models_from_settings(settings: dict) -> list[Model]:
+    """Models in the order channel.toml lists them: providers in the order they appear, each
+    provider's models in its own order."""
     llm = settings.get("llm", {})
-    return [Model(provider, name) for provider in ("gemini", "openrouter", "cloudflare") for name in llm.get(provider, [])]
+    return [Model(provider, name) for provider, names in llm.items()
+            if provider in ("gemini", "openrouter", "cloudflare") for name in names]
 
 
 class LLM:
@@ -196,7 +199,7 @@ class LLM:
             },
         )
         if body.get("error"):
-            raise LLMError(f"provider error: {str(body['error'])[:200]}")
+            raise LLMError(f"provider error: {' '.join(str(body['error']).split())[:200]}")
         choices = body.get("choices") or []
         text = ((choices[0].get("message") or {}).get("content") if choices else "") or ""
         if choices and choices[0].get("finish_reason") == "length":

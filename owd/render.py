@@ -32,6 +32,8 @@ PAN_RIGHT = Motion(1.12, 1.12, 0.0, 1.0)
 PAN_LEFT = Motion(1.12, 1.12, 1.0, 0.0)
 RISE = Motion(1.10, 1.14, 0.5, 0.5, 1.0, 0.0)
 MOTIONS = (PUSH_IN, PAN_RIGHT, PULL_OUT, PAN_LEFT, RISE)
+# Paintings in long videos: a barely-there drift, so the eye stays on the picture, not the camera.
+GENTLE = (Motion(1.0, 1.06), Motion(1.05, 1.05, 0.2, 0.8), Motion(1.06, 1.0), Motion(1.05, 1.05, 0.8, 0.2))
 
 
 def _lerp(start: float, end: float, ease: str) -> str:

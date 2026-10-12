@@ -122,11 +122,22 @@ def _dim(start: float, end: float, alpha: int, size: tuple[int, int], fade: tupl
     )
 
 
+def card_windows(
+    quotes: Sequence[QuoteCard], chapters: Sequence[ChapterCard], style: OverlayStyle = OverlayStyle()
+) -> list[tuple[float, float]]:
+    """When a quote or chapter card is on screen (captions stay hidden then)."""
+    windows = [(max(card.start - style.lead, 0.0), card.end + style.hold) for card in quotes]
+    windows += [(max(card.start - 0.35, 0.0), card.start - 0.35 + style.chapter_seconds) for card in chapters]
+    return windows
+
+
 def overlays_ass(
     quotes: Sequence[QuoteCard],
     chapters: Sequence[ChapterCard],
     style: OverlayStyle = OverlayStyle(),
     size: tuple[int, int] = LONG.size,
+    captions: Sequence[str] = (),
+    caption_style: str | None = None,
 ) -> str:
     width, height = size
     quote, cite, title = (ass_color(c, None) for c in (style.quote_color, style.cite_color, style.title_color))
@@ -149,6 +160,7 @@ def overlays_ass(
         f"&H00000000,&H96000000,0,-1,0,0,100,100,0,0,1,0,3,5,120,120,0,1",
         f"Style: Chapter,{SERIF_NAME},{style.chapter_size},{ass_color(style.title_color)},&H000000FF,"
         f"&H00000000,&H96000000,0,0,0,0,100,100,0,0,1,0,3,5,120,120,0,1",
+        *([caption_style] if caption_style else []),
         "",
         "[Events]",
         "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text",
@@ -180,4 +192,5 @@ def overlays_ass(
             f"Dialogue: 1,{ass_time(start)},{ass_time(end)},Chapter,,0,0,0,,"
             f"{{\\fad(350,500)}}{label}\\N{{\\fsp0\\fs{style.chapter_size}\\c{title}}}{_escape(card.title)}"
         )
+    lines.extend(captions)
     return "\n".join(lines) + "\n"

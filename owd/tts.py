@@ -28,6 +28,8 @@ HARD_MAX_CHARS = 340  # a short sentence may stretch a chunk this far rather tha
 MIN_CHARS = 60  # chunks shorter than this sound clipped
 SENTENCE_PAUSE = 0.12  # seconds of silence after a chunk that ends mid-paragraph
 PARAGRAPH_PAUSE = 0.55
+BEAT_PAUSE = 1.1  # "[pause]" in a script: a held beat before a reveal (Mario Joos: silence builds tension)
+_BEAT = re.compile(r"\s*\[(?:pause|beat)\]\s*", re.I)
 
 _ABBREVIATIONS = frozenset(
     {"mr", "mrs", "ms", "dr", "st", "mt", "vs", "etc", "e.g", "i.e", "jr", "sr", "no", "vol", "ch", "pp", "cf"}
@@ -113,7 +115,8 @@ def _quote_text(paragraph: str) -> str | None:
 
 def plan_chunks(script: str, first_quote: int = 1) -> list[Chunk]:
     """The script as Kokoro-sized chunks, each with the pause that follows it. Paragraphs whose
-    lines start with ">" are quotes from the original book, numbered from `first_quote`."""
+    lines start with ">" are quotes from the original book, numbered from `first_quote`. A
+    "[pause]" inside a paragraph ends a chunk there and holds a beat of silence."""
     paragraphs = [p for p in _PARAGRAPH.split(script.strip()) if p.strip()]
     chunks: list[Chunk] = []
     quote_number = first_quote - 1
@@ -122,16 +125,24 @@ def plan_chunks(script: str, first_quote: int = 1) -> list[Chunk]:
         if quoted is not None:
             quote_number += 1
         text = quoted if quoted is not None else paragraph
-        pieces = [part for sentence in split_sentences(text) for part in _split_long(sentence)]
-        groups = _pack(pieces)
-        for g_index, group in enumerate(groups):
-            if g_index < len(groups) - 1:
-                pause = SENTENCE_PAUSE
-            elif p_index < len(paragraphs) - 1:
-                pause = PARAGRAPH_PAUSE
-            else:
-                pause = 0.0
-            chunks.append(Chunk(group, pause, quote_number if quoted is not None else 0))
+        segments = [s for s in _BEAT.split(text)] if quoted is None else [text]
+        for s_index, segment in enumerate(segments):
+            if not segment.strip():
+                if chunks and s_index > 0:
+                    chunks[-1] = Chunk(chunks[-1].text, max(chunks[-1].pause_after, BEAT_PAUSE), chunks[-1].quote)
+                continue
+            pieces = [part for sentence in split_sentences(segment) for part in _split_long(sentence)]
+            groups = _pack(pieces)
+            for g_index, group in enumerate(groups):
+                if g_index < len(groups) - 1:
+                    pause = SENTENCE_PAUSE
+                elif s_index < len(segments) - 1:
+                    pause = BEAT_PAUSE
+                elif p_index < len(paragraphs) - 1:
+                    pause = PARAGRAPH_PAUSE
+                else:
+                    pause = 0.0
+                chunks.append(Chunk(group, pause, quote_number if quoted is not None else 0))
     return chunks
 
 

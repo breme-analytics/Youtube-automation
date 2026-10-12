@@ -16,6 +16,7 @@ dependencies = [
     "huggingface-hub==2.2.0",
     "httpx==0.28.1",
     "feedparser==6.0.14",
+    "pypdf==6.20.0",
 ]
 
 [dependency-groups]

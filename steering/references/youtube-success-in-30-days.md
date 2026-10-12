@@ -1,9 +1,15 @@
 # Notes from "YouTube Success in 30 Days" (Brian Chesson)
 
-The bot can't open Kindle books: they need your Amazon login and are copy-protected. Paste your own
-notes here instead: the rules, do's and don'ts in your own words, or your highlights (Kindle shows
-them at read.amazon.com/notebook). Short notes work best. Everything in this file is used when the
-bot writes each video.
+The bot doesn't sign in to Amazon or copy Kindle books: that would break Amazon's terms and the book's
+copyright. To give it the book's advice, use one of these (both are allowed):
+
+- **Your highlights and notes:** open read.amazon.com/notebook, choose the book, select the highlights and
+  copy them into this file. Or, in the Kindle app, **Notebook > Export notebook** and upload the file into
+  this folder.
+- **Your own summary:** write the book's do's and don'ts here in your own words. Short bullet points work best.
+
+Long documents are condensed once into a page of rules automatically (saved as `<name>.digest.md` next to the
+upload), so you can paste or upload as much as you like.
 
 ## My notes
 

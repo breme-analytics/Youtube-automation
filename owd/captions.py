@@ -263,3 +263,68 @@ def srt(words: Sequence[Word], **options) -> str:
         for number, (start, end, lines) in enumerate(srt_cues(words, **options), start=1)
     ]
     return "\n\n".join(blocks) + "\n"
+
+
+CAPTION_FONT = DISPLAY_FONT.parent / "Lato-Bold.ttf"  # SIL Open Font License, see OFL-Lato.txt
+CAPTION_FONT_NAME = "Lato"
+
+
+@dataclass(frozen=True)
+class LongCaptionStyle:
+    """Burned-in captions for long videos: a short phrase at a time near the bottom, the spoken
+    word in gold. Many viewers watch without sound, and following the words keeps people watching."""
+
+    font_size: int = 58
+    text_color: str = "#FFFFFF"
+    highlight_color: str = "#FFD447"
+    outline_color: str = "#000000"
+    outline: float = 3.5
+    shadow: float = 1.5
+    margin_bottom: int = 74
+    max_words: int = 7
+    max_width: int = 1500
+    pause_break: float = 0.45
+    hold: float = 0.35
+    uppercase: bool = False
+
+
+def _blocked(start: float, end: float, windows: Sequence[tuple[float, float]]) -> bool:
+    return any(start < w_end and end > w_start for w_start, w_end in windows)
+
+
+def long_captions_events(
+    words: Sequence[Word],
+    style: LongCaptionStyle = LongCaptionStyle(),
+    hidden: Sequence[tuple[float, float]] = (),
+    font_path: Path = CAPTION_FONT,
+) -> list[str]:
+    """Dialogue lines for long-video captions. Words spoken while a quote or chapter card is on
+    screen (`hidden` windows) get no caption, since the card already shows the words."""
+    meter = TextMeter(font_path, style.font_size, outline=style.outline)
+    short_style = ShortCaptionStyle(max_words=style.max_words, pause_break=style.pause_break, hold=style.hold,
+                                    uppercase=style.uppercase)
+    pages = short_pages([w for w in words if not w.quote], short_style, meter, style.max_width)
+    highlight, normal = ass_color(style.highlight_color, None), ass_color(style.text_color, None)
+    lines = []
+    for index, page in enumerate(pages):
+        last = page[-1][0]
+        page_end = last.end + style.hold
+        if index + 1 < len(pages):
+            page_end = min(page_end, pages[index + 1][0][0].start)
+        page_end = max(page_end, last.end)
+        for k, (word, _) in enumerate(page):
+            start = word.start
+            end = page[k + 1][0].start if k + 1 < len(page) else page_end
+            if round(end * 100) <= round(start * 100) or _blocked(start, end, hidden):
+                continue
+            parts = [f"{{\\c{highlight if j == k else normal}}}{_ass_escape(text)}" for j, (_, text) in enumerate(page)]
+            lines.append(f"Dialogue: 2,{ass_time(start)},{ass_time(end)},Caption,,0,0,0,,{' '.join(parts)}")
+    return lines
+
+
+def long_caption_style_line(style: LongCaptionStyle = LongCaptionStyle(), font_name: str = CAPTION_FONT_NAME) -> str:
+    return (
+        f"Style: Caption,{font_name},{style.font_size},{ass_color(style.text_color)},{ass_color(style.highlight_color)},"
+        f"{ass_color(style.outline_color)},{ass_color('#000000', 0x60)},-1,0,0,0,100,100,0,0,1,"
+        f"{style.outline:g},{style.shadow:g},2,160,160,{style.margin_bottom},1"
+    )

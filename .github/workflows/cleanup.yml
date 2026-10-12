@@ -1,0 +1,58 @@
+name: cleanup
+
+# Every day: deletes the download files (GitHub release) of videos that are posted, or that are older
+# than keep_days in channel.toml, closes their issues, and records it in state/videos.json. Also deletes
+# old workflow caches and logs, so storage never grows and nothing ever costs money.
+on:
+  schedule:
+    - cron: "40 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+  actions: write   # delete old caches and run logs
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.13.0"
+          enable-cache: true
+
+      - run: uv sync --frozen
+
+      - name: Delete files of posted videos
+        run: uv run --frozen python -m owd cleanup
+
+      - name: Delete old caches and run logs (keep the newest)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # caches: keep the newest of each kind, delete the rest
+          gh cache list --limit 100 --sort created_at --order desc --json id,key \
+            --jq '[group_by(.key | sub("-[0-9]+$"; ""))[] | .[1:][] | .id] | .[]' |
+            while read -r id; do gh cache delete "$id" || true; done
+          # run logs older than 30 days
+          cutoff=$(date -u -d '30 days ago' +%Y-%m-%dT%H:%M:%SZ)
+          gh api --paginate "repos/${GITHUB_REPOSITORY}/actions/runs?per_page=100" \
+            --jq ".workflow_runs[] | select(.created_at < \"$cutoff\") | .id" |
+            while read -r id; do gh api -X DELETE "repos/${GITHUB_REPOSITORY}/actions/runs/$id" || true; done
+
+      - name: Save progress
+        run: |
+          git config user.name "breme-analytics"
+          git config user.email "341067996+breme-analytics@users.noreply.github.com"
+          git add state
+          if ! git diff --cached --quiet; then
+            git commit -m "Bot: cleanup"
+            git pull --rebase --autostash
+            git push
+          fi

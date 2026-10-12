@@ -12,6 +12,22 @@ format = "long"          # Shorts are paused (owner's choice, 11 Oct 2026)
 # George reads about 140 words a minute, so 1,250-1,700 words is roughly 9-12 minutes.
 min_words = 1250
 max_words = 1700
+captions = true          # burned-in captions at the bottom, spoken word in gold (owner's request, 12 Oct)
+match_visuals = true     # a free vision model checks each clip shows what George is saying (12 Oct)
+paintings = true         # when no clip fits, show an AI painting of the moment instead (12 Oct)
+
+[schedule]
+# The bot makes one video per run of .github/workflows/produce.yml (Mondays and Thursdays by default)
+# and, once YouTube allows it, schedules it to go public at the next of these times.
+timezone = "Africa/Nairobi"
+publish_days = ["Tue", "Fri"]
+publish_time = "18:00"
+# "review": the bot makes the video and opens a GitHub issue with a download link; you post it yourself.
+# "auto":   the bot uploads to YouTube as private and schedules it (needs YouTube's free API audit first).
+mode = "review"
+# A video's files are deleted from GitHub this many days after it's posted (or after it's made, if
+# nobody posts it). They're never needed again: the video lives on YouTube.
+keep_days = 7
 
 # Public-domain books the writer can use. Each file is a Project Gutenberg plain-text download
 # with a CONTENTS list; quotes are checked word for word against it.
@@ -24,9 +40,16 @@ gutenberg = 4507
 
 [llm]
 # Tried in this order; on a limit or an error the next one is used. All are free tiers.
-# Gemini's free tier allows about 20 requests a day on Flash models and 500 on Flash-Lite.
+# OpenRouter's free models come first: Gemini's free tier is small (about 20 requests a day on Flash,
+# more on Flash-Lite) and is also used for the vision check that matches pictures to the words.
+openrouter = [
+  "nvidia/nemotron-3-super-120b-a12b:free",
+  "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "google/gemma-4-31b-it:free",
+  "dots-studio/dots-3-note-preview:free",
+  "google/gemma-4-26b-a4b-it:free",
+]
 gemini = ["gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.5-flash", "gemini-3.5-flash-lite"]
-openrouter = ["nvidia/nemotron-3-ultra-550b-a55b:free", "google/gemma-4-31b-it:free", "nvidia/nemotron-3-super-120b-a12b:free"]
 cloudflare = ["@cf/google/gemma-4-26b-a4b-it"]   # needs CLOUDFLARE_AI_TOKEN (Workers AI permission)
 
 [footage]

@@ -45,15 +45,18 @@ def draft(**overrides):
         "thumbnail_text": "Weeds grow anyway",
         "thumbnail_accent": ["weeds"],
         "description": "Why minds fill with weeds.",
+        "open_loop": "Why does the mind grow weeds nobody planted?",
         "chapters": [
             {"title": "Hook", "scenes": [
-                {"visual": "storm clouds", "text": "Something is growing in your mind tonight. You didn't plant it."}]},
+                {"visual": "storm clouds", "image": "a dark garden at night",
+                 "text": "Something is growing in your mind tonight. [pause] You didn't plant it."}]},
             {"title": "The garden", "scenes": [
                 {"visual": "book pages", "text": "Allen put it plainly."},
                 {"visual": "lotus flower", "quote": [GARDEN], "quote_begins": "Man's mind may be"},
             ]},
             {"title": "The science", "scenes": [
-                {"visual": "brain neurons", "text": "Psychologists call one weed rumination: replaying a moment over and over."}]},
+                {"visual": "brain neurons",
+                 "text": "Psychologists call one weed rumination. [pause] Replaying a moment over and over."}]},
         ],
         "claims": [{"claim": "Worry harms sleep", "basis": "R1"}],
         "research_used": ["R1"],
@@ -99,6 +102,13 @@ def test_structural_check_rejects_unusable_answers(change, message):
 
 def test_soft_problems():
     assert soft_problems(draft(), SENTENCES, SMALL) == []
+    no_suspense = draft(open_loop="")
+    for chapter in no_suspense["chapters"]:
+        for scene in chapter["scenes"]:
+            if "text" in scene:
+                scene["text"] = scene["text"].replace("[pause]", "")
+    problems = soft_problems(no_suspense, SENTENCES, SMALL)
+    assert any("open question" in p for p in problems) and any("0 [pause] beats" in p for p in problems)
     problems = soft_problems(draft(title="x" * 61), SENTENCES, Targets())
     length = next(p for p in problems if "needs 1250 to 1700" in p)
     assert "Add about" in length and "'The science'" in length and "'Hook'" not in length
@@ -123,6 +133,8 @@ def test_align_quotes_moves_a_miscounted_quote_and_flags_a_wrong_one():
 def test_to_storyboard_inserts_the_books_exact_words():
     board, warnings = to_storyboard(draft(), SENTENCES, BOOK, CITE, RESEARCH)
     assert board.format == "long" and warnings == []
+    assert board.scenes[0].image == "a dark garden at night" and board.scenes[1].image is None
+    assert "[pause]" in board.scenes[0].text and "[pause]" not in board.script
     assert board.scenes[2].text == "> " + quote_text(SENTENCES, [GARDEN])
     assert board.scenes[2].text.startswith("> Man's mind may be likened to a garden")
     assert check_quotes(board) == []
@@ -169,7 +181,9 @@ def test_spoken_words_count_the_quotes_george_reads():
 
 def test_short_drafts_are_expanded_chapter_by_chapter_keeping_their_quotes():
     # The draft is about 77 spoken words. The science chapter is shortest, so it grows first, then the garden.
-    longer_science = {"scenes": [{"visual": "brain neurons", "text": " ".join(["Rumination replays a moment."] * 20)}]}
+    longer_science = {"scenes": [{"visual": "brain neurons",
+                                  "text": " ".join(["Rumination replays a moment."] * 10) + " [pause] "
+                                  + " ".join(["Rumination replays a moment."] * 10)}]}
     longer_garden = {"scenes": [
         {"visual": "book pages", "text": " ".join(["Allen wrote about gardens and weeds in plain words."] * 6)},
         {"visual": "lotus flower", "quote": [GARDEN], "quote_begins": "Man's mind may be"},
@@ -194,3 +208,15 @@ def test_an_expansion_that_drops_a_quote_is_rejected():
     result = write_video(CHAPTER, BOOK, CITE, RESEARCH, STEERING, llm, targets=targets, log=lambda line: None)
     assert any("spoken words" in p for p in result.problems)  # still short: the bad expansion wasn't used
     assert check_quotes(result.storyboard) == [] and any(s.text.startswith(">") for s in result.storyboard.scenes)
+
+
+def test_research_ids_never_reach_the_narration_and_broken_pauses_are_fixed():
+    from owd.writer import clean_narration
+
+    assert clean_narration("The drift rewires the night. R1") == "The drift rewires the night."
+    assert clean_narration("A study (R3) found this [R2], and R12 too.") == "A study found this, and too."
+    assert clean_narration("Rumination and Rivers stay.") == "Rumination and Rivers stay."
+    data = draft()
+    data["chapters"][2]["scenes"][0]["text"] = "Worry dreams. R1 [pause"
+    board, _ = to_storyboard(data, SENTENCES, BOOK, CITE, RESEARCH)
+    assert board.scenes[-1].text == "Worry dreams. [pause]"

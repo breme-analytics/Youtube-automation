@@ -26,6 +26,15 @@ from owd.tts import _PARAGRAPH, split_sentences
 MAX_QUOTE_SENTENCES = 3
 MAX_QUOTE_WORDS = 70
 _QUOTED = re.compile(r"[\"“]([^\"”]+)[\"”]")
+_PAUSE = re.compile(r"\[(?:pause|beat)\]", re.I)
+# Research ids models sometimes paste into narration ("...the night. R1", "(R3)", "[R2]"): never read aloud.
+_RESEARCH_ID = re.compile(r"\s*[\(\[]?\bR\d{1,2}\b[\)\]]?(?=[\s.,;:!?]|$)")
+
+
+def clean_narration(text: str) -> str:
+    """Narration as George should read it: research ids removed, whitespace tidied."""
+    text = _RESEARCH_ID.sub("", text)
+    return re.sub(r"\s+([.,;:!?])", r"\1", " ".join(text.split()))
 
 
 @dataclass(frozen=True)
@@ -68,12 +77,13 @@ SCHEMA = """{
   "thumbnail_text": "2 to 4 words",
   "thumbnail_accent": ["the one word of thumbnail_text to colour"],
   "description": "2 or 3 sentences for the YouTube description, no links, no hashtags",
+  "open_loop": "the question the hook raises and the final chapter answers",
   "chapters": [
     {
       "title": "short chapter title (also a YouTube chapter)",
       "scenes": [
-        {"visual": "stock footage search", "text": "1 to 3 sentences the narrator reads"},
-        {"visual": "stock footage search", "quote": [12, 13], "quote_begins": "first 4 words of sentence 12"}
+        {"visual": "stock footage search", "image": "a painting that shows this moment", "text": "2 to 4 sentences the narrator reads"},
+        {"visual": "stock footage search", "image": "a painting", "quote": [12, 13], "quote_begins": "first 4 words of sentence 12"}
       ]
     }
   ],
@@ -102,22 +112,28 @@ he says.
 FORMAT RULES (technical, always apply):
 - Length: {targets.min_words} to {targets.max_words} spoken words in total (narration plus quotes); aim for about
   {(targets.min_words + targets.max_words) // 2}. Writers usually run short, so count scenes as you go: about
-  {(targets.min_words - 150) // 32} to {(targets.max_words - 150) // 30} narration scenes of 25 to 40 words each.
+  {(targets.min_words - 150) // 45} to {(targets.max_words - 150) // 40} narration scenes of 35 to 60 words each.
 - {targets.min_chapters} to {targets.max_chapters} chapters. Chapter 1 is the hook: 50 to 90 words that open on the
-  stakes of the title and promise the payoff. Later chapters are 200 to 350 words each, and each ends with a
-  pull forward into the next.
-- Scenes: a narration scene is 2 or 3 sentences (25 to 40 words) with its own footage search. Change the visual
-  idea often.
+  stakes of the title and raise ONE open question (write it in "open_loop") that only the final chapter answers.
+  Later chapters are 200 to 350 words each. End every chapter except the last on a cliffhanger: a turn, a
+  question or a reveal that the next chapter delivers.
+- Suspense: write "[pause]" right before a reveal or a hard truth (3 to 6 times in the whole video, never two in
+  one scene); George holds a beat of silence there. Withhold the answer to the open question until the end.
+- Scenes: one scene is one idea and one picture, 2 to 4 sentences (35 to 60 words). Every scene has:
+  "visual": a 2 to 4 word stock footage search, concrete noun first, that literally shows the scene's idea; and
+  "image": a 10 to 25 word description of a painting that shows the same moment (used when no footage fits). Paint
+  people only as silhouettes or from behind, never real or famous people, never text.
 - Quotes: {targets.min_quotes} to {targets.max_quotes} quotes in total. A quote scene gives sentence numbers from the BOOK
   list, at most {MAX_QUOTE_SENTENCES} consecutive sentences and {MAX_QUOTE_WORDS} words, plus "quote_begins": the first four
   words of the first quoted sentence, copied exactly. The bot inserts the book's exact words. Introduce
   each quote in the scene before it ("Allen put it plainly."). Never write quotations in "text" yourself,
   except phrases of five words or fewer.
 - Facts: mention research only from the RESEARCH list, or findings that are very well established. Never invent
-  names, numbers, years or journals. List every factual claim in "claims", with basis R-number, "book" or
-  "general".
-- Footage searches: 2 to 4 words, a concrete noun first, chosen from the visual style reference. Landscape
-  stock footage of the mind and spirit. No animals unless the text is literally about one.
+  names, numbers, years or journals. Use the study's own wording ("linked to", "found", "suggests"); never turn
+  it into a cause or a stronger claim. Research ids (R1, R2) go only in "claims", never in the narration. List
+  every factual claim in "claims", with basis R-number, "book" or "general".
+- Footage searches come from the visual style reference: landscape stock footage of the mind and spirit. No
+  animals unless the text is literally about one.
 - The title follows the title reference and is at most 60 characters.
 - Write years as digits (1903). Don't use symbols or abbreviations the narrator can't say (%, &, e.g., i.e.).
 
@@ -143,7 +159,7 @@ Write the video now."""
 
 
 def _words(text: str) -> int:
-    return len(re.findall(r"[A-Za-z0-9']+", text))
+    return len(re.findall(r"[A-Za-z0-9']+", _PAUSE.sub(" ", text)))
 
 
 def structural_check(data: dict, sentence_count: int, research_count: int) -> None:
@@ -265,6 +281,11 @@ def soft_problems(data: dict, sentences: Sequence[str], targets: Targets) -> lis
         problems.append(f"the title is {len(data['title'])} characters; keep it to 60")
     if data["chapters"] and data["chapters"][0]["scenes"][0].get("quote") is not None:
         problems.append("the video must open with narration, not a quote")
+    if not str(data.get("open_loop") or "").strip():
+        problems.append('the hook must raise one open question, written in "open_loop", that the final chapter answers')
+    beats = sum(len(_PAUSE.findall(scene.get("text") or "")) for scene in scenes)
+    if not 2 <= beats <= 8:
+        problems.append(f"the script has {beats} [pause] beats; use 3 to 6, right before reveals")
     return problems
 
 
@@ -302,8 +323,10 @@ def expand_chapter(
         + f"CHAPTER {index + 1} is too short at {current} narration words. Rewrite it to about {target} words of "
         "narration. Deepen it with a concrete example, a short story, a clearer explanation or a finding from "
         "RESEARCH; no filler and no recap. Keep every quote scene exactly as it is (same sentence numbers and "
-        "quote_begins), keep what the chapter is for, and keep its ending pull into the next chapter. Each new "
-        "narration scene is 25 to 40 words with its own footage search.\n\nCHAPTER JSON:\n"
+        "quote_begins), keep what the chapter is for, keep its [pause] beats, and keep its ending cliffhanger into the "
+        "next chapter. Each new "
+        "narration scene is one idea in 35 to 60 words, with its own \"visual\" footage search and \"image\" painting "
+        "description.\n\nCHAPTER JSON:\n"
         + json.dumps(chapter, ensure_ascii=False)
         + '\n\nAnswer with one JSON object only: {"scenes": [...]}'
     )
@@ -329,12 +352,13 @@ def to_storyboard(
             if raw.get("quote") is not None:
                 text = "> " + quote_text(sentences, raw["quote"])
             else:
-                text = " ".join(str(raw["text"]).split())
+                text = clean_narration(re.sub(r"\[pause(?!\])", "[pause]", str(raw["text"]), flags=re.I))
                 for phrase in _QUOTED.findall(text):
                     if len(phrase.split()) > 5:
                         warnings.append(f"Narration quotes {phrase!r} itself: check it isn't presented as the book's words")
+            image = " ".join(str(raw.get("image") or "").split())[:300] or None
             scenes.append(Scene(str(raw["visual"]).strip(), text, None,
-                                str(chapter["title"]).strip() if index == 0 else None))
+                                str(chapter["title"]).strip() if index == 0 else None, image))
     used = {str(r).upper() for r in data.get("research_used", []) or []}
     used |= {str(c.get("basis", "")).upper() for c in data.get("claims", []) or [] if isinstance(c, dict)}
     items = [

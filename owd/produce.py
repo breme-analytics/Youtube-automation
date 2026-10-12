@@ -17,24 +17,28 @@ from pathlib import Path
 import numpy as np
 
 from owd.backgrounds import glow_background
-from owd.captions import shorts_ass, srt
+from owd.captions import long_caption_style_line, long_captions_events, shorts_ass, srt
 from owd.config import LONG, SAMPLE_RATE, SHORT, VideoFormat
-from owd.overlays import ChapterCard, QuoteCard, overlays_ass
+from owd.images import SceneImages
+from owd.overlays import ChapterCard, QuoteCard, card_windows, overlays_ass
 from owd.qa import compare, transcribe
 from owd.quotes import check_quotes, quotes_in
-from owd.render import assemble, finish, grab_frame, join_shots, render_clip, render_scene
-from owd.stock import EDGE_TRIM, Pixabay, Rendition, StockVideo, clip_window, rank, subject
-from owd.storyboard import Scene, Storyboard
+from owd.render import GENTLE, MOTIONS, assemble, finish, grab_frame, join_shots, render_clip, render_scene
+from owd.stock import EDGE_TRIM, Pixabay, StockVideo, clip_window
+from owd.storyboard import Storyboard
 from owd.thumbnail import make_thumbnail
 from owd.timeline import chapter_shots, plan_shots, shot_lengths
 from owd.tts import PARAGRAPH_PAUSE, Cast, Kokoro, Narration, plan_chunks
+from owd.vision import VisionJudge
+from owd.visuals import choose_visuals
 
-MAX_SHOT = {"short": 5.5, "long": 7.0}
+MAX_SHOT = {"short": 5.5, "long": 9.0}
 FADE = {"short": 0.5, "long": 0.8}
 DIP = 0.35  # seconds of fade to and from black at each chapter boundary (long videos)
 MAX_WORD_ERROR_RATE = 0.03  # above this the narration is flagged for a listen before posting
 DESCRIPTION_LIMIT = 4900  # YouTube allows 5,000 characters
-AI_NOTE = "Narrated with an AI voice. Script written with AI help and reviewed by a human."
+AI_NOTE = ("Narrated with an AI voice. Script written with AI help and reviewed by a human. "
+           "Some illustrations are AI-generated paintings.")
 
 
 @dataclass
@@ -69,31 +73,6 @@ def narrate(storyboard: Storyboard, cast: Cast, kokoro: Kokoro) -> tuple[Narrati
         parts.extend(scene_parts)
         clock += sum(len(part) for part in scene_parts) / SAMPLE_RATE
     return Narration(np.concatenate(parts), words, cast), spans
-
-
-def _footage_pool(
-    scene: Scene, stock: Pixabay, fmt: VideoFormat, seconds: float, max_upscale: float, warnings: list[str]
-) -> list[tuple[StockVideo, Rendition]]:
-    """Clips for one scene, best first. Only clips tagged with the scene's subject count, searched
-    in the scene's category first and then in all of Pixabay. If none exist, the best partial
-    matches are used and the video is flagged for a look before posting."""
-    searches = [scene.category, None] if scene.category else [None]
-    found: dict[int, StockVideo] = {}
-    pool: list[tuple[StockVideo, Rendition]] = []
-    for category in searches:
-        for video in stock.search(scene.visual, category=category):
-            found.setdefault(video.id, video)
-        pool = rank(found.values(), scene.visual, seconds, fmt.size, max_upscale=max_upscale)
-        if len(pool) >= 3:
-            return pool
-    if pool:
-        return pool
-    pool = rank(found.values(), scene.visual, seconds, fmt.size, max_upscale=max_upscale, require_subject=False)
-    if pool:
-        warnings.append(f"No footage tagged {subject(scene.visual)!r} for {scene.visual!r}: used the closest matches")
-    else:
-        warnings.append(f"No usable footage for {scene.visual!r}: used a generated background")
-    return pool
 
 
 def chapter_of_scenes(storyboard: Storyboard) -> tuple[list[int], list[str]]:
@@ -188,6 +167,9 @@ def produce(
     cast: Cast = Cast(),
     stock: Pixabay,
     kokoro: Kokoro | None = None,
+    judge: VisionJudge | None = None,
+    images: SceneImages | None = None,
+    burn_captions: bool = True,
     max_upscale: float = 1.0,
     log=print,
 ) -> Production:
@@ -226,32 +208,44 @@ def produce(
         lengths = shot_lengths(cuts, narration.duration, fade)
 
     started = time.perf_counter()
-    pools = [_footage_pool(scene, stock, fmt, min(max_shot, 4.0), max_upscale, warnings) for scene in storyboard.scenes]
+    scene_seconds = [0.0] * len(storyboard.scenes)
+    for scene_index, seconds in zip(shot_scenes, lengths):
+        scene_seconds[scene_index] += seconds
+    casting = choose_visuals(storyboard.scenes, scene_seconds, stock, fmt, judge=judge, images=images,
+                             max_upscale=max_upscale, log=log)
+    warnings += casting.warnings
     shots: list[Path] = []
     credits: list[str] = []
+    painted: list[str] = []
     cursor: dict[int, float] = {}  # how far into each clip this video has used, in source seconds
     first_clip: tuple[Path, StockVideo] | None = None
+    first_image: Path | None = None
     for index, (scene_index, seconds) in enumerate(zip(shot_scenes, lengths)):
-        scene, pool = storyboard.scenes[scene_index], pools[scene_index]
+        scene, visual = storyboard.scenes[scene_index], casting.visuals[scene_index]
         out = work / f"shot-{index:03d}.mp4"
-        choice = next((item for item in pool if item[0].id not in cursor), None)
-        if choice is None and pool:  # every clip used once: show an unseen part of the longest-lasting one
-            choice = max(pool, key=lambda item: item[0].duration - cursor[item[0].id])
-        if choice is None:
+        if visual.kind == "clip":
+            video, rendition = visual.clip
+            clip = stock.download(video, rendition)
+            begin, span, _ = clip_window(video.duration, seconds, cursor.get(video.id, EDGE_TRIM))
+            cursor[video.id] = begin + span
+            shots.append(render_clip(clip, out, seconds=seconds, size=fmt.size, start=begin))
+            credits.append(video.credit)
+            first_clip = first_clip or (clip, video)
+            judged = f"vision {visual.score}/10" if visual.score is not None else "tags only"
+            log(f"  shot {index + 1}/{len(lengths)} {seconds:4.1f}s  scene {scene_index + 1} {scene.visual!r} -> "
+                f"clip #{video.id} at {begin:.1f}s ({judged})")
+        elif visual.kind == "image":
+            motion = GENTLE[index % len(GENTLE)] if long_form else MOTIONS[index % len(MOTIONS)]
+            shots.append(render_scene(Path(visual.image_path), out, seconds=seconds, size=fmt.size, motion=motion))
+            painted.append(visual.image_provider)
+            first_image = first_image or Path(visual.image_path)
+            log(f"  shot {index + 1}/{len(lengths)} {seconds:4.1f}s  scene {scene_index + 1} painting ({visual.image_provider})")
+        else:
             still = work / f"still-{index:03d}.png"
             glow_background(fmt.size, seed=index).save(still)
             shots.append(render_scene(still, out, seconds=seconds, size=fmt.size))
-            continue
-        video, rendition = choice
-        clip = stock.download(video, rendition)
-        begin, span, _ = clip_window(video.duration, seconds, cursor.get(video.id, EDGE_TRIM))
-        cursor[video.id] = begin + span
-        shots.append(render_clip(clip, out, seconds=seconds, size=fmt.size, start=begin))
-        credits.append(video.credit)
-        first_clip = first_clip or (clip, video)
-        log(f"  shot {index + 1}/{len(lengths)} {seconds:4.1f}s  {scene.visual!r} -> #{video.id} at {begin:.1f}s "
-            f"{rendition.width}x{rendition.height} ({', '.join(video.tags[:3])})")
-    log(f"footage: {len(shots)} shots from {len(cursor)} clips ({time.perf_counter() - started:.0f}s)")
+    log(f"pictures: {len(shots)} shots; {len(cursor)} clips, {casting.images_made} paintings; "
+        f"{casting.vision_calls} vision checks ({time.perf_counter() - started:.0f}s)")
 
     captions_path = folder / "captions.srt"
     captions_path.write_text(srt(narration.words), encoding="utf-8")
@@ -259,9 +253,13 @@ def produce(
     started = time.perf_counter()
     if long_form:
         chapters = [(start, chapter_titles[i]) for i, (start, _, _) in enumerate(plan)]
+        chapter_cards = [ChapterCard(i, title, start) for i, (start, title) in enumerate(chapters) if i > 0]
+        burned_captions = (long_captions_events(narration.words, hidden=card_windows(cards, chapter_cards))
+                           if burn_captions else [])
         overlay_file = work / "overlays.ass"
         overlay_file.write_text(
-            overlays_ass(cards, [ChapterCard(i, title, start) for i, (start, title) in enumerate(chapters) if i > 0]),
+            overlays_ass(cards, chapter_cards, captions=burned_captions,
+                         caption_style=long_caption_style_line() if burn_captions else None),
             encoding="utf-8",
         )
         pictures, taken = [], 0
@@ -282,6 +280,8 @@ def produce(
     background = None
     if first_clip:
         background = grab_frame(first_clip[0], work / "thumbnail-frame.png", at=first_clip[1].duration / 3)
+    elif first_image is not None:
+        background = first_image
     thumbnail = make_thumbnail(storyboard.thumbnail_text or storyboard.title, folder / "thumbnail.jpg",
                                background=background, accent=storyboard.thumbnail_accent)
 
