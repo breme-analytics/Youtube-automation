@@ -1,14 +1,20 @@
+import base64
+import hashlib
 import json
-from datetime import datetime, timedelta, timezone
+import threading
+import urllib.error
+import urllib.request
+from datetime import datetime, timezone
+from urllib.parse import parse_qs, urlencode, urlparse
 
 import httpx
 import pytest
 
 from owd import autopilot
-from owd.github import GitHub, GitHubError
+from owd.github import GitHub, GitHubError, Release
 from owd.schedule import next_slot
 from owd.state import State, VideoRecord, load_state, next_chapter, save_state
-from owd.youtube import Credentials, YouTube, YouTubeError, device_login
+from owd.youtube import SCOPES, Credentials, YouTube, YouTubeError, browser_login
 
 UTC = timezone.utc
 
@@ -141,67 +147,109 @@ def test_youtube_explains_an_expired_refresh_token():
         YouTube(Credentials("a", "b", "c"), http=http).status("x")
 
 
-def test_device_login_waits_for_the_owner_then_returns_the_refresh_token():
-    answers = iter([
-        httpx.Response(200, json={"device_code": "D", "user_code": "ABCD-EFGH", "verification_url": "https://google.com/device",
-                                  "interval": 5, "expires_in": 600}),
-        httpx.Response(428, json={"error": "authorization_pending"}),
-        httpx.Response(200, json={"access_token": "A", "refresh_token": "REFRESH"}),
-    ])
-    shown, waits = [], []
-    token = device_login("cid", "secret", http=httpx.Client(transport=httpx.MockTransport(lambda r: next(answers))),
-                         show=shown.append, sleep=waits.append)
-    assert token == "REFRESH" and "ABCD-EFGH" in shown[0] and waits == [5, 5]
+def test_youtube_status_of_a_missing_video_is_empty_and_the_channel_is_named():
+    def handler(request):
+        if request.url.path == "/token":
+            return httpx.Response(200, json={"access_token": "A", "expires_in": 3600})
+        if request.url.path.endswith("/videos"):
+            return httpx.Response(200, json={"items": []})
+        assert request.url.params["mine"] == "true"
+        return httpx.Response(200, json={"items": [{"snippet": {"title": "Old Wisdom, Decoded"}}]})
+
+    youtube = YouTube(Credentials("a", "b", "c"), http=httpx.Client(transport=httpx.MockTransport(handler)))
+    assert youtube.status("gone") == {} and youtube.channel_title() == "Old Wisdom, Decoded"
 
 
-class FakeGitHub:
-    def __init__(self, closed=None):
-        self.closed = closed or {}
-        self.deleted, self.comments, self.closed_issues = [], [], []
+def _browser(answer: dict, seen: dict):
+    """Plays the owner's browser: reads the sign-in link, then lands on the bot's local page with Google's answer."""
+    def open_browser(url):
+        query = parse_qs(urlparse(url).query)
+        seen.update({key: values[0] for key, values in query.items()})
+        params = {"state": seen["state"], **answer}
 
-    def issue(self, number):
-        when = self.closed.get(number)
-        return {"state": "closed", "closed_at": when} if when else {"state": "open"}
+        def visit():
+            base = seen["redirect_uri"]
+            for path in ("favicon.ico", "?" + urlencode(params)):  # browsers also ask for an icon
+                try:
+                    urllib.request.urlopen(base + path, timeout=5).read()
+                except urllib.error.HTTPError:
+                    pass
 
-    def delete_release(self, tag):
-        self.deleted.append(tag)
-        return True
-
-    def comment(self, issue, body):
-        self.comments.append(issue)
-
-    def close_issue(self, issue):
-        self.closed_issues.append(issue)
+        threading.Thread(target=visit, daemon=True).start()
+    return open_browser
 
 
-def test_cleanup_deletes_files_after_posting_or_after_keep_days(tmp_path, monkeypatch):
-    now = datetime(2026, 10, 30, 3, 0, tzinfo=UTC)
-    state_file = tmp_path / "videos.json"
-    state = State([
-        VideoRecord("posted-long-ago", "A", "b", 1, "s", status="released", release_tag="video-a", issue=1,
-                    made_at=(now - timedelta(days=20)).isoformat()),
-        VideoRecord("posted-yesterday", "B", "b", 2, "s", status="released", release_tag="video-b", issue=2,
-                    made_at=(now - timedelta(days=3)).isoformat()),
-        VideoRecord("never-posted", "C", "b", 3, "s", status="released", release_tag="video-c", issue=3,
-                    made_at=(now - timedelta(days=9)).isoformat()),
-        VideoRecord("scheduled", "D", "b", 4, "s", status="scheduled", youtube_id="Y",
-                    publish_at=(now - timedelta(days=10)).isoformat(), made_at=(now - timedelta(days=12)).isoformat()),
-        VideoRecord("fresh", "E", "b", 5, "s", status="released", release_tag="video-e", issue=5,
-                    made_at=(now - timedelta(days=1)).isoformat()),
-    ])
-    save_state(state, state_file)
-    github = FakeGitHub(closed={1: (now - timedelta(days=15)).isoformat(), 2: (now - timedelta(days=1)).isoformat()})
-    monkeypatch.setattr(autopilot, "load_state", lambda: load_state(state_file))
-    monkeypatch.setattr(autopilot, "save_state", lambda s: save_state(s, state_file))
-    monkeypatch.setattr(autopilot, "_github", lambda ctx: github)
-    monkeypatch.setattr(autopilot, "_context", lambda log: autopilot.Context({"schedule": {"keep_days": 7}}, {}, log))
-    monkeypatch.setattr(autopilot, "OUTPUT_DIR", tmp_path / "output")
-    cleaned = autopilot.cleanup(log=lambda m: None, now=now)
-    assert sorted(cleaned) == ["never-posted", "posted-long-ago", "scheduled"]
-    assert sorted(github.deleted) == ["video-a", "video-c"] and sorted(github.closed_issues) == [1, 3]
-    after = {v.slug: v for v in load_state(state_file).videos}
-    assert after["posted-yesterday"].status == "posted"  # posted, but kept a few more days
-    assert after["fresh"].status == "released" and after["scheduled"].status == "cleaned"
+def test_browser_login_uses_pkce_and_returns_the_refresh_token():
+    seen, exchanged = {}, {}
+
+    def token_endpoint(request):
+        exchanged.update(parse_qs(request.content.decode()))
+        return httpx.Response(200, json={"access_token": "A", "refresh_token": "REFRESH"})
+
+    token = browser_login("cid", "secret", http=httpx.Client(transport=httpx.MockTransport(token_endpoint)),
+                          show=lambda line: None, open_browser=_browser({"code": "CODE"}, seen), timeout=20)
+    assert token == "REFRESH"
+    assert seen["scope"] == SCOPES and seen["access_type"] == "offline" and seen["prompt"] == "consent"
+    assert seen["redirect_uri"].startswith("http://127.0.0.1:") and seen["code_challenge_method"] == "S256"
+    verifier = exchanged["code_verifier"][0]
+    challenge = base64.urlsafe_b64encode(hashlib.sha256(verifier.encode()).digest()).rstrip(b"=").decode()
+    assert challenge == seen["code_challenge"] and exchanged["code"] == ["CODE"]
+    assert exchanged["redirect_uri"] == [seen["redirect_uri"]] and exchanged["grant_type"] == ["authorization_code"]
+
+
+@pytest.mark.parametrize(("answer", "message"), [
+    ({"error": "access_denied"}, "didn't allow access"),
+    ({"code": "CODE", "state": "forged"}, "didn't match"),
+])
+def test_browser_login_refuses_a_denied_or_forged_answer(answer, message):
+    no_token_call = httpx.Client(transport=httpx.MockTransport(lambda r: pytest.fail("no token exchange expected")))
+    with pytest.raises(YouTubeError, match=message):
+        browser_login("cid", "secret", http=no_token_call, show=lambda line: None,
+                      open_browser=_browser(answer, {}), timeout=20)
+
+
+def test_upload_retries_after_clearing_a_half_uploaded_file(tmp_path):
+    calls, waits = [], []
+
+    def handler(request):
+        calls.append((request.method, request.url.path))
+        if request.url.host == "uploads.github.com":
+            uploads = sum(1 for method, path in calls if path.endswith("/assets") and method == "POST")
+            return httpx.Response(502 if uploads == 1 else 201, json={"browser_download_url": "https://dl/video.mp4"})
+        if request.method == "GET" and request.url.path.endswith("/releases/7/assets"):
+            return httpx.Response(200, json=[{"id": 99, "name": "video.mp4"}, {"id": 98, "name": "other.jpg"}])
+        if request.method == "DELETE":
+            return httpx.Response(204)
+        return httpx.Response(404)
+
+    github = GitHub("o/r", "T", http=httpx.Client(transport=httpx.MockTransport(handler)), sleep=waits.append)
+    video = tmp_path / "video.mp4"
+    video.write_bytes(b"0" * 1000)
+    assert github.upload_asset(Release(7, "video-x", "u", {}), video) == "https://dl/video.mp4"
+    assert ("DELETE", "/repos/o/r/releases/assets/99") in calls and ("DELETE", "/repos/o/r/releases/assets/98") not in calls
+    assert waits == [5]
+
+
+def test_listing_releases_follows_pages():
+    def handler(request):
+        page = int(request.url.params["page"])
+        count = 100 if page == 1 else 3
+        return httpx.Response(200, json=[{"id": page * 1000 + n, "tag_name": f"video-{page}-{n}", "html_url": "u",
+                                          "assets": [], "created_at": "2026-10-01T00:00:00Z"} for n in range(count)])
+
+    releases = gh_client(handler).list_releases()
+    assert len(releases) == 103 and releases[-1].tag == "video-2-2" and releases[0].created_at.startswith("2026")
+
+
+def test_relabelling_an_issue_still_renames_it_if_the_label_is_refused():
+    bodies = []
+
+    def handler(request):
+        bodies.append(json.loads(request.content))
+        return httpx.Response(422 if "labels" in bodies[-1] else 200, json={})
+
+    gh_client(handler).update_issue(4, title="Ready to post: X", labels=["ready-to-post"])
+    assert bodies == [{"title": "Ready to post: X", "labels": ["ready-to-post"]}, {"title": "Ready to post: X"}]
 
 
 def test_slugify():

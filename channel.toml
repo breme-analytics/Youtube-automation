@@ -18,16 +18,26 @@ paintings = true         # when no clip fits, show an AI painting of the moment 
 
 [schedule]
 # The bot makes one video per run of .github/workflows/produce.yml (Mondays and Thursdays by default)
-# and, once YouTube allows it, schedules it to go public at the next of these times.
+# and, in "auto" mode, schedules it to go public at the next of these times.
 timezone = "Africa/Nairobi"
 publish_days = ["Tue", "Fri"]
 publish_time = "18:00"
-# "review": the bot makes the video and opens a GitHub issue with a download link; you post it yourself.
-# "auto":   the bot uploads to YouTube as private and schedules it (needs YouTube's free API audit first).
+# "review": the bot stores the video and opens a GitHub issue with download links; you post it yourself.
+# "auto":   the bot stores the video, uploads it to YouTube as private and schedules it (needs the YouTube
+#           secrets, docs/DEPLOY.md step 4). If YouTube doesn't publish it, the issue asks you to post the
+#           stored copy by hand instead.
 mode = "review"
-# A video's files are deleted from GitHub this many days after it's posted (or after it's made, if
-# nobody posts it). They're never needed again: the video lives on YouTube.
-keep_days = 7
+
+[storage]
+# Every video is stored in the cloud before it's posted, in both modes: a GitHub release in this
+# repository (free, no limit on total size or downloads; each file must be under 2 GiB, about 40
+# minutes of video). Nothing piles up:
+# - a posted video's copy is kept this many days (in case something went wrong on YouTube), then deleted
+keep_days_after_posting = 7
+# - never more than this many videos stored at once (about 550 MB each). When a new one needs room,
+#   copies of posted videos are deleted first. If every stored video is still waiting to be posted,
+#   the bot makes no new video until you post one, or discard it (close its issue as "not planned").
+max_videos = 4
 
 # Public-domain books the writer can use. Each file is a Project Gutenberg plain-text download
 # with a CONTENTS list; quotes are checked word for word against it.

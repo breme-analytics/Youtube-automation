@@ -1,9 +1,11 @@
 name: produce
 
 # Makes the next video on its own: picks the next book chapter, writes the script with free models,
-# narrates and renders it, then delivers it (see channel.toml [schedule] mode):
-#   review: a GitHub release holds the files and an issue tells you (GitHub emails you) to post them.
-#   auto:   uploads to YouTube and schedules it for the next posting slot (after YouTube's API audit).
+# narrates and renders it, stores it (a GitHub release in this repository), then delivers it
+# (channel.toml [schedule] mode):
+#   review: an issue tells you (GitHub emails you) to post the stored copy.
+#   auto:   uploads to YouTube and schedules it for the next posting slot; an issue says when.
+# If [storage] max_videos are already waiting to be posted, it makes nothing and says so on the run page.
 # Runs Mondays and Thursdays, or any time from the Actions tab (Run workflow). Setup: docs/DEPLOY.md.
 on:
   schedule:
@@ -15,12 +17,11 @@ on:
         required: false
 
 permissions:
-  contents: write   # commit state/videos.json and the storyboard back
-  issues: write     # the "ready to post" issue
-  # (releases are covered by contents: write)
+  contents: write   # commit state/videos.json and the storyboard back; create the release (stored copy)
+  issues: write     # the issue that tells you about the video
 
 concurrency:
-  group: produce
+  group: bot-state  # produce and cleanup queue behind each other: both update state/videos.json
   cancel-in-progress: false
 
 jobs:
@@ -93,7 +94,9 @@ jobs:
         run: |
           git config user.name "breme-analytics"
           git config user.email "341067996+breme-analytics@users.noreply.github.com"
-          git add state storyboards steering/references
+          for path in state storyboards steering/references; do
+            if [ -e "$path" ]; then git add "$path"; fi
+          done
           if git diff --cached --quiet; then
             echo "Nothing to save."
           else

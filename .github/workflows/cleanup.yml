@@ -1,17 +1,26 @@
 name: cleanup
 
-# Every day: deletes the download files (GitHub release) of videos that are posted, or that are older
-# than keep_days in channel.toml, closes their issues, and records it in state/videos.json. Also deletes
-# old workflow caches and logs, so storage never grows and nothing ever costs money.
+# Every day, the storage rules (owd/storage.py, channel.toml [storage]):
+# - finds out what happened: issues you closed (posted, or "not planned" = discarded), and whether
+#   scheduled videos really went public on YouTube (if not, their issue asks you to post the copy);
+# - deletes stored copies (GitHub releases) that are due: posted more than keep_days_after_posting
+#   ago, discarded, or left by a failed run; keeps the total within max_videos; and deletes any
+#   stray "video-" release nothing knows about;
+# - deletes old workflow caches and run logs.
+# So storage never grows and nothing ever costs money.
 on:
   schedule:
-    - cron: "40 2 * * *"
+    - cron: "40 2 * * *"   # 02:40 UTC (05:40 Nairobi)
   workflow_dispatch:
 
 permissions:
-  contents: write
-  issues: write
-  actions: write   # delete old caches and run logs
+  contents: write   # delete releases and tags; commit state/videos.json
+  issues: write     # comment on and close video issues
+  actions: write    # delete old caches and run logs
+
+concurrency:
+  group: bot-state  # never at the same time as produce: both update state/videos.json
+  cancel-in-progress: false
 
 jobs:
   cleanup:
@@ -19,6 +28,10 @@ jobs:
     timeout-minutes: 15
     env:
       GITHUB_TOKEN: ${{ github.token }}
+      # Only used to check that scheduled videos went public (auto mode); fine to leave unset.
+      YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+      YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+      YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 
@@ -29,7 +42,7 @@ jobs:
 
       - run: uv sync --frozen
 
-      - name: Delete files of posted videos
+      - name: Apply the storage rules
         run: uv run --frozen python -m owd cleanup
 
       - name: Delete old caches and run logs (keep the newest)
@@ -47,10 +60,11 @@ jobs:
             while read -r id; do gh api -X DELETE "repos/${GITHUB_REPOSITORY}/actions/runs/$id" || true; done
 
       - name: Save progress
+        if: always()
         run: |
           git config user.name "breme-analytics"
           git config user.email "341067996+breme-analytics@users.noreply.github.com"
-          git add state
+          if [ -e state ]; then git add state; fi
           if ! git diff --cached --quiet; then
             git commit -m "Bot: cleanup"
             git pull --rebase --autostash

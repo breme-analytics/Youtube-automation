@@ -211,21 +211,38 @@ def cmd_run(args: argparse.Namespace) -> None:
 
 
 def cmd_cleanup(args: argparse.Namespace) -> None:
-    """Delete review files for videos that are posted (or older than keep_days)."""
+    """Apply the storage rules: delete stored copies that are due (see owd/storage.py)."""
     from owd.autopilot import cleanup
 
-    cleaned = cleanup(log=print)
-    print(f"Cleaned {len(cleaned)} video(s).")
+    deleted = cleanup(log=print)
+    print(f"Deleted {len(deleted)} stored cop{'y' if len(deleted) == 1 else 'ies'}.")
+
+
+def cmd_storage(args: argparse.Namespace) -> None:
+    """Show what is stored in the cloud and when each copy will be deleted (reads state/videos.json)."""
+    from owd.channel import load_settings
+    from owd.state import load_state
+    from owd.storage import StoragePolicy, summary
+
+    policy, state = StoragePolicy.from_settings(load_settings()), load_state()
+    lines = summary(state, policy)
+    print(f"{len(lines)} of at most {policy.max_videos} videos stored; posted ones are kept "
+          f"{policy.keep_days_after_posting} days.")
+    for line in lines:
+        print(f"  {line}")
 
 
 def cmd_youtube_login(args: argparse.Namespace) -> None:
-    """Sign in to YouTube once, from any device, and print the refresh token to store as a secret."""
+    """Sign in to YouTube once, in a browser on this computer, and print the refresh token to store as a secret."""
     from owd.env import require
-    from owd.youtube import device_login
+    from owd.youtube import Credentials, YouTube, browser_login
 
-    token = device_login(require("YOUTUBE_CLIENT_ID"), require("YOUTUBE_CLIENT_SECRET"))
-    print("\nSigned in. Add this as the GitHub secret YOUTUBE_REFRESH_TOKEN (Settings > Secrets and variables > "
-          "Actions), and keep it private:\n")
+    client_id, client_secret = require("YOUTUBE_CLIENT_ID"), require("YOUTUBE_CLIENT_SECRET")
+    token = browser_login(client_id, client_secret)
+    channel = YouTube(Credentials(client_id, client_secret, token), log=lambda line: None).channel_title()
+    print(f"\nSigned in. This token posts to the YouTube channel: {channel}")
+    print("If that's the right channel, add the token below as the GitHub secret YOUTUBE_REFRESH_TOKEN (Settings > "
+          "Secrets and variables > Actions), and keep it private:\n")
     print(token)
 
 
@@ -278,10 +295,13 @@ def main(argv: list[str] | None = None) -> None:
     run.add_argument("--angle", help="an idea or angle to steer this one video")
     run.set_defaults(run=cmd_run)
 
-    clean = commands.add_parser("cleanup", help="delete review files of posted (or old) videos")
+    clean = commands.add_parser("cleanup", help="delete stored copies that are due (posted long enough ago, discarded)")
     clean.set_defaults(run=cmd_cleanup)
 
-    login = commands.add_parser("youtube-login", help="sign in to YouTube once and print the refresh token")
+    storage = commands.add_parser("storage", help="show the stored videos and when each will be deleted")
+    storage.set_defaults(run=cmd_storage)
+
+    login = commands.add_parser("youtube-login", help="sign in to YouTube once (opens a browser) and print the token")
     login.set_defaults(run=cmd_youtube_login)
 
     steer = commands.add_parser("steering", help="read the steering documents and condense long ones")

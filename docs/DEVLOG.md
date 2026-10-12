@@ -6,6 +6,80 @@ entry here for each change (see `AGENTS.md`). The owner's standing instructions 
 
 ---
 
+## 2026-10-13 (night): Milestone 5, on GitHub; every video stored, deleted after posting
+
+**Owner's request:** she added this Mac's deploy key. Make storage of the videos a requirement: stored
+somewhere in the cloud, and, once posted automatically, deleted after a set time so the storage is never
+overwhelmed. Document every caveat (review-mode delivery, YouTube keeping uploads private) with its fix.
+
+### Pushed to GitHub
+
+- The repository already had one commit, made on GitHub ("Initial commit": an MIT `LICENSE`, copyright
+  breme-analytics, and a two-line README). The five local commits were replayed on top of it (no force push), so
+  her commit stays first. The README conflict kept the project README; checked: the only file that differs from
+  the local work is her `LICENSE`.
+- Before the first push, the whole history was scanned: no value from `.env`, and no key-shaped strings
+  (Google, OpenRouter, GitHub, AWS, private keys). The repository is private.
+
+### Storage is a requirement (`owd/storage.py`, `owd/autopilot.py`, `channel.toml` `[storage]`)
+
+- **Where:** a GitHub release per video in this repository, in both modes. Free, no limit on total size or
+  downloads (GitHub's docs), each file under 2 GiB. A 10.5-minute video is 555 MB (53 MB a minute), so up to
+  about 40 minutes fits; a bigger file stops the run before uploading.
+- **Rules:** (1) every video is stored before delivery, and if it can't be, the run fails; (2) a posted video's
+  copy is deleted `keep_days_after_posting` (7) days after it's posted; (3) discarded copies (issue closed as
+  "not planned"), half-stored copies from failed runs and stray `video-` releases are deleted at the next
+  cleanup; (4) at most `max_videos` (4) are stored: posted copies are deleted early to make room, and if all 4
+  are waiting to be posted, the bot makes no new video and says so on the run page.
+- **Changed from milestone 4:** unposted copies used to be deleted 7 days after they were made, which threw away
+  finished videos. The cap bounds storage instead. `auto` mode used to upload to YouTube without keeping any copy.
+- **Auto mode now:** store, upload (private, scheduled), and open a "Scheduled: ..." issue. The cleanup checks the
+  video on YouTube 30 minutes after its publish time: public, and the issue is closed and the copy deleted 7 days
+  later; still private, refused or missing, and the issue becomes "Ready to post: ..." with the reason, the fix
+  and the stored copy. If the upload itself fails (expired sign-in, quota, missing secrets), the same issue opens
+  at once. A video already on YouTube is never made again, even if a later step fails.
+- **Robustness:** the release tag is written to `state/videos.json` before anything is uploaded, so even a
+  half-stored copy is found; a failed file upload is retried twice after removing the half-uploaded file; a
+  failed deletion is kept and retried next time; `produce` and `cleanup` now share one queue (`bot-state`), so
+  they never edit the state file at once; a run stopped by the time limit is marked failed after 24 hours, so its
+  chapter is made again; older state files still load.
+- `python -m owd storage` lists the stored copies and when each will be deleted.
+
+### YouTube: what the official docs say today (checked 12 Oct 2026), and fixes
+
+- **Private lock: corrected.** Milestone 4 said every API upload from an unaudited project is locked private.
+  The `videos.insert` and `videos` reference pages now say "Videos uploaded from unverified API projects are not
+  restricted to private viewing mode". The API revision history still only has the July 2020 entry that
+  introduced the lock, with no entry lifting it. So the bot doesn't rely on either: it checks every scheduled
+  video really went public, and hands the stored copy back if not. The audit isn't needed before trying auto
+  mode, only if the lock shows up.
+- **Sign-in: fixed.** Google's device flow ("enter a code at google.com/device") only allows the `youtube` and
+  `youtube.readonly` scopes, so the milestone 4 `youtube-login` would have been refused (it asks for
+  `youtube.upload` and `youtube.force-ssl`, which caption uploads require). It now uses the desktop-app flow:
+  a local browser sign-in with a loopback redirect (`127.0.0.1`, any free port) and PKCE (S256), then prints
+  which channel the token posts to. DEPLOY.md now says to create a "Desktop app" client.
+- **Other limits, documented with fixes in DEPLOY.md "Caveats and fixes":** "Testing" OAuth apps get 7-day
+  refresh tokens (publish the app); tokens also die after 6 months unused or past 100 per client; custom
+  thumbnails and videos over 15 minutes need phone verification; 10,000 units and 100 uploads a day (a video
+  uses about 450 units).
+- **GitHub limits checked:** private repositories get 2,000 Actions minutes a month on 2-core, 8 GB machines
+  (public: unlimited, 4 cores); without a payment method usage is blocked, not billed; jobs stop at 6 hours;
+  caches are capped at 10 GB per repository and dropped after 7 days unused.
+
+### Checked
+
+- 27 new tests (`tests/test_storage.py`, `tests/test_autopilot.py`): the rules, delivery in both
+  modes, each YouTube fallback, catch-up from issues and YouTube, cleanup including strays, the cap pausing a run,
+  upload retries, release paging, and the browser sign-in end to end against a real local server (PKCE checked,
+  forged and denied answers refused).
+- Each rule was broken on purpose (9 mutations: cap ignored, failed copies kept, waiting copies deleted early,
+  uploaded chapter retried, no storage, locked video taken as posted, forged sign-in accepted, half upload not
+  cleared, fresh strays deleted), and a test failed every time.
+- Not checked yet: a real run on GitHub Actions (first one pending), a real YouTube upload, and the sign-in
+  against Google itself (needs her Google Cloud client).
+
+---
+
 ## 2026-10-12 (evening): Milestone 4, pictures that match the words, captions, suspense, runs on its own
 
 **Owner's feedback on the first long video:** great video, but the stock footage wasn't in sync with the
@@ -70,12 +144,14 @@ fills up; document everything. The repository is `breme-analytics/Youtube-automa
 - **Delivery, `auto` mode:** uploads to YouTube as private with `publishAt` set to the next posting slot
   (Tue/Fri 18:00 Nairobi by default), `containsSyntheticMedia` true, category Education, plus thumbnail and
   captions (`owd/youtube.py`). The one-time sign-in uses Google's device flow (`python -m owd youtube-login`),
-  so it works from a phone.
+  so it works from a phone. (Replaced in milestone 5: the device flow can't grant these scopes.)
 - **Why review mode first:** YouTube locks every API upload as private until the project passes YouTube's free
-  API audit, and it can't be unlocked afterwards.
+  API audit, and it can't be unlocked afterwards. (Corrected in milestone 5: the reference now says otherwise,
+  so the bot checks each video instead.)
 - **Cleanup (`python -m owd cleanup`, daily workflow):** a video is "posted" when its YouTube time has passed or
   the owner closes its issue. Its release files are deleted `keep_days` (7) after that, or 7 days after it was
   made if nobody posts it, and the issue is closed. Old workflow caches and run logs are deleted too.
+  (Replaced in milestone 5 by the storage rules: unposted copies are kept, within a cap.)
 - **Workflows:** `produce.yml` (Mon and Thu), `cleanup.yml` (daily), plus `tests.yml` and `image.yml`. Each run
   commits `state/` and the storyboard back, so any machine can pick up where the last run stopped.
 - **Models:** OpenRouter's free models now come first (`channel.toml` `[llm]`, five of them), because Gemini's

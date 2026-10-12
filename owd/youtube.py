@@ -1,37 +1,43 @@
-"""Posting to YouTube through the YouTube Data API v3, free (uploads have their own daily quota of
-100; a video uses 1 upload plus about 50 + 50 + 400 units for thumbnail, captions and checks, out
-of 10,000 a day).
+"""Posting to YouTube through the YouTube Data API v3, free. Per video: 1 upload (100 a day allowed)
+plus about 50 units for the thumbnail, 400 for the captions and a few 1-unit checks, out of the
+10,000 units a day every project gets.
 
-Authorisation is done once, from any device, with Google's device flow (`python -m owd youtube-login`):
-the bot shows a code, the owner enters it at google.com/device signed in to the channel's account, and
-the bot receives a refresh token. That token is stored as a GitHub secret and used on every run.
+Sign-in is done once, on any computer with a browser (`python -m owd youtube-login`): the bot opens
+Google's sign-in page, the owner signs in with the channel's account and allows access, and the bot
+prints a refresh token to store as a GitHub secret. It uses a "Desktop app" OAuth client with a
+loopback redirect and PKCE. (Google's device-code flow, "enter a code at google.com/device", only
+allows the youtube and youtube.readonly scopes, so it can't grant caption uploads.)
 
-Important limits (YouTube's, not the bot's):
-- Until the Google Cloud project passes YouTube's free API audit, every API upload is locked as
-  private, and that can't be undone. So the bot runs in "review" mode (the owner uploads in YouTube
-  Studio) until the audit is approved, then switches to "auto". See docs/DEPLOY.md.
-- While the OAuth app is in "Testing", Google expires the refresh token after 7 days. Publish the app
-  (Google Auth Platform > Audience > Publish app) to keep it working.
+YouTube's limits, and what the bot does about them, are in docs/DEPLOY.md ("Caveats and fixes"):
+uploads from an unaudited project may be kept private, sign-ins of an app in "Testing" expire after
+7 days, and custom thumbnails need a verified channel.
 """
 
 from __future__ import annotations
 
+import base64
+import hashlib
 import json
+import secrets
 import time
+import webbrowser
 from dataclasses import dataclass
 from datetime import datetime
+from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from typing import Callable
+from urllib.parse import parse_qs, urlencode, urlparse
 
 import httpx
 
-DEVICE_URL = "https://oauth2.googleapis.com/device/code"
+AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth"
 TOKEN_URL = "https://oauth2.googleapis.com/token"
 SCOPES = "https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube.force-ssl"
 UPLOAD_URL = "https://www.googleapis.com/upload/youtube/v3/videos"
 THUMBNAIL_URL = "https://www.googleapis.com/upload/youtube/v3/thumbnails/set"
 CAPTIONS_URL = "https://www.googleapis.com/upload/youtube/v3/captions"
 VIDEOS_URL = "https://www.googleapis.com/youtube/v3/videos"
+CHANNELS_URL = "https://www.googleapis.com/youtube/v3/channels"
 CHUNK = 16 * 1024 * 1024  # resumable upload pieces (a multiple of 256 KiB)
 EDUCATION = "27"
 
@@ -47,34 +53,87 @@ class Credentials:
     refresh_token: str
 
 
-def device_login(client_id: str, client_secret: str, *, http: httpx.Client | None = None,
-                 show: Callable[[str], None] = print, sleep: Callable[[float], None] = time.sleep) -> str:
-    """Google's device flow: shows a code to enter at google.com/device, waits, returns the refresh token."""
+# One-time sign-in (desktop app, loopback redirect, PKCE)
+
+
+def pkce_pair() -> tuple[str, str]:
+    """(code_verifier, code_challenge) for PKCE with S256."""
+    verifier = secrets.token_urlsafe(64)  # 86 characters from the allowed set
+    challenge = base64.urlsafe_b64encode(hashlib.sha256(verifier.encode("ascii")).digest()).rstrip(b"=").decode("ascii")
+    return verifier, challenge
+
+
+def sign_in_url(client_id: str, redirect_uri: str, challenge: str, state: str) -> str:
+    return AUTH_URL + "?" + urlencode({
+        "client_id": client_id, "redirect_uri": redirect_uri, "response_type": "code", "scope": SCOPES,
+        "code_challenge": challenge, "code_challenge_method": "S256", "state": state,
+        "access_type": "offline",  # ask for a refresh token...
+        "prompt": "consent",  # ...every time, even if this account allowed the app before
+    })
+
+
+class _Catcher(BaseHTTPRequestHandler):
+    def do_GET(self):  # noqa: N802 (http.server's naming)
+        query = parse_qs(urlparse(self.path).query)
+        if "code" not in query and "error" not in query:
+            self.send_response(404)  # the browser asking for /favicon.ico and the like
+            self.end_headers()
+            return
+        self.server.answer = {key: values[0] for key, values in query.items()}
+        done = "error" not in query
+        page = ("<h1>Signed in</h1><p>You can close this tab and go back to the terminal.</p>" if done else
+                "<h1>Not signed in</h1><p>Google said: " + query["error"][0].replace("<", "") + "</p>")
+        self.send_response(200)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.end_headers()
+        self.wfile.write(f"<!doctype html><title>YouTube sign-in</title>{page}".encode())
+
+    def log_message(self, *args):  # keep the terminal quiet
+        pass
+
+
+def browser_login(client_id: str, client_secret: str, *, http: httpx.Client | None = None,
+                  show: Callable[[str], None] = print, open_browser: Callable[[str], object] = webbrowser.open,
+                  timeout: float = 600) -> str:
+    """Open Google's sign-in page, wait for the owner to allow access, return the refresh token."""
     http = http or httpx.Client(timeout=30)
-    start = http.post(DEVICE_URL, data={"client_id": client_id, "scope": SCOPES})
-    if start.status_code != 200:
-        raise YouTubeError(f"Google refused the sign-in request ({start.status_code}): {start.text[:300]}")
-    data = start.json()
-    show(f"On any phone or computer, open {data['verification_url']} and enter the code: {data['user_code']}")
+    verifier, challenge = pkce_pair()
+    state = secrets.token_urlsafe(16)
+    server = HTTPServer(("127.0.0.1", 0), _Catcher)  # any free port on this computer only
+    server.answer = None
+    redirect_uri = f"http://127.0.0.1:{server.server_port}/"
+    url = sign_in_url(client_id, redirect_uri, challenge, state)
+    show("Opening Google's sign-in page. If no browser opens, paste this link into a browser on this computer:")
+    show(url)
     show("Sign in with the Google account that owns the YouTube channel, and allow access.")
-    interval = int(data.get("interval", 5))
-    deadline = time.monotonic() + int(data.get("expires_in", 1800))
-    while time.monotonic() < deadline:
-        sleep(interval)
-        poll = http.post(TOKEN_URL, data={"client_id": client_id, "client_secret": client_secret,
-                                          "device_code": data["device_code"],
-                                          "grant_type": "urn:ietf:params:oauth:grant-type:device_code"})
-        body = poll.json()
-        if poll.status_code == 200 and body.get("refresh_token"):
-            return body["refresh_token"]
-        error = body.get("error")
-        if error == "authorization_pending":
-            continue
-        if error == "slow_down":
-            interval += 5
-            continue
-        raise YouTubeError(f"Sign-in failed: {error or poll.status_code}")
-    raise YouTubeError("The code expired before it was entered; run the command again")
+    open_browser(url)
+    deadline = time.monotonic() + timeout
+    try:
+        while server.answer is None:
+            left = deadline - time.monotonic()
+            if left <= 0:
+                raise YouTubeError("Nobody signed in within 10 minutes; run the command again")
+            server.timeout = min(left, 5)
+            server.handle_request()
+    finally:
+        server.server_close()
+    answer = server.answer
+    if answer.get("state") != state:
+        raise YouTubeError("The sign-in answer didn't match this request; run the command again")
+    if "error" in answer:
+        raise YouTubeError(f"Google didn't allow access: {answer['error']}")
+    response = http.post(TOKEN_URL, data={"client_id": client_id, "client_secret": client_secret, "code": answer["code"],
+                                          "code_verifier": verifier, "grant_type": "authorization_code",
+                                          "redirect_uri": redirect_uri})
+    body = response.json() if response.headers.get("content-type", "").startswith("application/json") else {}
+    if response.status_code != 200:
+        raise YouTubeError(f"Google refused the sign-in ({response.status_code}): {body.get('error_description') or body.get('error') or response.text[:200]}")
+    if not body.get("refresh_token"):
+        raise YouTubeError("Google sent no refresh token; remove the app's access at myaccount.google.com/permissions and sign in again")
+    return body["refresh_token"]
+
+
+# The API
 
 
 class YouTube:
@@ -93,8 +152,9 @@ class YouTube:
                                                    "refresh_token": self.credentials.refresh_token,
                                                    "grant_type": "refresh_token"})
         if response.status_code != 200:
-            hint = (" The token has expired: if the OAuth app is still in Testing, publish it, then run "
-                    "`python -m owd youtube-login` again." if "invalid_grant" in response.text else "")
+            hint = (" invalid_grant: the sign-in has expired or was revoked. If the OAuth app is still in Testing, "
+                    "publish it; then run `python -m owd youtube-login` again and update YOUTUBE_REFRESH_TOKEN."
+                    if "invalid_grant" in response.text else "")
             raise YouTubeError(f"Couldn't get a YouTube access token ({response.status_code}).{hint}")
         body = response.json()
         self._token, self._expires = body["access_token"], time.monotonic() + int(body.get("expires_in", 3600))
@@ -139,14 +199,16 @@ class YouTube:
                     continue
                 raise YouTubeError(f"Upload failed at byte {sent} ({response.status_code}): {response.text[:300]}")
 
-    def set_thumbnail(self, video_id: str, image: Path) -> None:
+    def set_thumbnail(self, video_id: str, image: Path) -> bool:
         response = self.http.post(THUMBNAIL_URL, params={"videoId": video_id},
                                   headers={**self._auth(), "Content-Type": "image/jpeg"}, content=Path(image).read_bytes())
         if response.status_code != 200:
             # Custom thumbnails need a verified channel (youtube.com/verify, free): warn, don't fail.
             self.log(f"thumbnail not set ({response.status_code}); verify the channel at youtube.com/verify")
+            return False
+        return True
 
-    def add_captions(self, video_id: str, srt: Path, language: str = "en", name: str = "English") -> None:
+    def add_captions(self, video_id: str, srt: Path, language: str = "en", name: str = "English") -> bool:
         boundary = "owdcaptionsboundary"
         meta = json.dumps({"snippet": {"videoId": video_id, "language": language, "name": name, "isDraft": False}})
         body = (f"--{boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n{meta}\r\n"
@@ -157,10 +219,23 @@ class YouTube:
                                   content=body)
         if response.status_code not in (200, 201):
             self.log(f"captions not added ({response.status_code}): {response.text[:200]}")
+            return False
+        return True
 
     def status(self, video_id: str) -> dict:
+        """The video's status (privacyStatus, uploadStatus, publishAt, ...), or {} if it isn't on YouTube."""
         response = self.http.get(VIDEOS_URL, params={"part": "status", "id": video_id}, headers=self._auth())
         if response.status_code != 200:
-            raise YouTubeError(f"Couldn't read the video's status ({response.status_code})")
+            raise YouTubeError(f"Couldn't read the video's status ({response.status_code}): {response.text[:200]}")
         items = response.json().get("items") or []
-        return items[0]["status"] if items else {}
+        return items[0].get("status", {}) if items else {}
+
+    def channel_title(self) -> str:
+        """The name of the channel these credentials post to."""
+        response = self.http.get(CHANNELS_URL, params={"part": "snippet", "mine": "true"}, headers=self._auth())
+        if response.status_code != 200:
+            raise YouTubeError(f"Couldn't read the channel ({response.status_code}): {response.text[:200]}")
+        items = response.json().get("items") or []
+        if not items:
+            raise YouTubeError("This Google account has no YouTube channel")
+        return items[0]["snippet"]["title"]

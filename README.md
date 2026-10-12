@@ -47,11 +47,12 @@ before posting (title options, every factual claim, every quote, the narration c
 
 | Command | What it does |
 |---|---|
-| `python -m owd run [--angle "..."]` | Everything at once, as the schedule does: next chapter → script → video → delivery |
+| `python -m owd run [--angle "..."]` | Everything at once, as the schedule does: next chapter → script → video → stored → delivered |
 | `python -m owd write --chapter N [--book ID] [--angle "..."]` | Write a long-form storyboard from one chapter of a book in `channel.toml` |
 | `python -m owd render STORYBOARD [--preview]` | Make the video. `--preview` downloads smaller footage (for slow connections) |
-| `python -m owd cleanup` | Delete the download files of posted (or old) videos |
-| `python -m owd youtube-login` | Sign in to YouTube once (any device) and print the token for automatic posting |
+| `python -m owd cleanup` | Apply the storage rules: delete stored copies that are due |
+| `python -m owd storage` | List the stored videos and when each copy will be deleted |
+| `python -m owd youtube-login` | Sign in to YouTube once (opens a browser) and print the token for automatic posting |
 | `python -m owd steering` | Read the steering documents and condense long uploads |
 | `python -m owd news [--topic words] [--kind platform]` | Research stories the scripts can cite, or YouTube platform news |
 | `python -m owd voices` | Read a sample paragraph in each candidate voice |
@@ -78,15 +79,17 @@ Prefix each with `uv run` outside the dev container.
    review. One picture per scene, so it never wanders away from the words.
 7. **Video**: crossfades inside a chapter, a dip through black between chapters, chapter titles, quote cards
    (footage dimmed, the book's words in Libre Baskerville) and captions (spoken word in gold). -14 LUFS.
-8. **Delivery and cleanup**: a GitHub release with the files and an issue that tells the owner to post it, or
-   (after YouTube's audit) a scheduled upload. The files are deleted a few days after posting.
+8. **Storage, delivery and cleanup**: every video is first stored in the cloud (a GitHub release in this
+   repository). Then either an issue tells the owner to post it, or the bot uploads and schedules it on YouTube
+   (and hands the stored copy to the owner if YouTube refuses or keeps it private). A copy is deleted 7 days after
+   the video is posted, and at most 4 are stored at once. Rules and caveats: [docs/DEPLOY.md](docs/DEPLOY.md).
 
 ## Settings
 
 - `steering/instructions.md` and `steering/references/`: how the bot should write (titles, retention,
   voice, visuals, YouTube rules). Plain English; read before every script.
-- `channel.toml`: voice and speed, video length, books, language models (in fallback order), news feeds
-  and research keywords.
+- `channel.toml`: voice and speed, video length, posting schedule and mode, storage rules, books, language
+  models (in fallback order), news feeds and research keywords.
 - `.env` (local) or CI/Codespaces secrets: the API keys listed in `.env.example`.
 
 ## Working from a low-powered machine
