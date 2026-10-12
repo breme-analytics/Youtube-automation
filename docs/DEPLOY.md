@@ -44,12 +44,12 @@ you give an angle for that one video.
 | `PIXABAY_API_KEY` | pixabay.com/api/docs, after signing in | Footage |
 | `OPENROUTER_API_KEY` | openrouter.ai/keys | Writing the scripts (free models) |
 | `GEMINI_API_KEY` | aistudio.google.com/apikey | Matching pictures to the words; script fallback |
-| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare dashboard, right sidebar | Sharper paintings (optional) |
-| `CLOUDFLARE_AI_TOKEN` | Cloudflare → AI → Workers AI → **Use REST API** → Create a Workers AI API Token | Sharper paintings (optional) |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare dashboard, right sidebar | Paintings for scenes no clip fits (recommended) |
+| `CLOUDFLARE_AI_TOKEN` | Cloudflare → AI → Workers AI → **Use REST API** → Create a Workers AI API Token | Paintings (recommended) |
 | `YOUTUBE_CLIENT_ID`, `YOUTUBE_CLIENT_SECRET`, `YOUTUBE_REFRESH_TOKEN` | Step 4 below | Only for `auto` mode |
 
-Without the Cloudflare token, paintings come from Pollinations, which needs no key (a little softer at
-1024x576, scaled up to 1080p).
+Without the Cloudflare token there are no paintings: a scene that no clip fits uses the closest clip, and the
+review list flags it.
 
 ## 3. Your first video (review mode)
 
@@ -90,8 +90,7 @@ Edit `steering/instructions.md` on GitHub (the pencil icon), or upload a PDF, Wo
 | OpenRouter free models | 50 requests a day | About 5 per video |
 | Gemini (AI Studio) | A few hundred Flash-Lite requests a day | About 50 per video (picture checks) |
 | Pixabay | 100 requests a minute; searches cached 24 h | About 50 searches per video |
-| Cloudflare Workers AI (optional) | 10,000 neurons a day | About 40 paintings |
-| Pollinations | Free, no key | Paintings when Cloudflare isn't set up |
+| Cloudflare Workers AI (recommended) | 10,000 neurons a day | About 40 paintings |
 | YouTube Data API | 10,000 units and 100 uploads a day | About 500 units per video |
 
 No service here has a card on file, so none of them can charge you.

@@ -113,8 +113,8 @@ def render_clip(
     ]
     if grade:
         chain += ["eq=contrast=1.04:saturation=1.08", "vignette=angle=PI/6"]
-    # If the clip still runs out (rounding, or a very short clip), hold its last frame.
-    chain += ["tpad=stop_mode=clone:stop_duration=2", "format=yuv420p", "setsar=1"]
+    # If the clip still runs out (rounding, or a very short clip), hold its last frame for the rest.
+    chain += [f"tpad=stop_mode=clone:stop_duration={seconds + 1:.3f}", "format=yuv420p", "setsar=1"]
     ffmpeg(["-ss", f"{begin:.3f}", "-t", f"{span + 0.5:.3f}", "-i", src, "-vf", ",".join(chain),
             "-frames:v", frame_count(seconds, fps), "-an", "-c:v", "libx264", "-preset", "veryfast", "-crf", "16", out])
     return Path(out)
@@ -193,8 +193,17 @@ def _checked_lengths(shot_seconds: Sequence[float], fade: float, fps: int) -> li
 
 
 def _crossfades(count: int, seconds: Sequence[float], fade: float, fps: int, transition: str = "fade"):
-    """Filtergraph parts that crossfade inputs 0..count-1, and the label of the result."""
-    parts = [f"[{i}:v]fps={fps},settb=AVTB,format=yuv420p,setsar=1[s{i}]" for i in range(count)]
+    """Filtergraph parts that crossfade inputs 0..count-1, and the label of the result.
+
+    Every input is first made exactly as long as planned (its last frame held if the file is short,
+    cut if it's long). Otherwise one short shot ends the xfade chain early, every later picture runs
+    ahead of the narration and the video ends on a frozen frame."""
+    parts = []
+    for i in range(count):
+        frames = round(seconds[i] * fps)
+        parts.append(f"[{i}:v]fps={fps},settb=AVTB,format=yuv420p,setsar=1,"
+                     f"tpad=stop_mode=clone:stop_duration={seconds[i] + 2:.3f},trim=end_frame={frames},"
+                     f"setpts=PTS-STARTPTS[s{i}]")
     last = "s0"
     for index, offset in enumerate(xfade_offsets(seconds, fade), start=1):
         parts.append(

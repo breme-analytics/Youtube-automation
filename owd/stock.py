@@ -11,6 +11,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import os
 import re
 import time
 from dataclasses import dataclass
@@ -293,6 +294,7 @@ class Pixabay:
     def download(self, video: StockVideo, rendition: Rendition) -> Path:
         dest = self.cache_dir / "clips" / f"{video.id}-{rendition.name}.mp4"
         if dest.is_file() and dest.stat().st_size > 0:
+            os.utime(dest)  # mark it as used now, so cache pruning keeps clips that are still in use
             return dest
         dest.parent.mkdir(parents=True, exist_ok=True)
         part = dest.with_suffix(".part")

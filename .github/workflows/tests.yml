@@ -4,6 +4,10 @@ name: tests
 # (cached between runs) and run every test, including the slow model tests.
 on:
   push:
+    paths-ignore:   # the bot's own progress commits and docs don't need a test run
+      - "state/**"
+      - "storyboards/**"
+      - "docs/**"
   pull_request:
   workflow_dispatch:
 

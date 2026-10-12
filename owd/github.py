@@ -90,7 +90,13 @@ class GitHub:
         payload = {"title": title, "body": body}
         if labels:
             payload["labels"] = labels
-        return self._call("POST", f"{API}/repos/{self.repo}/issues", json=payload).json()["number"]
+        try:
+            return self._call("POST", f"{API}/repos/{self.repo}/issues", json=payload).json()["number"]
+        except GitHubError as error:
+            if not labels or "422" not in str(error):
+                raise
+            # A missing or refused label must never stop the owner hearing about her video.
+            return self._call("POST", f"{API}/repos/{self.repo}/issues", json={"title": title, "body": body}).json()["number"]
 
     def comment(self, issue: int, body: str) -> None:
         self._call("POST", f"{API}/repos/{self.repo}/issues/{issue}/comments", json={"body": body})

@@ -13,6 +13,7 @@ import shutil
 import time
 from dataclasses import asdict, dataclass, field, replace
 from pathlib import Path
+from typing import Sequence
 
 import numpy as np
 
@@ -24,13 +25,13 @@ from owd.overlays import ChapterCard, QuoteCard, card_windows, overlays_ass
 from owd.qa import compare, transcribe
 from owd.quotes import check_quotes, quotes_in
 from owd.render import GENTLE, MOTIONS, assemble, finish, grab_frame, join_shots, render_clip, render_scene
-from owd.stock import EDGE_TRIM, Pixabay, StockVideo, clip_window
+from owd.stock import EDGE_TRIM, MAX_SLOWDOWN, Pixabay, StockVideo, clip_window
 from owd.storyboard import Storyboard
 from owd.thumbnail import make_thumbnail
 from owd.timeline import chapter_shots, plan_shots, shot_lengths
 from owd.tts import PARAGRAPH_PAUSE, Cast, Kokoro, Narration, plan_chunks
 from owd.vision import VisionJudge
-from owd.visuals import choose_visuals
+from owd.visuals import DEFAULT_FALLBACKS, choose_visuals
 
 MAX_SHOT = {"short": 5.5, "long": 9.0}
 FADE = {"short": 0.5, "long": 0.8}
@@ -73,6 +74,30 @@ def narrate(storyboard: Storyboard, cast: Cast, kokoro: Kokoro) -> tuple[Narrati
         parts.extend(scene_parts)
         clock += sum(len(part) for part in scene_parts) / SAMPLE_RATE
     return Narration(np.concatenate(parts), words, cast), spans
+
+
+def next_clip(visual, cursor: dict[int, float], seconds: float):
+    """The footage for a scene's next shot: the first of the scene's fitting clips that still has
+    enough unseen material for `seconds`, from where this video left off in it; if none has, the
+    best clip again from its beginning. Returns (video, rendition, start)."""
+    for video, rendition in visual.clips:
+        start = cursor.get(video.id, EDGE_TRIM)
+        if (video.duration - EDGE_TRIM - start) * MAX_SLOWDOWN >= seconds:
+            return video, rendition, start
+    video, rendition = visual.clips[0]
+    return video, rendition, EDGE_TRIM
+
+
+def check_lengths(clips: list[Path], planned: list[float], fps: int = 30) -> None:
+    """Every chapter's picture must be exactly as long as planned, or the pictures would drift away
+    from the narration (and the video would end on a frozen frame). Stops the run if not."""
+    from owd.ffmpeg import duration as media_duration
+
+    for index, (clip, seconds) in enumerate(zip(clips, planned)):
+        actual = media_duration(clip)
+        if abs(actual - seconds) > 1.5 / fps:
+            raise RuntimeError(f"Chapter {index + 1}'s picture is {actual:.2f}s long instead of {seconds:.2f}s; "
+                               "the video would drift out of sync, so it was not finished")
 
 
 def chapter_of_scenes(storyboard: Storyboard) -> tuple[list[int], list[str]]:
@@ -170,6 +195,7 @@ def produce(
     judge: VisionJudge | None = None,
     images: SceneImages | None = None,
     burn_captions: bool = True,
+    fallbacks: Sequence[str] = DEFAULT_FALLBACKS,
     max_upscale: float = 1.0,
     log=print,
 ) -> Production:
@@ -212,7 +238,7 @@ def produce(
     for scene_index, seconds in zip(shot_scenes, lengths):
         scene_seconds[scene_index] += seconds
     casting = choose_visuals(storyboard.scenes, scene_seconds, stock, fmt, judge=judge, images=images,
-                             max_upscale=max_upscale, log=log)
+                             max_upscale=max_upscale, fallbacks=fallbacks, log=log)
     warnings += casting.warnings
     shots: list[Path] = []
     credits: list[str] = []
@@ -224,9 +250,9 @@ def produce(
         scene, visual = storyboard.scenes[scene_index], casting.visuals[scene_index]
         out = work / f"shot-{index:03d}.mp4"
         if visual.kind == "clip":
-            video, rendition = visual.clip
+            video, rendition, start = next_clip(visual, cursor, seconds)
             clip = stock.download(video, rendition)
-            begin, span, _ = clip_window(video.duration, seconds, cursor.get(video.id, EDGE_TRIM))
+            begin, span, _ = clip_window(video.duration, seconds, start)
             cursor[video.id] = begin + span
             shots.append(render_clip(clip, out, seconds=seconds, size=fmt.size, start=begin))
             credits.append(video.credit)
@@ -269,6 +295,7 @@ def produce(
                                        fade=fade, dip_in=DIP if index > 0 else 0.0,
                                        dip_out=DIP if index < len(plan) - 1 else 0.0))
             taken += count
+        check_lengths(pictures, [end - start for start, end, _ in plan])
         video_path = finish(pictures, work / "narration.wav", folder / "video.mp4", overlays=overlay_file)
     else:
         chapters = []

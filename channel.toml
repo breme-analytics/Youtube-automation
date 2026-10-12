@@ -56,6 +56,9 @@ cloudflare = ["@cf/google/gemma-4-26b-a4b-it"]   # needs CLOUDFLARE_AI_TOKEN (Wo
 # Visual style lives in steering/references/visual-style.md. No default category: scenes about
 # the mind and spirit span backgrounds, nature, religion, science and feelings.
 default_category = ""
+# Searched when a scene's own footage search finds nothing usable; the vision check still decides
+# whether any of these fits the words (otherwise a painting is used).
+fallback = ["candle flame", "ink water", "book pages", "fog forest", "galaxy stars", "sunrise mountains", "rain window"]
 
 [news]
 # Words that make a research story relevant to this channel (matched in titles and summaries)

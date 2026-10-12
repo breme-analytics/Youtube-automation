@@ -80,7 +80,13 @@ jobs:
       - run: uv run --frozen python -m owd fetch-models
 
       - name: Make and deliver the next video
-        run: uv run --frozen python -m owd run --angle "${{ inputs.angle }}"
+        env:
+          ANGLE: ${{ inputs.angle }}   # passed as data, never pasted into the script
+        run: uv run --frozen python -m owd run --angle "$ANGLE"
+
+      - name: Keep the footage cache small (clips unused for 30 days are dropped)
+        if: always()
+        run: find .owd-cache -type f -mtime +30 -delete 2>/dev/null || true
 
       - name: Save progress (state and storyboard) to the repository
         if: always()

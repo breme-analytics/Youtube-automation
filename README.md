@@ -74,8 +74,8 @@ Prefix each with `uv run` outside the dev container.
 5. **Narration check**: faster-whisper transcribes the audio and compares it with the script.
 6. **Pictures that match the words**: for each scene, a free vision model (Gemini Flash-Lite) looks at the best
    Pixabay clips next to the sentence and scores them; the best one that fits is used. If none fits, the scene
-   gets a painting of the moment (Cloudflare FLUX, or Pollinations without a key). One picture per scene, so
-   it never wanders away from the words.
+   gets a painting of the moment (Cloudflare FLUX, free daily allowance), or the closest clip, flagged for
+   review. One picture per scene, so it never wanders away from the words.
 7. **Video**: crossfades inside a chapter, a dip through black between chapters, chapter titles, quote cards
    (footage dimmed, the book's words in Libre Baskerville) and captions (spoken word in gold). -14 LUFS.
 8. **Delivery and cleanup**: a GitHub release with the files and an issue that tells the owner to post it, or

@@ -75,6 +75,20 @@ def test_github_release_upload_issue_and_delete(tmp_path):
         gh_client(lambda r: httpx.Response(403, text="nope")).create_issue("x", "y")
 
 
+def test_an_issue_is_still_opened_if_the_label_is_refused():
+    bodies = []
+
+    def handler(request):
+        body = json.loads(request.content)
+        bodies.append(body)
+        if "labels" in body:
+            return httpx.Response(422, text="Validation Failed")
+        return httpx.Response(201, json={"number": 3})
+
+    assert gh_client(handler).create_issue("Ready", "b", ["ready-to-post"]) == 3
+    assert "labels" in bodies[0] and "labels" not in bodies[1]
+
+
 def yt_handler(log):
     def handler(request):
         log.append((request.method, str(request.url)))

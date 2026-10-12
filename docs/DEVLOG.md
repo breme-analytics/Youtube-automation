@@ -24,9 +24,13 @@ fills up; document everything. The repository is `breme-analytics/Youtube-automa
   Tested on the real Pixabay candle clips: it picked a dark, solitary candle (9/10) for a sentence about hope
   burning out, over the cosy and festive ones.
 - **When no clip fits:** the scene gets a painting of the moment (`owd/images.py`). The writer now gives every
-  scene an `image` description. Paintings come from Cloudflare Workers AI FLUX.2 [klein] when
-  `CLOUDFLARE_AI_TOKEN` is set, otherwise from Pollinations, which is free and needs no key (about 1024x576;
-  the corner mark is cropped off). Paintings drift very slowly (Mario Joos: no needless camera moves).
+  scene an `image` description. Paintings come from Cloudflare Workers AI FLUX.2 [klein] inside its free daily
+  allowance (about 40 a day), so they need `CLOUDFLARE_AI_TOKEN`. Without it, the scene uses the closest clip
+  the vision check found and is flagged for review. Paintings drift very slowly (Mario Joos: no needless
+  camera moves).
+- **Pollinations dropped:** it was the no-key painting fallback, and the first test painting worked, but during
+  the live render it began answering HTTP 402 to every request. Its docs now say all generation needs a key and
+  paid credits ("pollen"), so it was removed: nothing in the bot may cost money.
 - **One picture per scene:** a scene that runs over several shots stays on its one picture (another part of
   the same clip), so the picture never wanders away from the words. Shots in long videos can last up to 9 s.
 - **Writer:** one scene is one idea in 35 to 60 words, with a footage search that literally shows that idea.
@@ -105,14 +109,52 @@ fills up; document everything. The repository is `breme-analytics/Youtube-automa
 
 ### Checked
 
-- 151 tests pass (fast and slow). New tests cover:
+- 148 tests pass (fast and slow). New tests cover:
   - the vision judge (scores, pacing, rate limits, a refused key);
-  - scene visuals (vision pick, painting fallback, tag fallback);
-  - the image makers (cache, crop, fallback, Cloudflare multipart);
+  - scene visuals (vision pick, painting fallback, closest-clip fallback, fallback searches);
+  - the painting maker (cache, refused token, used-up allowance, no token);
   - pauses, captions hidden under cards, PDF and Word steering, digests;
   - state and next chapter, posting slots, the GitHub client, the YouTube upload, schedule, thumbnail,
-    captions and device login, and cleanup timing.
-- Live: the vision check on Pixabay candles; Pollinations paintings; a full OpenRouter-only script.
+    captions and device login, and cleanup timing;
+  - picture-to-narration sync (`tests/test_sync.py`).
+- Live: the vision check on Pixabay candles; a full OpenRouter-only script; a full render of it.
+
+### Bug found in the second video: pictures drifting ahead of the narration
+
+- **What happened:** checking frames of the OpenRouter-written video, a shot of bare feet on a beach appeared
+  while George said "Imagine a seedling pushing through dark soil", although the vision check had picked a
+  seedling clip (9/10) for that scene. Measuring every chapter showed chapter 4's picture was 48.6 s long
+  instead of 204.3 s.
+- **Cause:** when a scene ran longer than its clip, a shot rendered short (4.2 s instead of 6.9 s, because only
+  2 s of the clip's last frame was held). One short input ends ffmpeg's crossfade chain early, so the rest of the
+  chapter was lost, every later picture ran 156 s ahead of the words, and the video ended on a 2.5-minute frozen
+  frame.
+- **The first long video was not affected:** all its chapters matched their planned length to the frame, so
+  the owner's "not in sync" was about meaning, which the vision check fixes.
+- **Fixes:**
+  - every shot is forced to exactly its planned number of frames before crossfading (the last frame is held
+    if a file is short);
+  - a shot that runs out of footage holds its last frame for as long as needed;
+  - a scene keeps up to three clips that fit its words and moves to the next one when a clip runs out;
+  - before the final encode, every chapter's picture length is checked against the plan, and the run stops
+    rather than deliver a drifting video.
+- **Footage fallbacks:** a scene whose own search finds nothing (like "quill writing") now tries each word on
+  its own, then the channel's fallback searches (`channel.toml` `[footage] fallback`), and the vision check
+  still decides whether anything fits.
+- **Re-rendered and verified:** every chapter's picture matches its planned length to within 7 ms; the
+  seedling clip is on screen exactly when George says "seedling"; the last minute moves normally; 49 clips,
+  41 vision checks, 14 minutes on the Mac. One scene ("brain neurons", best clip 4/10) used its closest clip
+  because there is no Cloudflare token yet for paintings, and was flagged in `review.md`.
+
+### Next
+
+1. The owner adds this Mac's deploy key to `Youtube-automation` with write access; then push, and watch the
+   first `tests` and `image` runs on GitHub.
+2. Add the repository secrets (docs/DEPLOY.md step 2), ideally with a free `CLOUDFLARE_AI_TOKEN` for paintings.
+3. Run `produce` by hand once and measure how long a video takes on GitHub's 2-core machine (not measured yet;
+   estimated 60 to 120 minutes).
+4. For posting on its own: Google Cloud OAuth client, `python -m owd youtube-login`, and YouTube's free API
+   audit; then `mode = "auto"`.
 
 ---
 

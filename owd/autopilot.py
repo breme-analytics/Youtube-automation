@@ -120,8 +120,10 @@ def render(ctx: Context, record: VideoRecord):
     stock = Pixabay(require("PIXABAY_API_KEY"), cache_dir() / "pixabay")
     judge = VisionJudge(ctx.env.get("GEMINI_API_KEY"), log=log) if video.get("match_visuals", True) else None
     images = SceneImages(cache_dir() / "images", env=ctx.env, log=log) if video.get("paintings", True) else None
+    fallbacks = ctx.settings.get("footage", {}).get("fallback") or None
     return produce(load_storyboard(ROOT / record.storyboard), OUTPUT_DIR / "videos" / record.slug, cast=load_cast(),
-                   stock=stock, judge=judge, images=images, burn_captions=bool(video.get("captions", True)), log=log)
+                   stock=stock, judge=judge, images=images, burn_captions=bool(video.get("captions", True)), log=log,
+                   **({"fallbacks": fallbacks} if fallbacks else {}))
 
 
 def _review_body(record: VideoRecord, result, links: dict[str, str], metadata: dict) -> str:

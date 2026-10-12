@@ -122,6 +122,7 @@ def cmd_render(args: argparse.Namespace) -> None:
 
     load_dotenv()
     settings = load_settings().get("video", {})
+    fallbacks = load_settings().get("footage", {}).get("fallback") or None
     board = load_storyboard(args.storyboard)
     out = Path(args.out) if args.out else OUTPUT_DIR / "videos" / Path(args.storyboard).stem
     stock = Pixabay(require("PIXABAY_API_KEY"), cache_dir() / "pixabay")
@@ -130,7 +131,8 @@ def cmd_render(args: argparse.Namespace) -> None:
     images = SceneImages(cache_dir() / "images", log=log) if settings.get("paintings", True) else None
     started = time.perf_counter()
     result = produce(board, out, cast=load_cast(), stock=stock, judge=judge, images=images,
-                     burn_captions=bool(settings.get("captions", True)), max_upscale=1.4 if args.preview else 1.0)
+                     burn_captions=bool(settings.get("captions", True)), max_upscale=1.4 if args.preview else 1.0,
+                     **({"fallbacks": fallbacks} if fallbacks else {}))
     print(f"Done in {time.perf_counter() - started:.0f}s: {result.folder}")
     print(f"Before posting, read {result.review}")
     for warning in result.warnings:

@@ -55,13 +55,14 @@ class FakeJudge:
 class FakeImages:
     def __init__(self, fail=False):
         self.fail, self.prompts = fail, []
+        self.available = True
 
     def generate(self, prompt, seed=0):
         if self.fail:
             raise ImageError("offline")
         self.prompts.append(prompt)
         from owd.images import Generated
-        return Generated(f"/tmp/{seed}.png", "pollinations")
+        return Generated(f"/tmp/{seed}.png", "cloudflare")
 
 
 SCENES = [
@@ -91,53 +92,72 @@ def test_a_painting_replaces_footage_that_doesnt_fit():
 
 
 def test_without_vision_or_paintings_the_best_tag_match_is_used_and_flagged():
-    casting = choose_visuals(SCENES[:1], [8.0], FakeStock(STOCK), LONG, judge=FakeJudge([1, 1, 1]),
+    casting = choose_visuals(SCENES[:1], [8.0], FakeStock(STOCK), LONG, judge=FakeJudge([1, 4, 2]),
                              images=FakeImages(fail=True), log=lambda m: None)
-    assert casting.visuals[0].kind == "clip" and "no painting" in casting.warnings[0]
+    visual = casting.visuals[0]
+    assert visual.kind == "clip" and visual.score == 4  # the closest of the three
+    assert "no painting" in casting.warnings[0] and "closest clip" in casting.warnings[1]
     nothing = choose_visuals([Scene("unicorn", "x")], [5.0], FakeStock(STOCK), LONG, judge=None, images=None,
-                             log=lambda m: None)
+                             fallbacks=(), log=lambda m: None)
     assert nothing.visuals[0].kind == "none" and "plain background" in nothing.warnings[0]
     tags_only = choose_visuals(SCENES[:1], [8.0], FakeStock(STOCK), LONG, judge=None, images=None, log=lambda m: None)
     assert tags_only.visuals[0].kind == "clip" and tags_only.visuals[0].score is None
 
 
-def test_scene_images_cache_and_crop_pollinations_and_fall_back(tmp_path):
+def test_fallback_searches_are_tried_when_a_scene_finds_nothing_and_vision_still_decides():
+    judge = FakeJudge([7, 3])
+    casting = choose_visuals([Scene("quill writing", "He wrote by candlelight.")], [8.0], FakeStock(STOCK), LONG,
+                             judge=judge, images=None, fallbacks=("candle flame",), log=lambda m: None)
+    visual = casting.visuals[0]
+    assert visual.kind == "clip" and "candle" in visual.clip[0].tags[0] and visual.score == 7
+    assert judge.calls == 1
+
+
+def test_a_scene_keeps_every_clip_that_fits_best_first():
+    casting = choose_visuals(SCENES[:1], [20.0], FakeStock(STOCK), LONG, judge=FakeJudge([6, 9]), images=None,
+                             log=lambda m: None)
+    scores = [9, 6]
+    assert len(casting.visuals[0].clips) == 2 and casting.visuals[0].score == scores[0]
+
+
+def test_scene_images_come_from_cloudflare_and_are_cached(tmp_path):
     calls = []
 
     def handler(request):
-        calls.append(str(request.url))
-        if "cloudflare" in str(request.url):
-            return httpx.Response(401)
-        return httpx.Response(200, content=png(), headers={"content-type": "image/jpeg"})
-
-    env = {"CLOUDFLARE_ACCOUNT_ID": "acc", "CLOUDFLARE_AI_TOKEN": "t"}
-    maker = SceneImages(tmp_path, env=env, http=httpx.Client(transport=httpx.MockTransport(handler)), sleep=lambda s: None)
-    first = maker.generate("a lantern in a misty garden", seed=1)
-    assert first.provider == "pollinations" and Image.open(first.path).size == (1024, 536)  # bottom mark cropped
-    again = maker.generate("a lantern in a misty garden", seed=1)
-    assert again.path == first.path
-    assert sum("cloudflare" in c for c in calls) == 1 and sum("pollinations" in c for c in calls) == 1
-    maker.generate("another scene", seed=2)
-    assert sum("cloudflare" in c for c in calls) == 1  # a refused token isn't tried again
-
-
-def test_scene_images_use_cloudflare_first_when_it_works(tmp_path):
-    def handler(request):
+        calls.append(request)
         assert b'name="prompt"' in request.content and b'name="width"' in request.content
         return httpx.Response(200, json={"result": {"image": base64.b64encode(png((1344, 768))).decode()}})
 
-    maker = SceneImages(tmp_path, env={"CLOUDFLARE_ACCOUNT_ID": "acc", "CLOUDFLARE_AI_TOKEN": "t"},
-                        http=httpx.Client(transport=httpx.MockTransport(handler)))
+    env = {"CLOUDFLARE_ACCOUNT_ID": "acc", "CLOUDFLARE_AI_TOKEN": "t"}
+    maker = SceneImages(tmp_path, env=env, http=httpx.Client(transport=httpx.MockTransport(handler)))
     made = maker.generate("an hourglass on a stone table")
     assert made.provider == "cloudflare" and Image.open(made.path).size == (1344, 768)
+    assert maker.generate("an hourglass on a stone table").path == made.path and len(calls) == 1
 
 
-def test_small_or_failing_images_raise(tmp_path):
-    tiny = SceneImages(tmp_path, env={}, sleep=lambda s: None, http=httpx.Client(transport=httpx.MockTransport(
-        lambda r: httpx.Response(200, content=png((300, 200)), headers={"content-type": "image/png"}))))
-    with pytest.raises(ImageError, match="too small"):
-        tiny.generate("x")
-    down = SceneImages(tmp_path / "b", env={}, sleep=lambda s: None,
-                       http=httpx.Client(transport=httpx.MockTransport(lambda r: httpx.Response(503))))
-    with pytest.raises(ImageError, match="no image service worked"):
-        down.generate("y")
+def test_a_refused_token_or_used_up_allowance_stops_paintings_for_the_run(tmp_path):
+    env = {"CLOUDFLARE_ACCOUNT_ID": "acc", "CLOUDFLARE_AI_TOKEN": "t"}
+    calls = []
+
+    def refused(request):
+        calls.append(request)
+        return httpx.Response(401)
+
+    maker = SceneImages(tmp_path, env=env, http=httpx.Client(transport=httpx.MockTransport(refused)))
+    with pytest.raises(ImageError, match="Workers AI permission"):
+        maker.generate("a")
+    with pytest.raises(ImageError):
+        maker.generate("b")
+    assert len(calls) == 1  # not asked again after the refusal
+    used_up = SceneImages(tmp_path / "u", env=env,
+                          http=httpx.Client(transport=httpx.MockTransport(lambda r: httpx.Response(429))))
+    with pytest.raises(ImageError, match="allowance"):
+        used_up.generate("c")
+    assert used_up.available is False
+
+
+def test_without_a_token_there_are_no_paintings_and_nothing_is_called(tmp_path):
+    maker = SceneImages(tmp_path, env={}, http=httpx.Client(transport=httpx.MockTransport(lambda r: 1 / 0)))
+    assert maker.available is False
+    with pytest.raises(ImageError, match="CLOUDFLARE_AI_TOKEN"):
+        maker.generate("x")
