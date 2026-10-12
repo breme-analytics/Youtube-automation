@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
+
+# Rendered media, work files and downloaded models stay local (or become CI artifacts)
+output/
+models/
+.hf/
+
+# Secrets: API keys and OAuth tokens live in .env locally and in GitHub secrets in CI
+.env
+*.env
+client_secret*.json
+token*.json

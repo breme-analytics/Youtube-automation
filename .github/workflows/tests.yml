@@ -1,0 +1,48 @@
+name: tests
+
+# Every push: install exactly what uv.lock says on a clean Ubuntu runner, fetch the pinned models
+# (cached between runs) and run every test, including the slow model tests.
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      HF_HOME: ${{ github.workspace }}/.hf
+      HF_HUB_DISABLE_TELEMETRY: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ffmpeg (Ubuntu's build includes libass for captions)
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends ffmpeg
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.13.0"
+          enable-cache: true
+
+      - name: Python packages from uv.lock
+        run: uv sync --frozen
+
+      - name: Model cache
+        uses: actions/cache@v4
+        with:
+          path: .hf
+          key: models-${{ hashFiles('owd/models.py', 'channel.toml', 'owd/cli.py') }}
+
+      - name: Pinned models
+        run: uv run --frozen python -m owd fetch-models
+
+      - name: Tests
+        run: uv run --frozen python -m pytest -q -m "slow or not slow"

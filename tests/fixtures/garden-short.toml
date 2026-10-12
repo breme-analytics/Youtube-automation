@@ -1,0 +1,60 @@
+# Hand-written sample, to judge the format before the script writer exists.
+# Facts used: Robert Sapolsky's zebra example (Why Zebras Don't Get Ulcers, 1994); the quote is
+# checked word for word against sources/as-a-man-thinketh.txt before anything renders.
+
+title = "Why you replay embarrassing moments (a 1903 answer)"
+format = "short"
+thumbnail_text = "Your mind is a garden"
+thumbnail_accent = ["garden"]
+description = """A zebra escapes a lion and goes back to grazing. You replay one awkward conversation for days. \
+James Allen's 1903 idea of the mind as a garden, and what psychologists call rumination."""
+
+[[sources]]
+file = "sources/as-a-man-thinketh.txt"
+cite = "James Allen, As a Man Thinketh (1903), Project Gutenberg #4507"
+
+[[scene]]
+visual = "zebra herd"
+category = "animals"
+text = """
+Biologist Robert Sapolsky has a famous observation. A zebra escapes a lion, and soon after, \
+it's grazing again. You survive one awkward conversation, and replay it for three days.
+"""
+
+[[scene]]
+visual = "lion"
+category = "animals"
+text = """
+Why can't we let go? In 1903, a quiet English writer named James Allen gave an answer most \
+people skip.
+"""
+
+[[scene]]
+visual = "wild flowers meadow"
+category = "nature"
+text = """
+> Man's mind may be likened to a garden, which may be intelligently cultivated or allowed to run wild.
+"""
+
+[[scene]]
+visual = "dandelion seeds wind"
+category = "nature"
+text = """
+Here's the catch: a garden is never empty. If you don't plant thoughts on purpose, weeds blow in \
+by themselves.
+"""
+
+[[scene]]
+visual = "tree roots"
+category = "nature"
+text = """
+Psychologists have a name for one of those weeds. Rumination: replaying the same painful moment, \
+over and over, until it grows roots.
+"""
+
+[[scene]]
+visual = "owl night"
+category = "animals"
+text = """
+So tonight, try this. Catch one heavy thought, and ask: did I plant this? Or did it just blow in?
+"""

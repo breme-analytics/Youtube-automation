@@ -1,0 +1,40 @@
+name: image
+
+# Builds the Docker image (the dev container and cloud environment) and runs the tests inside it.
+# Runs when something that defines the environment changes, or by hand.
+on:
+  push:
+    paths:
+      - Dockerfile
+      - .dockerignore
+      - pyproject.toml
+      - uv.lock
+      - .python-version
+      - owd/models.py
+      - .devcontainer/**
+      - .github/workflows/image.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  image:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          tags: owd:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Tests inside the image
+        run: docker run --rm owd:ci python -m pytest -q -m "slow or not slow"

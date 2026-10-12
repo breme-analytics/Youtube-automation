@@ -1,0 +1,14 @@
+{
+  // Opens the project in GitHub Codespaces (or VS Code with Dev Containers) with everything
+  // installed: the same Docker image the cloud uses. Put API keys in Codespaces secrets
+  // (github.com/settings/codespaces): PIXABAY_API_KEY, GEMINI_API_KEY, OPENROUTER_API_KEY, ...
+  "name": "old-wisdom-decoded",
+  "build": { "dockerfile": "../Dockerfile", "context": ".." },
+  "hostRequirements": { "cpus": 2, "memory": "8gb" },
+  // The image already holds the virtualenv (/opt/venv) and the models, so this is a quick check.
+  "postCreateCommand": "uv sync --frozen",
+  "remoteEnv": { "OWD_CACHE_DIR": "${containerWorkspaceFolder}/output/cache" },
+  "customizations": {
+    "vscode": { "extensions": ["ms-python.python"] }
+  }
+}

@@ -1,0 +1,90 @@
+# Channel settings. Change voices here; every video after that uses them.
+# Voices: https://huggingface.co/hexgrad/Kokoro-82M/blob/main/VOICES.md (English ones only)
+
+[voices]
+narrator = "bm_george"   # the older British storyteller reads everything, quotes included
+narrator_speed = 1.0
+quote = ""               # empty: one voice only (owner's choice, 11 Oct 2026)
+quote_speed = 0.95
+
+[video]
+format = "long"          # Shorts are paused (owner's choice, 11 Oct 2026)
+# George reads about 140 words a minute, so 1,250-1,700 words is roughly 9-12 minutes.
+min_words = 1250
+max_words = 1700
+
+# Public-domain books the writer can use. Each file is a Project Gutenberg plain-text download
+# with a CONTENTS list; quotes are checked word for word against it.
+[[books]]
+id = "as-a-man-thinketh"
+file = "sources/as-a-man-thinketh.txt"
+cite = "James Allen, As a Man Thinketh (1903)"
+author = "James Allen"
+gutenberg = 4507
+
+[llm]
+# Tried in this order; on a limit or an error the next one is used. All are free tiers.
+# Gemini's free tier allows about 20 requests a day on Flash models and 500 on Flash-Lite.
+gemini = ["gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.5-flash", "gemini-3.5-flash-lite"]
+openrouter = ["nvidia/nemotron-3-ultra-550b-a55b:free", "google/gemma-4-31b-it:free", "nvidia/nemotron-3-super-120b-a12b:free"]
+cloudflare = ["@cf/google/gemma-4-26b-a4b-it"]   # needs CLOUDFLARE_AI_TOKEN (Workers AI permission)
+
+[footage]
+# Visual style lives in steering/references/visual-style.md. No default category: scenes about
+# the mind and spirit span backgrounds, nature, religion, science and feelings.
+default_category = ""
+
+[news]
+# Words that make a research story relevant to this channel (matched in titles and summaries)
+keywords = [
+  "rumination", "worry", "habit", "belief", "mindset", "self-talk", "attention", "focus",
+  "meditation", "mindfulness", "gratitude", "purpose", "meaning", "happiness", "well-being",
+  "wellbeing", "optimism", "expectation", "placebo", "visualization", "imagination",
+  "self-control", "willpower", "motivation", "resilience", "stress", "emotion", "awe",
+  "nature", "loneliness", "kindness", "forgiveness", "boredom", "procrastination", "identity",
+  "stoic", "philosophy", "spiritual", "religio", "consciousness", "dream", "memory",
+]
+
+# Checked 2026-10-11 with python -m owd news --check. kind: research (cited in scripts) or
+# platform (YouTube and creator news for the channel owner).
+[[news.feeds]]
+id = "sciencedaily-mind-brain"
+name = "ScienceDaily: Mind & Brain"
+url = "https://www.sciencedaily.com/rss/mind_brain.xml"
+kind = "research"
+
+[[news.feeds]]
+id = "psypost"
+name = "PsyPost"
+url = "https://www.psypost.org/feed/"
+kind = "research"
+
+[[news.feeds]]
+id = "greater-good"
+name = "Greater Good Magazine (UC Berkeley)"
+url = "https://greatergood.berkeley.edu/site/rss/articles"
+kind = "research"
+
+[[news.feeds]]
+id = "psyche"
+name = "Psyche"
+url = "https://psyche.co/feed"
+kind = "research"
+
+[[news.feeds]]
+id = "aeon"
+name = "Aeon"
+url = "https://aeon.co/feed.rss"
+kind = "research"
+
+[[news.feeds]]
+id = "youtube-official-blog"
+name = "YouTube Official Blog"
+url = "https://blog.youtube/rss/"
+kind = "platform"
+
+[[news.feeds]]
+id = "tubefilter"
+name = "Tubefilter"
+url = "https://www.tubefilter.com/feed/"
+kind = "platform"

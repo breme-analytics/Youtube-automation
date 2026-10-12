@@ -1,0 +1,38 @@
+[project]
+name = "old-wisdom-decoded"
+version = "0.1.0"
+description = "Makes original YouTube videos and Shorts that explain public-domain self-help and spiritual classics and test them against modern psychology."
+requires-python = "==3.12.*"
+# Direct dependencies are pinned exactly; uv.lock pins everything else, with hashes.
+dependencies = [
+    "kokoro==0.9.4",
+    "misaki[en]==0.9.4",
+    "torch==2.14.1",
+    "numpy==2.5.4",
+    "soundfile==0.14.0",
+    "pillow==12.3.0",
+    "en-core-web-sm==3.8.0",
+    "faster-whisper==1.2.1",
+    "huggingface-hub==2.2.0",
+    "httpx==0.28.1",
+    "feedparser==6.0.14",
+]
+
+[dependency-groups]
+dev = ["pytest==9.1.1"]
+
+[tool.uv]
+# docopt 0.6.2 (needed by num2words, which misaki needs) only ships a source package, and current
+# setuptools can't build it ("Wheel has unexpected file name"). Older setuptools can.
+build-constraint-dependencies = ["setuptools<76"]
+
+[tool.uv.sources]
+# spaCy's English model isn't on PyPI; misaki uses it to tag words before choosing pronunciations.
+en-core-web-sm = { url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl" }
+# On Linux (CI, Docker, cloud) use CPU-only torch: PyPI's Linux build pulls in about 3 GB of CUDA.
+torch = [{ index = "pytorch-cpu", marker = "sys_platform == 'linux'" }]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
