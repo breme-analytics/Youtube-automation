@@ -1,3 +1,5 @@
+import re
+
 import zipfile
 
 from owd.captions import LongCaptionStyle, long_caption_style_line, long_captions_events
@@ -28,6 +30,17 @@ def test_long_captions_highlight_each_word_and_hide_under_cards():
     hidden = long_captions_events(words, LongCaptionStyle(max_words=5), hidden=[(0.0, 1.0)])
     assert len(hidden) == 7  # the words spoken under a card at 0-1 s are skipped
     assert long_caption_style_line().startswith("Style: Caption,Lato,58,")
+
+
+def test_long_captions_never_end_a_page_on_the():
+    # Seen in the second video, at 10:25: "He who does this has become the" | "conscious, ..."
+    words = words_at("He who does this has become the conscious, intelligent wielder of his mental powers.")
+    pages = []
+    for event in long_captions_events(words):
+        text = re.sub(r"\{[^}]*\}", "", event.split(",,0,0,0,,", 1)[1])
+        if not pages or pages[-1] != text:
+            pages.append(text)
+    assert pages == ["He who does this has become", "the conscious", "intelligent wielder of his mental powers"]
 
 
 def test_card_windows_and_overlay_with_captions():

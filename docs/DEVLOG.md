@@ -145,6 +145,16 @@ fills up; document everything. The repository is `breme-analytics/Youtube-automa
   seedling clip is on screen exactly when George says "seedling"; the last minute moves normally; 49 clips,
   41 vision checks, 14 minutes on the Mac. One scene ("brain neurons", best clip 4/10) used its closest clip
   because there is no Cloudflare token yet for paintings, and was flagged in `review.md`.
+- **Checked by the owner:** her frames from the new render show the seedling clip under "Imagine a seedling
+  pushing through dark soil", a lotus under "Pick one legitimate purpose", the chapter V card with the
+  captions hidden, and changing pictures to the very end.
+- **Caption breaks:** one of her frames showed a caption ending on "the" ("He who does this has become the",
+  then "conscious, ..."). In that video 34 of 249 caption pages ended on a word that leans on the next one
+  ("the", "of", "into", "and", "his"). Subtitle style guides (BBC, Netflix) break before such words, never
+  after. Now caption pages, the uploaded SRT's line breaks and its cue splits avoid ending on them, unless
+  punctuation follows; a dash spoken as its own word counts as a break, like a comma. Measured on the same
+  video's words: 0 of 256 pages and 0 of 210 SRT cues end that way, and the SRT text is unchanged. The
+  rendered file still has the old breaks (it was made before the fix); every new video gets the new ones.
 
 ### Next
 

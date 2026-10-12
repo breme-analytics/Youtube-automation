@@ -6,6 +6,7 @@ from owd.captions import (
     ShortCaptionStyle,
     ass_color,
     ass_time,
+    leans_forward,
     short_pages,
     short_text,
     shorts_ass,
@@ -50,6 +51,46 @@ def test_short_text(word, caption):
 
 def test_pages_split_phrases_evenly_without_lone_words():
     assert pages_of(words_at('"Man is made or unmade by himself."')) == ["MAN IS MADE", "OR UNMADE", "BY HIMSELF"]
+
+
+@pytest.mark.parametrize(
+    ("word", "leans"),
+    [("the", True), ('"The', True), ("of", True), ("and", True), ("has", True),
+     ("the,", False), ("of.", False), ("this", False), ("does", False), ("purpose", False), ("—", False)],
+)
+def test_leaning_words(word, leans):
+    assert leans_forward(word) is leans
+
+
+def test_pages_never_end_on_a_leaning_word():
+    # Before: "YOU SPEND YEARS BATTLING THE | STUBBORN FACTS OF YOUR LIFE"
+    style = ShortCaptionStyle(max_words=5)
+    assert pages_of(words_at("You spend years battling the stubborn facts of your life."), style=style) == [
+        "YOU SPEND YEARS BATTLING", "THE STUBBORN FACTS", "OF YOUR LIFE",
+    ]
+
+
+def test_srt_lines_never_end_on_a_leaning_word():
+    # The evenest break would be "...has become the / conscious, intelligent wielder".
+    assert wrap_cue("He who does this has become the conscious, intelligent wielder") == [
+        "He who does this has become", "the conscious, intelligent wielder",
+    ]
+
+
+def test_an_srt_cue_that_can_only_break_after_into_is_split():
+    words = words_at("Do not allow thoughts to wander into ephemeral fancies, longings, imaginings.", step=0.3)
+    cues = [lines for _, _, lines in srt_cues(words)]
+    assert all(not leans_forward(lines[0].split()[-1]) for lines in cues if len(lines) == 2)
+    assert " ".join(" ".join(lines) for lines in cues) == " ".join(w.text for w in words)
+
+
+def test_a_spoken_dash_is_a_break_like_a_comma():
+    words = words_at("When the drift pulls and it will bring the mind back.")
+    words.insert(4, Word("—", words[3].end, words[3].end))  # Kokoro gives a dash its own, silent token
+    words.insert(8, Word("—", words[7].end, words[7].end))
+    pages = short_pages(words, ShortCaptionStyle(max_words=7), TextMeter(DISPLAY_FONT, 190, 9.0), WIDE)
+    assert [word.text for word, _ in pages[0]][-1] == "will—"  # "...and it will —" is a fine place to break
+    assert [label for page in pages for _, label in page] == "WHEN THE DRIFT PULLS AND IT WILL BRING THE MIND BACK".split()
 
 
 def test_pages_end_at_sentence_ends_and_pauses():

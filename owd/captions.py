@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import re
 import textwrap
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Sequence
 
@@ -21,6 +21,30 @@ _CLOSERS = "\"”’')\\]"
 _CLAUSE_END = re.compile(rf"[.!?…;:][{_CLOSERS}]*$")  # a Short's caption page ends here
 _SOFT_END = re.compile(rf"[,—–][{_CLOSERS}]*$")  # ...or here, once it has two words
 _SENTENCE_END = re.compile(rf"[.!?…][{_CLOSERS}]*$")  # an SRT cue ends here
+
+# Words that lean on the word after them. Subtitle style guides (BBC, Netflix) never end a caption or
+# a line on one: "...has become the | conscious" reads badly, "...has become | the conscious" doesn't.
+# Only words that almost always need what follows are listed: "this", "is" or "does" can end a
+# thought ("He who does this"), so they are not.
+_LEANING = frozenset(
+    """a an the
+    of to in on at by for with from into onto upon about over under through between without within
+    against toward towards across among beyond than as
+    and or but nor because if that while when where which who whose whom whether although though
+    unless until since
+    my your his her its our their
+    not very can could will would shall should may might must has have had""".split()
+)
+_BARE_WORD = re.compile(r"[\"“‘'(\[]*([A-Za-z]+)")
+_LEAN_PAGE_COST = 1.2  # caption pages: worse than one extra page
+_LEAN_LINE_COST = 12  # SRT lines: worth 12 characters of imbalance
+_LEAN_CUE_COST = 30  # SRT cue splits: as strong as the pull towards a comma
+
+
+def leans_forward(text: str) -> bool:
+    """True for a word like "the" or "of" with no punctuation after it: it belongs with the next word."""
+    match = _BARE_WORD.fullmatch(text.strip())
+    return bool(match) and match.group(1).lower() in _LEANING
 
 
 @dataclass(frozen=True)
@@ -77,11 +101,16 @@ def short_pages(
 
     Phrases end at sentence or clause punctuation and at pauses. Each phrase is split into the
     fewest pages of at most `max_words`, avoiding single-word leftovers ("OR UNMADE | BY HIMSELF",
-    not "OR UNMADE BY | HIMSELF") and preferring to break after commas."""
+    not "OR UNMADE BY | HIMSELF"), never leaving "the" or "of" at the end of a page, and preferring
+    to break after commas."""
     phrases: list[list[tuple[Word, str]]] = [[]]
     for word in words:
         label = short_text(word.text, style.uppercase)
         if not label:
+            if phrases[-1] and word.text.strip() in ("—", "–", "-"):
+                # A dash spoken as its own token ("pulls — and it will — bring") is a break, like a comma.
+                previous, previous_label = phrases[-1][-1]
+                phrases[-1][-1] = (replace(previous, text=previous.text + "—"), previous_label)
             continue
         if phrases[-1]:
             previous = phrases[-1][-1][0]
@@ -98,8 +127,9 @@ def short_pages(
 
 
 def _page_lengths(phrase: list[tuple[Word, str]], max_words: int, meter: TextMeter, max_width: float) -> list[int]:
-    """Cheapest split of one phrase into pages: each page costs 1, a lone word 0.8 more, and a comma
-    inside a page (rather than at its end) 0.5 more. Ties go to longer first pages."""
+    """Cheapest split of one phrase into pages: each page costs 1, a lone word 0.8 more, a comma
+    inside a page (rather than at its end) 0.5 more, and a page ending on a word that leans on the
+    next ("the", "of", "and") 1.2 more. Ties go to longer first pages."""
     n = len(phrase)
     best: list[tuple[float, list[int]]] = [(float("inf"), [])] * n + [(0.0, [])]
     for i in range(n - 1, -1, -1):
@@ -109,6 +139,8 @@ def _page_lengths(phrase: list[tuple[Word, str]], max_words: int, meter: TextMet
                 break  # longer pages from here are wider still
             cost = 1.0 + (0.8 if j - i == 1 and n > 1 else 0.0)
             cost += 0.5 * sum(1 for word, _ in page[:-1] if _SOFT_END.search(word.text))
+            if j < n and leans_forward(page[-1][0].text):
+                cost += _LEAN_PAGE_COST
             if cost + best[j][0] <= best[i][0]:
                 best[i] = (cost + best[j][0], [j - i, *best[j][1]])
     return best[0][1]
@@ -178,7 +210,7 @@ def shorts_ass(
 
 def wrap_cue(text: str, max_line: int = 42) -> list[str]:
     """One line, or two balanced lines of at most `max_line` characters (preferring a split after
-    punctuation); longer text falls back to plain wrapping."""
+    punctuation, and never after a word like "the"); longer text falls back to plain wrapping."""
     if len(text) <= max_line:
         return [text]
     words = text.split(" ")
@@ -187,6 +219,7 @@ def wrap_cue(text: str, max_line: int = 42) -> list[str]:
         top, bottom = " ".join(words[:i]), " ".join(words[i:])
         if len(top) <= max_line and len(bottom) <= max_line:
             score = max(len(top), len(bottom)) - (6 if top.endswith((",", ";", ":", "—")) else 0)
+            score += _LEAN_LINE_COST if leans_forward(words[i - 1]) else 0
             if best is None or score < best[0]:
                 best = (score, [top, bottom])
     return best[1] if best else textwrap.wrap(text, max_line)
@@ -202,14 +235,17 @@ def srt_time(seconds: float) -> str:
 
 def _cue_fits(group: Sequence[Word], max_line: int, max_duration: float) -> bool:
     lines = wrap_cue(" ".join(word.text for word in group), max_line)
-    return len(lines) <= 2 and all(len(line) <= max_line for line in lines) and (
-        group[-1].end - group[0].start <= max_duration
+    return (
+        len(lines) <= 2
+        and all(len(line) <= max_line for line in lines)
+        and not (len(lines) == 2 and leans_forward(lines[0].rsplit(" ", 1)[-1]))  # "...wander into / ephemeral"
+        and group[-1].end - group[0].start <= max_duration
     )
 
 
 def _split_cue(group: list[Word], max_line: int, max_duration: float) -> list[list[Word]]:
-    """Halve a sentence that won't fit one cue, preferring a comma or colon near the middle, and
-    repeat until every part fits."""
+    """Halve a sentence that won't fit one cue, preferring a comma or colon near the middle (and
+    never right after a word like "the"), and repeat until every part fits."""
     if len(group) == 1 or _cue_fits(group, max_line, max_duration):
         return [group]
     texts = [word.text for word in group]
@@ -218,6 +254,7 @@ def _split_cue(group: list[Word], max_line: int, max_duration: float) -> list[li
     for i in range(1, len(group)):
         left += len(texts[i - 1]) + 1  # length of " ".join(texts[:i])
         score = abs(left - (total - left - 1)) - (30 if _SOFT_END.search(texts[i - 1]) or texts[i - 1].endswith((";", ":")) else 0)
+        score += _LEAN_CUE_COST if leans_forward(texts[i - 1]) else 0
         if score < best_score:
             best, best_score = i, score
     return _split_cue(group[:best], max_line, max_duration) + _split_cue(group[best:], max_line, max_duration)
