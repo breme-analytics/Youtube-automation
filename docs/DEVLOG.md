@@ -85,6 +85,17 @@ still open "The bot needs attention".
   4 times, so 45 of 100 shots were chosen by tags only. Fixes: a busy model is retried once after 10 s before the
   next model; verdicts are cached on disk, so a re-render only asks about the scenes that were missed.
 
+### The two Mac videos
+
+- Both re-rendered with every fix: the first gained painting prompts for its 51 scenes (one free-model call; no
+  narration changed); the second already had them.
+- **Found while checking the first one's frames:** a caption read "quiet reflection shields the cardiovascular
+  system". That script was written before guardrail 9 (the studies' own wording), and six lines overstated their
+  studies ("modern medicine confirms", "shields", "drives", "rewires", "steals up to six healthy years"). They were
+  softened by hand to what the studies said ("one recent study suggests", "may"), and the video is rendered again.
+- Recorded in `state/videos.json` as `local`, so the bot won't make As a Man Thinketh 2 and 4 again. Posting kits
+  (`POSTING.md`) are written into each folder when its render ends.
+
 ### Documentation
 
 New: `docs/HOW-IT-WORKS.md` (each step, which AI does it, fallbacks, posting) and `docs/KEYS.md` (every key and

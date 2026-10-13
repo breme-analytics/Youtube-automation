@@ -3,6 +3,7 @@
 # PROBLEM: the narration has 965 words; it needs 1250 to 1700. Add about 397 words of substance (a concrete example, a short story, a clearer explanation or a finding from RESEARCH; no filler and no recaps), mostly in these chapters: 'How Thought Crystallizes into Habit' (164 words), 'What Modern Psychology Confirms' (168 words), 'Mastering the Soil You Are Given' (181 words)
 # Expanded chapter by chapter to 1358 spoken words.
 # Painting prompts added on 13 Oct 2026 by openrouter:nvidia/nemotron-3-super-120b-a12b:free, for the re-render with matched pictures.
+# 13 Oct 2026: six lines softened by hand to the studies' own wording (guardrail 9), before the re-render.
 title = "The Mindset Mistake Keeping Your Life Stuck"
 format = "long"
 alt_titles = ["Why Your Circumstances Keep Winning", "Stop Fighting Your Life Until You Know This", "What Blaming Bad Luck Is Quietly Costing You"]
@@ -266,7 +267,7 @@ When volunteers paid calm, mindful attention to physical irritation rather than 
 visual = "meditation silhouette"
 image = "A seated figure in lotus pose on a rocky outcrop, sunrise hues bathing the scene, silhouette outlined against the light."
 text = '''
-The heart tells the same story. Cardiovascular studies show that eight to twelve weeks of daily mindfulness, optimism, and gratitude training measurably lowers blood pressure and calms vascular inflammation.
+The heart may tell a similar story. One recent study suggests that eight weeks of daily mindfulness training may lower blood pressure, and others have looked at optimism and gratitude in the same way.
 
 '''
 
@@ -274,7 +275,7 @@ The heart tells the same story. Cardiovascular studies show that eight to twelve
 visual = "lotus flower"
 image = "A single lotus blossom rising from still water, petals opening to soft pink light, a silhouette reflected in the pond."
 text = '''
-Daily mental cultivation bears measurable physiological fruit. Allen called it tending the garden, and modern medicine confirms that persistent, quiet reflection shields the cardiovascular system from the corrosive wear of chronic tension.
+Daily mental cultivation may bear physical fruit. Allen called it tending the garden, and early research hints that regular, quiet reflection may ease some of the wear that chronic tension puts on the body.
 
 '''
 
@@ -282,7 +283,7 @@ Daily mental cultivation bears measurable physiological fruit. Allen called it t
 visual = "smoke swirl"
 image = "Smoke spiraling upward from an extinguished candle, forming delicate wisps, a silhouette watching the fading trails."
 text = '''
-Consider what happens when that mental garden is neglected. Psychologists studying monotony recently discovered that severe, unresolved boredom drives people toward impulsive hostility and aggression, purely to escape the dull ache of an empty mind.
+Consider what happens when that mental garden is neglected. Psychologists studying monotony recently found that extreme boredom can push some people toward hostile, aggressive behaviour, as if anything were better than the dull ache of an empty mind.
 
 '''
 
@@ -314,7 +315,7 @@ We also know that mental habits crystallize into visible life patterns. A person
 visual = "tree seasons"
 image = "A solitary tree showing four seasonal quarters—budding, leafy, golden, bare—against a shifting sky, silhouette of a passerby below."
 text = '''
-Conversely, practicing deliberate patience gradually rewires your default reactions. Over months, you speak more softly, listen before judging, and naturally draw respectful people into your orbit. Our inner habits truly construct our social landscape.
+Conversely, practising deliberate patience can gradually change your default reactions. Over months, you speak more softly, listen before judging, and naturally draw respectful people into your orbit. Our inner habits shape much of our social landscape.
 
 '''
 
@@ -387,7 +388,7 @@ That single sentence has poisoned self-help literature for over a century. It te
 visual = "hourglass sand"
 image = "Sand pouring steadily through glass neck of an hourglass, each grain catching light, a silhouette observing the passage."
 text = '''
-Epidemiologists know that social isolation steals up to six healthy years from a person's life. But this isolation is often driven by economic shifts and bereavement, not impure character.
+One large study suggests that loneliness may cost people nearly six years of good health. But loneliness often follows hard turns of life, like money troubles and bereavement, not impure character.
 
 '''
 

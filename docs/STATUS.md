@@ -32,12 +32,12 @@ footage fits, and the new caption line breaks. They're recorded in `state/videos
 
 | Video | Folder on the Mac (`output/videos/`) | Notes |
 |---|---|---|
-| *The Mindset Mistake Keeping Your Life Stuck* (As a Man Thinketh, ch. 2) | `2026-10-12-the-mindset-mistake-keeping-your-life-stuck-v2/` | Gemini was overloaded during the render, so 45 of 100 shots were chosen by tags only. It's being re-rendered once more |
-| *The Aimless Mistake That Keeps You Drifting* (ch. 4) | `2026-10-12-openrouter-ch4-v2/` | Being re-rendered |
+| *The Aimless Mistake That Keeps You Drifting* (As a Man Thinketh, ch. 4) | `2026-10-12-openrouter-ch4-v2/` | Re-rendered with paintings and vision retries. Suggested slot: Friday 16 October, 18:00 |
+| *The Mindset Mistake Keeping Your Life Stuck* (ch. 2) | `2026-10-12-the-mindset-mistake-keeping-your-life-stuck-v2/` | A check of its frames found a line that overstated a study ("modern medicine confirms that quiet reflection shields the cardiovascular system"). It was written before the rule to use the studies' own wording, so six such lines were softened ("one recent study suggests ...") and it's being rendered again, after the other one. Suggested slot: Tuesday 20 October, 18:00 |
 
-Each folder has `video.mp4`, `thumbnail.jpg`, `captions.srt`, `review.md` and `POSTING.md` (title, description,
-tags and settings to paste into YouTube Studio, with a suggested date). They're on the Mac only: post them from
-here. The old versions are in the same place without `-v2`.
+Each folder gets `POSTING.md` when its render finishes (title, description, tags and settings to paste into
+YouTube Studio), next to `video.mp4`, `thumbnail.jpg`, `captions.srt` and `review.md`. They're on the Mac only:
+post them from here. The old versions are in the same place without `-v2`; don't post those.
 
 ## Decisions for you
 
