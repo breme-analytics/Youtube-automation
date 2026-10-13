@@ -7,6 +7,20 @@ first. Every new request or concern is added here in the same change that deals 
 **Waiting for you**; **Decision needed**; **Declined** (with the reason and an alternative); **Replaced** (by a
 later request of yours).
 
+## 13 October 2026 (evening)
+
+| You asked or raised | What was done | Where | Status |
+|---|---|---|---|
+| You turned on Watch (All Activity); the 05:57 "cleanup" run was green | Recorded. That run saved `state/videos.json` on GitHub: the first proof the daily run works end to end | `STATUS.md` | Done |
+| Friendlier controls: a minimal static page on github.io | A control panel (`panel/`): overview, videos waiting (Posted / Don't post), make a video with an angle, instructions and documents, add a book, video days and minutes, recent runs. github.io is free only for public repositories, so the panel gets its own small public repository holding only the page; the bot's repository stays private | `GUIDE.md`, "Control panel" | Built and tested; waiting for you to create the public repository |
+| Next video from *The Kybalion*; also Emerson (Self-Reliance, The Over-Soul), Marcus Aurelius's *Meditations*, James Allen's *The Way of Peace* | All four added from Gutenberg's official mirror, every chapter checked. The Kybalion is first, so Thursday's video is its chapter I; then the books take turns | `channel.toml` `[[books]]`; `STATUS.md`, decision 2 | Done |
+| Document everything, including how the AI pieces work together to make and post a video | Step by step, with which AI does what, the fallbacks, and how posting works | `HOW-IT-WORKS.md` | Done |
+| If it needs a book, or anything else, tell me by email | "The bot needs ..." issues (GitHub emails you): a new book, posting waiting videos, minutes used up, YouTube sign-in. One issue per need, closed by the bot when it's sorted | `GUIDE.md`, "How the bot tells you things" | Done |
+| The Cloudflare AI token is now in the Mac's `.env`. Document what it and the other keys do | Checked: it works (listed models, painted a test picture). Every key and token explained, plus the unused ones you can delete | `KEYS.md` | Done |
+| The two Mac videos had issues you highlighted: post them if fixed, otherwise discard or rebrand | Made again with every fix; posting kits written; recorded so their chapters aren't repeated. Gemini was overloaded during the first one, so it's being redone | `STATUS.md`, "The two videos made on the Mac" | In progress |
+| Adding more books: a friendlier way, or written steps | Panel: Books → Add a book. GitHub: Actions → add-book. Both check the book first | `GUIDE.md`, "Adding a book" | Done |
+| How often does the full workflow run, and how many minutes? The 2,000 free minutes are shared with the trading bot. Fix it | Answer: a video twice a week (1 to 2 hours each, not yet measured), plus a 1 to 2 minute check daily. Fixed: video days are one setting; the bot counts its own minutes and won't go over its monthly share (`monthly_minutes`, 1,000), and emails you if it pauses; the separate cleanup job was merged into the daily run; the model cache no longer resets when settings change | `GUIDE.md`, "The daily run, and Actions minutes" | Done; real minutes measured after Thursday |
+
 ## 13 October 2026
 
 | You asked or raised | What was done | Where | Status |

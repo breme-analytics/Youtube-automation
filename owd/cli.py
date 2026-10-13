@@ -127,7 +127,7 @@ def cmd_render(args: argparse.Namespace) -> None:
     out = Path(args.out) if args.out else OUTPUT_DIR / "videos" / Path(args.storyboard).stem
     stock = Pixabay(require("PIXABAY_API_KEY"), cache_dir() / "pixabay")
     log = lambda line: print(f"  {line}")  # noqa: E731
-    judge = VisionJudge(os.environ.get("GEMINI_API_KEY"), log=log) if settings.get("match_visuals", True) else None
+    judge = VisionJudge(os.environ.get("GEMINI_API_KEY"), log=log, cache=cache_dir() / "vision") if settings.get("match_visuals", True) else None
     images = SceneImages(cache_dir() / "images", log=log) if settings.get("paintings", True) else None
     started = time.perf_counter()
     result = produce(board, out, cast=load_cast(), stock=stock, judge=judge, images=images,

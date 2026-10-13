@@ -253,7 +253,7 @@ def render(ctx: Context, record: VideoRecord):
     video = ctx.settings.get("video", {})
     log = lambda line: ctx.log(f"  {line}")  # noqa: E731
     stock = Pixabay(require("PIXABAY_API_KEY"), cache_dir() / "pixabay")
-    judge = VisionJudge(ctx.env.get("GEMINI_API_KEY"), log=log) if video.get("match_visuals", True) else None
+    judge = VisionJudge(ctx.env.get("GEMINI_API_KEY"), log=log, cache=cache_dir() / "vision") if video.get("match_visuals", True) else None
     images = SceneImages(cache_dir() / "images", env=ctx.env, log=log) if video.get("paintings", True) else None
     fallbacks = ctx.settings.get("footage", {}).get("fallback") or None
     return produce(load_storyboard(ROOT / record.storyboard), OUTPUT_DIR / "videos" / record.slug, cast=load_cast(),

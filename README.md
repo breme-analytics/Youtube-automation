@@ -1,20 +1,22 @@
 # Old Wisdom, Decoded (Youtube-automation)
 
-A bot that makes original long-form YouTube videos on its own: public-domain classics of the mind (starting with
-James Allen's *As a Man Thinketh*) explained in modern English and checked against modern psychology,
+A bot that makes original long-form YouTube videos on its own: public-domain classics of the mind (*The
+Kybalion*, James Allen, Marcus Aurelius, Emerson) explained in modern English and checked against modern psychology,
 narrated by George, an older British storyteller (Kokoro `bm_george`). Every picture is chosen to show what
 George is saying at that moment: stock footage checked by a free vision model, or a painting of the scene.
 Captions, chapter titles and on-screen book quotes are burned in. Everything runs on free tiers.
 
-It runs itself on **GitHub Actions** twice a week, with no computer of yours switched on: it writes, narrates,
-renders, stores and delivers a video, then deletes the stored copy after posting. There is no separate app:
-GitHub is the control panel.
+It runs itself on **GitHub Actions** every morning, with no computer of yours switched on: daily checks, and on
+video days it writes, narrates, renders, stores and delivers a video, then deletes the stored copy after posting.
+Control it from a small web page (`panel/`) or from GitHub itself.
 
 **Start here:**
 
 | Document | What's in it |
 |---|---|
-| [docs/GUIDE.md](docs/GUIDE.md) | How to use and steer the bot: where every control is, how it tells you things, what to do when something goes wrong |
+| [docs/GUIDE.md](docs/GUIDE.md) | How to use and steer the bot: the control panel, every control on GitHub, how it tells you things, Actions minutes, adding books |
+| [docs/HOW-IT-WORKS.md](docs/HOW-IT-WORKS.md) | How the AI pieces make a video and post it, step by step |
+| [docs/KEYS.md](docs/KEYS.md) | Every key and token, and what it does |
 | [docs/STATUS.md](docs/STATUS.md) | Is it finished? What's proven, what isn't, decisions for you, and your checklist |
 | [docs/DEPLOY.md](docs/DEPLOY.md) | Setup, the storage rules, and every caveat with its fix |
 | [docs/REQUESTS.md](docs/REQUESTS.md) | Everything you've asked for or raised, and what was done |
@@ -63,6 +65,8 @@ before posting (title options, every factual claim, every quote, the narration c
 | `python -m owd render STORYBOARD [--preview]` | Make the video. `--preview` downloads smaller footage (for slow connections) |
 | `python -m owd cleanup` | Apply the storage rules: delete stored copies that are due |
 | `python -m owd storage` | List the stored videos and when each copy will be deleted |
+| `python -m owd add-book NUMBER [--chapters "A, B"] [--cite "..."]` | Add a public-domain book by its Project Gutenberg number, after checking its chapters |
+| `python -m owd plan` | Is today a video day? (The daily run asks first) |
 | `python -m owd youtube-login` | Sign in to YouTube once (opens a browser) and print the token for automatic posting |
 | `python -m owd steering` | Read the steering documents and condense long uploads |
 | `python -m owd news [--topic words] [--kind platform]` | Research stories the scripts can cite, or YouTube platform news |

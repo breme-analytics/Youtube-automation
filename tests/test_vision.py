@@ -2,6 +2,7 @@ import io
 import json
 
 import httpx
+import pytest
 from PIL import Image
 
 from owd.vision import GOOD_ENOUGH, Verdict, VisionJudge, thumbnail_bytes
@@ -91,3 +92,19 @@ def test_a_busy_model_is_tried_again_then_the_next_model():
     assert j.judge("a", "b", [jpeg()]).scores == (8,)
     assert seen == ["gemini-3.5-flash-lite", "gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-3.1-flash-lite"]
     assert clock.slept.count(10.0) == 2  # one short wait per busy model
+
+
+def test_verdicts_are_cached_so_a_re_render_asks_only_about_what_was_missed(tmp_path):
+    answers = iter([httpx.Response(503), httpx.Response(503), httpx.Response(503), httpx.Response(503), answer([7])])
+    calls = []
+
+    def handler(request):
+        calls.append(1)
+        return next(answers)
+
+    j, _ = judge(handler, cache=tmp_path)
+    assert j.judge("a", "b", [jpeg()]) is None and not list(tmp_path.iterdir())  # nothing cached for a failure
+    assert j.judge("a", "b", [jpeg()]).scores == (7,)
+    before = len(calls)
+    again, _ = judge(lambda request: pytest.fail("no request expected"), cache=tmp_path)
+    assert again.judge("a", "b", [jpeg()]).scores == (7,) and len(calls) == before

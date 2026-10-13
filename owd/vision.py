@@ -11,9 +11,12 @@ which case the renderer falls back to tag matching.
 from __future__ import annotations
 
 import base64
+import hashlib
 import io
+import json
 import time
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Callable, Sequence
 
 import httpx
@@ -71,8 +74,10 @@ class VisionJudge:
         models: Sequence[str] = VISION_MODELS,
         clock: Callable[[], float] = time.monotonic,
         sleep: Callable[[float], None] = time.sleep,
+        cache: Path | None = None,
     ):
         self.key = (api_key or "").strip()
+        self.cache = Path(cache) if cache else None
         self.http = http or httpx.Client(timeout=httpx.Timeout(20.0, read=90.0))
         self.log = log
         self.models = list(models)
@@ -91,6 +96,23 @@ class VisionJudge:
         """Scores for `stills` (JPEG bytes), or None if no vision model could answer."""
         if not self.enabled or not stills:
             return None
+        cached = self._cache_file(narration, intent, stills)
+        if cached is not None and cached.is_file():
+            data = json.loads(cached.read_text(encoding="utf-8"))
+            return Verdict(tuple(data["scores"]), data.get("reason", ""))
+        verdict = self._ask(narration, intent, stills)
+        if verdict is not None and cached is not None:
+            cached.parent.mkdir(parents=True, exist_ok=True)
+            cached.write_text(json.dumps({"scores": list(verdict.scores), "reason": verdict.reason}), encoding="utf-8")
+        return verdict
+
+    def _cache_file(self, narration: str, intent: str, stills: Sequence[bytes]) -> Path | None:
+        if self.cache is None:
+            return None
+        key = json.dumps([" ".join(narration.split()), intent, [hashlib.sha1(s).hexdigest() for s in stills]])
+        return self.cache / f"{hashlib.sha1(key.encode()).hexdigest()[:24]}.json"
+
+    def _ask(self, narration: str, intent: str, stills: Sequence[bytes]) -> Verdict | None:
         parts: list[dict] = []
         for number, still in enumerate(stills, start=1):
             parts.append({"text": f"Still {number}:"})

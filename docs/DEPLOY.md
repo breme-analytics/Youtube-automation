@@ -8,15 +8,17 @@ its fix.
 
 | When | Workflow | What it does |
 |---|---|---|
-| Monday and Thursday, 06:15 Nairobi | `produce.yml` | Makes one video: next book chapter → script → narration → render → **stored** → delivered |
-| Every day, 05:40 Nairobi | `cleanup.yml` | Applies the storage rules below; checks scheduled videos really went public; deletes old caches and logs |
+| Every day, 06:15 Nairobi | `produce.yml` | Daily checks and clean-up (the storage rules below, whether scheduled videos went public, old caches and logs), about 1 to 2 minutes. On video days (`channel.toml` `make_days`, Mondays and Thursdays) it also makes one video: next chapter → script → narration → render → **stored** → delivered, estimated 1 to 2 hours |
+| When you start it | `add-book.yml` | Adds a public-domain book by its Project Gutenberg number, after checking its chapters |
 | Every push (not the bot's own progress commits) | `tests.yml` | Runs every test on a clean Linux machine |
 | When the environment changes | `image.yml` | Builds the Docker image and tests inside it |
 
-Any of them can be run by hand: **Actions** tab → the workflow → **Run workflow**. `produce` takes an optional angle
-for that one video. `produce` and `cleanup` queue behind each other, never at the same time. If either fails, it
-opens an issue "The bot needs attention: a run failed" with a link to the run (later failures add comments to the
-same issue). How to use it day to day: `docs/GUIDE.md`.
+Any of them can be run by hand: **Actions** tab → the workflow → **Run workflow**. Starting `produce` by hand
+always makes a video, with an optional angle. `produce` and `add-book` queue behind each other, never at the same
+time. If one fails, it opens an issue "The bot needs attention" with a link to the run (later failures add
+comments to the same issue). Before each video, the bot checks its monthly Actions minutes (`[actions]
+monthly_minutes`; see caveat 7). The separate daily `cleanup.yml` of 13 October was merged into `produce.yml`
+the same evening. How to use it day to day: `docs/GUIDE.md`; how it works inside: `docs/HOW-IT-WORKS.md`.
 
 ## Where videos are stored, and when they're deleted
 
@@ -118,14 +120,17 @@ Checked against Google's and GitHub's documentation on 12 and 13 October 2026.
 | 4 | **Google's "enter a code at google.com/device" sign-in can't grant uploads of captions** (it allows only the `youtube` and `youtube.readonly` scopes). | Fixed in the bot: `youtube-login` now uses the desktop-app browser sign-in with PKCE. | Create a **Desktop app** client (step 4.4), not a "TVs and Limited Input devices" one. |
 | 5 | **Custom thumbnails need a verified YouTube account**; so do videos over 15 minutes. | The thumbnail is skipped with a note (YouTube picks a frame); the video is still posted. The bot's videos are about 9 to 12 minutes. | Verify once at youtube.com/verify (free, by phone). |
 | 6 | **YouTube's daily allowance**: 10,000 units and 100 uploads a day per project. A video uses 1 upload plus about 450 units (captions 400, thumbnail 50, checks 1 each). | If it's ever used up, the upload fails and the video goes to you by hand. | Nothing needed at two videos a week. It resets at midnight Pacific time. More quota needs the audit form. |
-| 7 | **GitHub Actions minutes**: a private repository gets 2,000 free minutes a month on 2-core machines (a public one: unlimited, 4 cores). About 9 videos a month at an estimated 1 to 2 hours each, plus tests and the daily cleanup, is roughly 650 to 1,250 minutes. Jobs stop after 6 hours (`produce` stops itself at 5). | Without a payment method, GitHub blocks runs once the minutes are used up; it never bills. A stopped run is marked failed and its chapter is made again. | Check Settings → Billing → Usage after the first runs. If minutes run short: make fewer videos (edit the cron in `produce.yml`), or make the repository public (unlimited minutes, but the scripts and state become public; secrets stay secret). |
+| 7 | **GitHub Actions minutes**: a free account gets 2,000 minutes a month for **all** its private repositories together (here, also the trading bot), on 2-core machines; GitHub rounds each job up to a whole minute. A public repository's minutes are unlimited. Two videos a week at an estimated 1 to 2 hours each, plus the daily 1 to 2 minute check and tests, is roughly 600 to 1,150 minutes a month. Jobs stop after 6 hours (`produce` stops itself at 5). | Before each video the bot adds up this repository's minutes this month; if the video wouldn't fit its share (`[actions] monthly_minutes`, 1,000), it makes none and opens "The bot paused: this month's Actions minutes are used". Without a payment method, GitHub blocks all runs (the trading bot's too) once the account's minutes are gone; it never bills. | Set `monthly_minutes` to what the trading bot leaves (check Settings → Billing and plans → Usage). Use fewer video days (`make_days`, or the panel). Making this repository public would give unlimited minutes, but its stored videos, scripts and issues would become public. |
 | 8 | **GitHub release files must be under 2 GiB** each: about 40 minutes of video at the bot's quality. | A larger file stops the run before anything is uploaded, with a clear message. | Keep videos under about 35 minutes, or lower the bitrate in `owd/render.py`. |
 | 9 | **The repository is private**, so release downloads need you signed in to GitHub. | Links in the issues work when you're signed in. | Sign in on the device you download from. |
 | 10 | **GitHub's terms allow limiting "excessive" file hosting.** | Storage is capped at 4 videos and deleted after posting, so use stays small. | Nothing needed; don't raise `max_videos` far. |
 | 11 | **Workflow caches**: 10 GB per repository; entries unused for 7 days are removed. | Footage unused for 30 days is dropped from the cache, and old caches are deleted daily. | Nothing needed. |
 | 12 | **Free AI models are sometimes busy or limited** (OpenRouter's free models about 50 requests a day; Gemini's free tier is small). | Each model is tried in turn (`channel.toml` `[llm]`); if all fail, the run fails and the next one tries again. | Run `produce` by hand later, or reorder the models in `channel.toml`. |
 | 13 | **GitHub emails about a scheduled run only the person who first created the workflow** (GitHub's docs). The workflows were pushed with a deploy key, so that may not be you, and a failed run could go unnoticed. | A failed `produce` or `cleanup` run opens an issue "The bot needs attention: a run failed" with a link; later failures comment on it. GitHub emails you about new issues in repositories you watch. | Watch the repository with email on (step 1.5). |
-| 14 | **Only one book is loaded:** *As a Man Thinketh*, 7 chapters, so about 3 to 4 weeks of videos at two a week. | From 4 chapters left, each video's issue carries a heads-up; with none left, runs fail with "Add a book" (and open the issue in 13). | Add books (`docs/GUIDE.md`, "Adding a book"; candidates in `docs/STATUS.md`). |
+| 14 | **The bot needs a steady supply of chapters**: one per video. Five books are loaded (43 chapters, about 20 weeks at two a week). | From 4 chapters left, it opens "The bot needs a new book" (and each video's issue carries a heads-up); with none left, runs fail with "Add a book". | Add books from the control panel or Actions → add-book (`docs/GUIDE.md`, "Adding a book"). |
+| 15 | **GitHub Pages is free only for public repositories**, so the control panel can't be hosted from the private bot repository. | The panel lives in its own public repository that holds only the page: no bot code, no data, no keys. It reads and changes the private repository from your browser, with your token. | Create the public repository and turn on Pages (`docs/GUIDE.md`, "Control panel"). |
+| 16 | **Project Gutenberg's website blocks automated downloads** ("for human users only"; IP addresses get blocked). | Books are downloaded from Gutenberg's official mirror, gutenberg.pglaf.org, which is meant for this. | Nothing needed. |
+| 17 | **The control panel's token can change the bot**: anyone with it could start runs or edit settings. | It's a fine-grained token for this one repository, kept only in your browser, sent only to GitHub. | Give it an expiry, tick "Remember" only on your own devices, and delete it on GitHub if it leaks (`docs/KEYS.md`). |
 
 ## What it costs: nothing
 

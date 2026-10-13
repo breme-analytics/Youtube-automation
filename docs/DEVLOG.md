@@ -6,6 +6,102 @@ entry here for each change (see `AGENTS.md`). The owner's standing instructions 
 
 ---
 
+## 2026-10-13 (evening): Milestone 6, new books, a control panel, the bot asks for what it needs, minutes
+
+**Owner's message:** turned on Watch; the 05:57 cleanup run was green. Add friendlier controls as a minimal static
+page on github.io. Next video from *The Kybalion*; add Emerson (Self-Reliance, The Over-Soul), Marcus Aurelius's
+*Meditations* and James Allen's *The Way of Peace*. Document everything, including how the AI pieces make and post
+a video. Email her when it needs a book or anything else. The Cloudflare AI token is in `.env`: document it and
+the other keys. Fix the two Mac videos and schedule them, or discard or rebrand them. Explain where to add
+books. How often does the full workflow run, and for how many minutes? The 2,000 minutes are shared with the
+trading bot; fix it.
+
+### Checked first
+
+- **The first daily run on GitHub worked:** commit `30a5187` "Bot: cleanup" (02:57 UTC) saved
+  `state/videos.json` (`{"videos": []}`) as breme-analytics.
+- **The Cloudflare AI token works:** listed Workers AI models (HTTP 200) and painted a test picture through
+  `owd/images.py` (1344 × 768 PNG, 29.7 s). Checked by key name; no value printed.
+
+### Books
+
+- Downloaded from Gutenberg's official mirror (`gutenberg.pglaf.org`): its website blocks automated downloads.
+  Saved unchanged: `the-kybalion.txt` (#14209), `the-way-of-peace.txt` (#10740), `meditations.txt` (#2680, Meric
+  Casaubon's translation) and `emerson-essays-first-series.txt` (#2944).
+- **Chapter finder rewritten** (`owd/books.py`) for every layout: contents titled "CONTENTS", "Contents" or "Table of
+  Contents"; unnumbered capitals or Roman numerals; title case; sub-sections skipped; "THE FIRST BOOK" matching
+  "FIRST BOOK"; punctuation ignored ("SAVIORS;" against "SAVIORS:"); a numeral line above a heading belongs to its
+  chapter; a repeated title after an epigraph is dropped, but never a wrapped line of text that happens to say the
+  title. Casaubon's paragraph section numbers ("IV. Of my mother...") are removed for chapters and for the quote
+  check alike. *As a Man Thinketh*'s chapters are byte for byte what the old finder made.
+- A book can list `chapters` (Emerson: Self-Reliance and The Over-Soul; Meditations: the twelve books).
+- **Books take turns** (`book_order = "balanced"`): the book with the fewest videos goes next, ties in list
+  order, so Thursday's video is *The Kybalion* chapter I. `"in order"` finishes each book first.
+- 43 chapters in all: about 20 weeks at two videos a week.
+- **Adding books:** `python -m owd add-book <number>`, the `add-book` workflow, or the panel. It downloads from the
+  mirror, refuses non-English books, books whose chapters can't be found and chapters under 300 words, and adds
+  the entry to `channel.toml` after the last book, keeping every comment.
+- New guardrail 10: old metaphysics (The Kybalion's "vibration") is presented as belief and tested, never as
+  science. The writer's quote example now names the current book's author instead of always "Allen".
+
+### The bot tells her what it needs
+
+"The bot needs ..." issues (label `bot-needs`), one per need, never repeated while open, closed by the bot when
+it's sorted: a new book (4 or fewer chapters left), posting waiting videos (storage full), this month's minutes
+used up, and the YouTube sign-in. GitHub emails her about each, since she watches the repository. Failed runs
+still open "The bot needs attention".
+
+### Actions minutes
+
+- **Answer:** a video twice a week (estimated 1 to 2 hours each, not measured yet), plus a daily check.
+- **One daily run:** `produce.yml` now runs every day. It decides with `owd plan` whether today is a video day
+  (`[schedule] make_days`), runs the checks and clean-up every day (about 1 to 2 minutes), and the video steps
+  only on video days. `cleanup.yml` was merged into it and deleted. Video days are now a setting, not a cron line.
+- **Budget:** `[actions] monthly_minutes = 1000`. Before each video, the bot adds up this repository's billed
+  minutes this month (`owd/minutes.py`: every job rounded up to a whole minute, as GitHub bills). If the next
+  video (the median of measured video runs, or 120 until measured) wouldn't fit, it makes none and opens an issue.
+  It can't see the trading bot's use, so the share is hers to set.
+- The model cache was keyed on `channel.toml`, so every settings edit would have re-downloaded 500 MB of models.
+  It's now keyed on the pinned models only, and shared with the tests workflow.
+
+### Control panel (`panel/`)
+
+- A static page: overview from `state/status.json` (written by the bot after every run), videos waiting (Posted /
+  Don't post), make a video with an angle, edit instructions, upload documents, books and Add a book, video days
+  and the monthly minutes (with an estimate), recent runs, links.
+- **Hosting:** GitHub Pages is free only for public repositories (GitHub's docs), so the panel goes into its own
+  public repository (`youtube-automation-panel`) holding only the page; `panel/publish.sh` copies it there with its
+  own deploy key (`~/.ssh/youtube_automation_panel_deploy`, made today; GitHub allows a deploy key on one
+  repository only). It waits for the owner to create that repository.
+- **Security:** no server; a content security policy that allows only its own scripts and connections to
+  api.github.com; GitHub's text shown with `textContent` only; a fine-grained token for one repository (Actions,
+  Contents, Issues), kept in the browser (session only unless "Remember").
+- 7 node tests (base64, settings edits, book list, issue sorting, file names, next video day, API client) run
+  inside the Python suite; static checks that every element exists and nothing loads from other sites.
+
+### Vision check
+
+- During the re-render of the first Mac video, Gemini Flash-Lite answered HTTP 503 about 60 times and timed out
+  4 times, so 45 of 100 shots were chosen by tags only. Fixes: a busy model is retried once after 10 s before the
+  next model; verdicts are cached on disk, so a re-render only asks about the scenes that were missed.
+
+### Documentation
+
+New: `docs/HOW-IT-WORKS.md` (each step, which AI does it, fallbacks, posting) and `docs/KEYS.md` (every key and
+token, permissions, unused keys to delete). Updated: `GUIDE.md` (panel, minutes, books, the needs issues),
+`STATUS.md`, `REQUESTS.md`, `DEPLOY.md` (workflows; caveats 7 and 14 to 17), README.
+
+### Checked
+
+- 217 Python tests and 7 node tests pass. New: every book's chapters; the chapter finder's layouts; cleaning
+  shared with the quote check (a quote across a section break); book order; needs issues (opened once, closed when
+  sorted); minutes counting and the budget pause; video days; `status.json`; adding a book (mirror only, refusals,
+  comments kept); `owd plan`; the vision retry and cache; the panel.
+- Not checked yet: the daily run's new steps on GitHub (first: Wednesday 14 October), a video made on GitHub
+  (Thursday), the panel on GitHub Pages, real minutes per video.
+
+---
+
 ## 2026-10-13 (early morning): Everything documented; the bot tells the owner when it needs her
 
 **Owner's message:** document everything, including every concern she raises and the caveats in my replies. Is
