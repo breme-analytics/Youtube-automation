@@ -85,6 +85,9 @@ class FakeGitHub:
     def issue(self, number):
         return self.issues[number]
 
+    def open_issues(self, label):
+        return [{"number": n, **i} for n, i in self.issues.items() if i["state"] == "open" and label in i["labels"]]
+
 
 class FakeYouTube:
     def __init__(self, statuses=None, refuse=""):
@@ -147,6 +150,7 @@ def bot(tmp_path, monkeypatch):
     monkeypatch.setattr(autopilot, "_github", lambda ctx: github)
     monkeypatch.setattr(autopilot, "_youtube", lambda ctx: youtube)
     monkeypatch.setattr(autopilot, "OUTPUT_DIR", tmp_path / "output")
+    monkeypatch.setattr("owd.status.STATUS_FILE", tmp_path / "state" / "status.json")
 
     class Bot:
         pass
@@ -428,19 +432,32 @@ def made(*numbers):
 def test_plenty_of_chapters_means_no_heads_up(bot):
     bot.settings["books"] = [BOOK]
     ctx = bot.ctx()
-    assert autopilot.pick_chapter(ctx, made(2)) == (BOOK, 1) and ctx.notices == []
+    book, chapter = autopilot.pick_chapter(ctx, made(2))
+    assert (book, chapter.number, chapter.title) == (BOOK, 1, "THOUGHT AND CHARACTER") and ctx.notices == []
 
 
 def test_a_heads_up_when_few_chapters_are_left(bot):
     bot.settings["books"] = [BOOK]
     ctx = bot.ctx()
-    assert autopilot.pick_chapter(ctx, made(1, 2, 4))[1] == 3
+    assert autopilot.pick_chapter(ctx, made(1, 2, 4))[1].number == 3
     assert ctx.notices == ['Only 3 chapters left after this one. Add a book (docs/GUIDE.md, "Adding a book") so it keeps going.']
     body = autopilot._issue_body(ctx, record("x", "released"), {"duration": 600}, {}, "u", "")
     assert "> **Heads-up:** Only 3 chapters left" in body
     last = bot.ctx()
     autopilot.pick_chapter(last, made(1, 2, 3, 4, 5, 6))
     assert last.notices[0].startswith("This is the last chapter the bot has")
+
+
+def test_low_supply_asks_for_a_book_once_and_closes_the_issue_when_sorted(bot):
+    bot.settings["books"] = [BOOK]
+    ctx = bot.ctx()
+    ctx.github = bot.github
+    autopilot.pick_chapter(ctx, made(1, 2, 4))
+    autopilot.pick_chapter(ctx, made(1, 2, 4))  # asked again: no second issue
+    needs = [i for i in bot.github.issues.values() if "bot-needs" in i["labels"]]
+    assert len(needs) == 1 and needs[0]["title"] == "The bot needs a new book" and "add-book" in needs[0]["body"]
+    autopilot.pick_chapter(ctx, made())  # plenty again (say, a book was added)
+    assert needs[0]["state"] == "closed" and needs[0]["comments"][0].startswith("Sorted:")
 
 
 def test_no_chapters_left_fails_the_run_with_the_fix(bot):

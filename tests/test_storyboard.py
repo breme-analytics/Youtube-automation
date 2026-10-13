@@ -76,19 +76,27 @@ def test_quote_paragraphs_are_numbered_and_read_by_the_narrator_by_default():
 
 def test_channel_settings_are_valid():
     """channel.toml is the owner's to change: check it's usable, not what it says."""
-    from owd.books import chapters
+    from owd.books import book_chapters
     from owd.llm import models_from_settings
+    from owd.minutes import budget
+    from owd.schedule import make_days
+    from owd.state import BOOK_ORDERS
+    from owd.storage import StoragePolicy
     from owd.storyboard import FORMATS
 
     settings = load_settings()
     assert isinstance(load_cast(), Cast)  # the voices exist (Cast validates them)
     assert settings["video"]["format"] in FORMATS
     assert 0 < settings["video"]["min_words"] <= settings["video"]["max_words"]
+    ids = [book["id"] for book in settings["books"]]
+    assert len(ids) == len(set(ids)), "two books share an id"
     for book in settings["books"]:
-        assert (ROOT / book["file"]).is_file() and chapters(ROOT / book["file"]), book["id"]
+        assert (ROOT / book["file"]).is_file() and book_chapters(book), book["id"]
         assert book["cite"]
     assert models_from_settings(settings)
     assert all(feed.kind in ("research", "platform") for feed in load_feeds(settings))
+    assert make_days(settings) and settings["schedule"].get("book_order", "balanced") in BOOK_ORDERS
+    assert budget(settings) >= 0 and StoragePolicy.from_settings(settings)
 
 
 def test_dump_storyboard_round_trips():

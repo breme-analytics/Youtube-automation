@@ -126,7 +126,7 @@ FORMAT RULES (technical, always apply):
 - Quotes: {targets.min_quotes} to {targets.max_quotes} quotes in total. A quote scene gives sentence numbers from the BOOK
   list, at most {MAX_QUOTE_SENTENCES} consecutive sentences and {MAX_QUOTE_WORDS} words, plus "quote_begins": the first four
   words of the first quoted sentence, copied exactly. The bot inserts the book's exact words. Introduce
-  each quote in the scene before it ("Allen put it plainly."). Never write quotations in "text" yourself,
+  each quote in the scene before it ("{cite.split(',')[0].strip()} put it plainly."). Never write quotations in "text" yourself,
   except phrases of five words or fewer.
 - Facts: mention research only from the RESEARCH list, or findings that are very well established. Never invent
   names, numbers, years or journals. Use the study's own wording ("linked to", "found", "suggests"); never turn

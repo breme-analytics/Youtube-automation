@@ -149,7 +149,7 @@ def cmd_write(args: argparse.Namespace) -> None:
     """Write a long-form storyboard from one chapter of a book, recent research and the steering."""
     from datetime import date
 
-    from owd.books import find_chapter
+    from owd.books import book_chapter
     from owd.channel import load_settings
     from owd.config import ROOT, cache_dir
     from owd.llm import LLM, models_from_settings
@@ -165,7 +165,7 @@ def cmd_write(args: argparse.Namespace) -> None:
         raise SystemExit(f"Unknown book {args.book!r}. Books in channel.toml: {', '.join(books) or 'none'}")
     book = books[args.book]
     book_file = ROOT / book["file"]
-    chapter = find_chapter(book_file, args.chapter)
+    chapter = book_chapter(book, args.chapter)
     items = collect(load_feeds(settings), cache_dir() / "news", log=lambda line: print(f"  news {line}"))
     research = research_for(items, settings.get("news", {}).get("keywords", []), days=90, limit=args.research)
     video = settings.get("video", {})
@@ -217,6 +217,46 @@ def cmd_cleanup(args: argparse.Namespace) -> None:
 
     deleted = cleanup(log=print)
     print(f"Deleted {len(deleted)} stored cop{'y' if len(deleted) == 1 else 'ies'}.")
+
+
+def cmd_add_book(args: argparse.Namespace) -> None:
+    """Add a public-domain book by its Project Gutenberg number, after checking its chapters can be found."""
+    from owd.addbook import BookError, add_book
+    from owd.config import ROOT
+
+    if args.number < 1:
+        raise SystemExit("Give the book's Project Gutenberg number, like 14209")
+    only = [title.strip() for title in (args.chapters or "").split(",") if title.strip()] or None
+    try:
+        book = add_book(args.number, ROOT, only=only, cite=(args.cite or "").strip(), year=(args.year or "").strip())
+    except BookError as error:
+        raise SystemExit(f"Not added: {error}") from None
+    lines = [f"Added {book.cite}: {len(book.chapters)} chapters, saved as {book.file} and listed in channel.toml."]
+    lines += [f"- {chapter.number}. {chapter.title.title()} ({chapter.words:,} words)" for chapter in book.chapters]
+    print("\n".join(lines))
+    summary = os.environ.get("GITHUB_STEP_SUMMARY")
+    if summary:
+        with open(summary, "a", encoding="utf-8") as handle:
+            handle.write("### " + "\n".join(lines) + "\n")
+
+
+def cmd_plan(args: argparse.Namespace) -> None:
+    """Is today a video day? The daily workflow asks first; a run started by hand always makes a video."""
+    from datetime import datetime, timezone
+
+    from owd.channel import load_settings
+    from owd.schedule import is_make_day, make_days
+
+    settings = load_settings()
+    by_hand = os.environ.get("GITHUB_EVENT_NAME") == "workflow_dispatch"
+    make = by_hand or is_make_day(settings, datetime.now(timezone.utc))
+    days = ", ".join(make_days(settings))
+    print(("Making a video today" + (" (started by hand)." if by_hand else f" (video days: {days}).")) if make
+          else f"No video today (video days: {days}); only the daily checks and clean-up.")
+    output = os.environ.get("GITHUB_OUTPUT")
+    if output:
+        with open(output, "a", encoding="utf-8") as handle:
+            handle.write(f"make={'true' if make else 'false'}\n")
 
 
 def cmd_storage(args: argparse.Namespace) -> None:
@@ -301,6 +341,16 @@ def main(argv: list[str] | None = None) -> None:
 
     storage = commands.add_parser("storage", help="show the stored videos and when each will be deleted")
     storage.set_defaults(run=cmd_storage)
+
+    add = commands.add_parser("add-book", help="add a public-domain book by its Project Gutenberg number")
+    add.add_argument("number", type=int, help="the book's number on gutenberg.org, e.g. 14209")
+    add.add_argument("--chapters", help="only these chapters: comma-separated titles from its contents")
+    add.add_argument("--cite", help='how to credit it, e.g. "Three Initiates, The Kybalion (1908)"')
+    add.add_argument("--year", help="the year it was first published, for the credit")
+    add.set_defaults(run=cmd_add_book)
+
+    plan = commands.add_parser("plan", help="is today a video day? (used by the daily workflow)")
+    plan.set_defaults(run=cmd_plan)
 
     login = commands.add_parser("youtube-login", help="sign in to YouTube once (opens a browser) and print the token")
     login.set_defaults(run=cmd_youtube_login)

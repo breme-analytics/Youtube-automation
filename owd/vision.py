@@ -25,6 +25,8 @@ VISION_MODELS = ("gemini-3.5-flash-lite", "gemini-3.1-flash-lite")
 GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 MIN_INTERVAL = 4.5  # seconds between calls: about 13 a minute, under the free per-minute limit
 GOOD_ENOUGH = 6  # a clip needs at least this score (0-10) to be shown
+BUSY = (500, 502, 503, 504)  # the model is overloaded: worth one more try
+BUSY_WAIT = 10.0
 
 
 @dataclass(frozen=True)
@@ -117,6 +119,10 @@ class VisionJudge:
                     self.enabled = False
                     self.log("vision: the Gemini key was refused; using tag matching only")
                     return None
+                if response.status_code in BUSY and attempt == 0:
+                    self.log(f"vision {model}: busy (HTTP {response.status_code}); trying again in {BUSY_WAIT:g}s")
+                    self.sleep(BUSY_WAIT)  # overloads usually pass within seconds
+                    continue
                 if response.status_code != 200:
                     self.log(f"vision {model}: HTTP {response.status_code}")
                     break

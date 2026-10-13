@@ -1,15 +1,17 @@
 name: produce
 
-# Makes the next video on its own: picks the next book chapter, writes the script with free models,
-# narrates and renders it, stores it (a GitHub release in this repository), then delivers it
-# (channel.toml [schedule] mode):
-#   review: an issue tells you (GitHub emails you) to post the stored copy.
-#   auto:   uploads to YouTube and schedules it for the next posting slot; an issue says when.
-# If [storage] max_videos are already waiting to be posted, it makes nothing and says so on the run page.
-# Runs Mondays and Thursdays, or any time from the Actions tab (Run workflow). Setup: docs/DEPLOY.md.
+# The bot's one daily run, at 06:15 Nairobi:
+# - every day: the storage rules and checks (what you posted or discarded, whether scheduled videos went
+#   public, deleting stored copies that are due), the status file for the control panel, and deleting old
+#   caches and run logs. About 1 to 2 minutes.
+# - on video days (channel.toml [schedule] make_days; Mondays and Thursdays by default), or whenever you
+#   press Run workflow: it also makes the next video (next chapter, script by free models, George's
+#   narration, matched pictures, render), stores it as a GitHub release and delivers it (channel.toml
+#   [schedule] mode). About 1 to 2 hours. It first checks the bot's monthly minutes ([actions]).
+# If anything fails, it opens a "The bot needs attention" issue. How it all works: docs/HOW-IT-WORKS.md.
 on:
   schedule:
-    - cron: "15 3 * * 1,4"   # 03:15 UTC (06:15 Nairobi) on Monday and Thursday
+    - cron: "15 3 * * *"   # 03:15 UTC = 06:15 Nairobi, every day. Video days are chosen in channel.toml.
   workflow_dispatch:
     inputs:
       angle:
@@ -17,11 +19,12 @@ on:
         required: false
 
 permissions:
-  contents: write   # commit state/videos.json and the storyboard back; create the release (stored copy)
-  issues: write     # the issue that tells you about the video
+  contents: write   # commit state and storyboards back; create releases (stored copies)
+  issues: write     # tell you about videos and anything the bot needs
+  actions: write    # count this repository's Actions minutes; delete old caches and run logs
 
 concurrency:
-  group: bot-state  # produce and cleanup queue behind each other: both update state/videos.json
+  group: bot-state  # never two runs at once (they both update state/videos.json)
   cancel-in-progress: false
 
 jobs:
@@ -44,7 +47,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.13.0"
+          enable-cache: true
+
+      - run: uv sync --frozen
+
+      - name: Is today a video day?
+        id: plan
+        run: uv run --frozen python -m owd plan
+
       - name: Check the keys are set
+        env:
+          MAKE: ${{ steps.plan.outputs.make }}
         run: |
           # Names only: GitHub never shows a secret's value, and neither does this step.
           {
@@ -61,44 +77,61 @@ jobs:
           for name in PIXABAY_API_KEY OPENROUTER_API_KEY GEMINI_API_KEY; do
             [ -n "${!name}" ] || missing="$missing $name"
           done
-          if [ -n "$missing" ]; then
+          if [ -n "$missing" ] && [ "$MAKE" = "true" ]; then
             echo "::error::Add these repository secrets (Settings > Secrets and variables > Actions):$missing"
             exit 1
           fi
 
+      - name: Daily checks and clean-up (storage rules)
+        run: uv run --frozen python -m owd cleanup
+
       - name: ffmpeg (with libass for captions)
+        if: steps.plan.outputs.make == 'true'
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends ffmpeg
 
-      - uses: astral-sh/setup-uv@v6
-        with:
-          version: "0.13.0"
-          enable-cache: true
-
-      - run: uv sync --frozen
-
       - name: Model cache
+        if: steps.plan.outputs.make == 'true'
         uses: actions/cache@v4
         with:
           path: .hf
-          key: models-${{ hashFiles('owd/models.py', 'channel.toml') }}
+          key: models-${{ hashFiles('owd/models.py') }}
 
       - name: Footage, painting and news cache
+        if: steps.plan.outputs.make == 'true'
         uses: actions/cache@v4
         with:
           path: .owd-cache
           key: owd-cache-${{ github.run_id }}
           restore-keys: owd-cache-
 
-      - run: uv run --frozen python -m owd fetch-models
+      - name: Pinned voice and speech-check models
+        if: steps.plan.outputs.make == 'true'
+        run: uv run --frozen python -m owd fetch-models
 
       - name: Make and deliver the next video
+        if: steps.plan.outputs.make == 'true'
         env:
           ANGLE: ${{ inputs.angle }}   # passed as data, never pasted into the script
         run: uv run --frozen python -m owd run --angle "$ANGLE"
 
       - name: Keep the footage cache small (clips unused for 30 days are dropped)
-        if: always()
+        if: always() && steps.plan.outputs.make == 'true'
         run: find .owd-cache -type f -mtime +30 -delete 2>/dev/null || true
+
+      - name: Delete old caches and run logs (keep the newest)
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # caches: keep the newest of each kind, delete the rest
+          gh cache list --limit 100 --sort created_at --order desc --json id,key \
+            --jq '[group_by(.key | sub("-[0-9]+$"; ""))[] | .[1:][] | .id] | .[]' |
+            while read -r id; do gh cache delete "$id" || true; done
+          # run logs older than 30 days
+          cutoff=$(date -u -d '30 days ago' +%Y-%m-%dT%H:%M:%SZ)
+          gh api --paginate "repos/${GITHUB_REPOSITORY}/actions/runs?per_page=100" \
+            --jq ".workflow_runs[] | select(.created_at < \"$cutoff\") | .id" |
+            while read -r id; do gh api -X DELETE "repos/${GITHUB_REPOSITORY}/actions/runs/$id" || true; done
 
       - name: Save progress (state and storyboard) to the repository
         if: always()

@@ -78,3 +78,16 @@ def test_judge_gives_up_cleanly():
     wrong_count, _ = judge(lambda request: answer([5, 5]))
     assert wrong_count.judge("a", "b", [jpeg()]) is None  # two scores for one still
     assert VisionJudge("").judge("a", "b", [jpeg()]) is None  # no key, no calls
+
+
+def test_a_busy_model_is_tried_again_then_the_next_model():
+    seen = []
+
+    def handler(request):
+        seen.append(request.url.path.split("/")[-1].split(":")[0])
+        return answer([8]) if len(seen) == 4 else httpx.Response(503)
+
+    j, clock = judge(handler)
+    assert j.judge("a", "b", [jpeg()]).scores == (8,)
+    assert seen == ["gemini-3.5-flash-lite", "gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-3.1-flash-lite"]
+    assert clock.slept.count(10.0) == 2  # one short wait per busy model

@@ -1,0 +1,81 @@
+name: add-book
+
+# Adds a public-domain book by its Project Gutenberg number: downloads it from Gutenberg's official mirror,
+# checks its chapters can be found, saves it in sources/ and lists it in channel.toml. The next video days
+# can use it straight away. Start it from Actions → add-book → Run workflow, or from the control panel.
+# About 1 minute. If the book can't be used, the run fails with the reason and opens an issue.
+on:
+  workflow_dispatch:
+    inputs:
+      gutenberg:
+        description: "The book's Project Gutenberg number (in its web address: gutenberg.org/ebooks/14209)"
+        required: true
+      chapters:
+        description: "Optional: only these chapters, as titles from its contents, separated by commas"
+        required: false
+      cite:
+        description: "Optional: how to credit it, e.g. Ralph Waldo Emerson, Essays: First Series (1841)"
+        required: false
+
+permissions:
+  contents: write   # save the book and channel.toml
+  issues: write     # tell you if it can't be added
+
+concurrency:
+  group: bot-state  # never at the same time as the daily run, which also commits
+  cancel-in-progress: false
+
+jobs:
+  add-book:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.13.0"
+          enable-cache: true
+
+      - run: uv sync --frozen
+
+      - name: Add the book
+        env:   # passed as data, never pasted into the script
+          NUMBER: ${{ inputs.gutenberg }}
+          CHAPTERS: ${{ inputs.chapters }}
+          CITE: ${{ inputs.cite }}
+        run: |
+          NUMBER=$(echo "$NUMBER" | tr -d '[:space:]#')
+          case "$NUMBER" in
+            ''|*[!0-9]*) echo "::error::The Project Gutenberg number must be digits only, like 14209"; exit 1 ;;
+          esac
+          uv run --frozen python -m owd add-book "$NUMBER" --chapters "$CHAPTERS" --cite "$CITE"
+
+      - name: Save the book to the repository
+        env:
+          NUMBER: ${{ inputs.gutenberg }}
+        run: |
+          git config user.name "breme-analytics"
+          git config user.email "341067996+breme-analytics@users.noreply.github.com"
+          git add sources channel.toml
+          git commit -m "Add a book: Project Gutenberg $(echo "$NUMBER" | tr -cd '0-9')"
+          git pull --rebase --autostash
+          git push
+
+      - name: If this failed, open an issue so you hear about it
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          cat > "$RUNNER_TEMP/failed.md" <<EOF
+          Adding a book failed on $(date -u '+%d %b %Y, %H:%M UTC').
+
+          - **Why:** ${RUN_URL} (the reason is in the last lines of the red step, after "Not added:").
+          - **What to do:** docs/GUIDE.md, "Adding a book". Close this issue once it's sorted.
+          EOF
+          gh label create bot-problem --color D93F0B --description "The bot needs attention" --force || true
+          gh issue create --title "The bot needs attention: a book couldn't be added" --label bot-problem \
+            --body-file "$RUNNER_TEMP/failed.md" ||
+            gh issue create --title "The bot needs attention: a book couldn't be added" --body-file "$RUNNER_TEMP/failed.md"

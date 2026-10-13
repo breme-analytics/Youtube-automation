@@ -5,6 +5,7 @@ every run, so any machine (or the next GitHub Actions run) knows where things st
          -> scheduled (stored; uploaded, waiting for publish time) -> posted -> cleaned
     released / scheduled -> discarded (the owner closed its issue as "not planned")
     made -> failed (the run stopped; the chapter is tried again)
+    local: made on a computer and posted by hand from there; recorded so its chapter isn't made again
 
 A video is *stored* while its copy (a GitHub release) exists: from delivery until cleanup deletes it.
 """
@@ -15,11 +16,12 @@ import json
 from dataclasses import asdict, dataclass, field, fields
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Sequence
 
 from owd.config import ROOT
 
 STATE_FILE = ROOT / "state" / "videos.json"
-STATUSES = ("made", "released", "scheduled", "posted", "cleaned", "discarded", "failed")
+STATUSES = ("made", "released", "scheduled", "posted", "cleaned", "discarded", "failed", "local")
 WAITING = ("released", "scheduled")  # stored and not yet posted
 
 
@@ -88,18 +90,36 @@ def save_state(state: State, path: Path = STATE_FILE) -> None:
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
-def next_chapter(state: State, books: list[dict], chapter_counts: dict[str, int]) -> tuple[str, int] | None:
-    """The first (book id, chapter number) not made yet, going through the books in channel.toml
-    order. None when every chapter of every book has a video."""
-    for book in books:
+BOOK_ORDERS = ("balanced", "in order")
+
+
+def _numbers(value: int | Sequence[int]) -> list[int]:
+    return list(range(1, value + 1)) if isinstance(value, int) else list(value)
+
+
+def next_chapter(state: State, books: list[dict], chapter_numbers: dict[str, int | Sequence[int]],
+                 order: str = "in order") -> tuple[str, int] | None:
+    """The next (book id, chapter number) to make, or None when every chapter has a video.
+
+    `chapter_numbers` gives each book's chapter count or its list of chapter numbers. Order:
+    "in order": finish the first book in channel.toml, then the next;
+    "balanced": the book with the fewest videos so far goes next (ties in channel.toml order),
+    so the books take turns."""
+    if order not in BOOK_ORDERS:
+        raise ValueError(f'book_order must be one of {", ".join(BOOK_ORDERS)}, not {order!r}')
+    open_books = []
+    for position, book in enumerate(books):
         used = state.used_chapters(book["id"])
-        for number in range(1, chapter_counts.get(book["id"], 0) + 1):
-            if number not in used:
-                return book["id"], number
-    return None
+        unused = [n for n in _numbers(chapter_numbers.get(book["id"], 0)) if n not in used]
+        if unused:
+            open_books.append((len(used) if order == "balanced" else 0, position, book["id"], unused[0]))
+    if not open_books:
+        return None
+    _, _, book_id, number = min(open_books)
+    return book_id, number
 
 
-def chapters_left(state: State, books: list[dict], chapter_counts: dict[str, int]) -> int:
+def chapters_left(state: State, books: list[dict], chapter_numbers: dict[str, int | Sequence[int]]) -> int:
     """How many chapters, across all books, have no video yet."""
-    return sum(len(set(range(1, chapter_counts.get(book["id"], 0) + 1)) - state.used_chapters(book["id"]))
+    return sum(len(set(_numbers(chapter_numbers.get(book["id"], 0))) - state.used_chapters(book["id"]))
                for book in books)

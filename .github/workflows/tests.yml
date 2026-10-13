@@ -43,7 +43,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .hf
-          key: models-${{ hashFiles('owd/models.py', 'channel.toml', 'owd/cli.py') }}
+          key: models-${{ hashFiles('owd/models.py') }}
 
       - name: Pinned models
         run: uv run --frozen python -m owd fetch-models

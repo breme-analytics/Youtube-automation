@@ -22,3 +22,8 @@ Checked against YouTube's monetization and spam policies in October 2026. These 
 9. **Report studies honestly.** One study "suggests" or "found"; it never "proves". Use the study's own
    numbers and wording, say when it was small or early, and never turn a link ("linked to") into a cause
    ("drives", "rewires", "shields").
+10. **Old metaphysics is belief, not science.** Books like *The Kybalion* make claims about vibration,
+   polarity or a universal mind. Say what the authors believed and why it still speaks to people, then
+   what psychology actually supports. Never present it as physics, and never borrow scientific words
+   ("quantum", "frequency", "energy field") to make it sound proven. Treat every faith and tradition
+   with respect. (Added 13 Oct 2026, with the new books.)

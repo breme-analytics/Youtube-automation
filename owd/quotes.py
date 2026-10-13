@@ -11,6 +11,7 @@ import re
 from functools import lru_cache
 from pathlib import Path
 
+from owd.books import clean_text
 from owd.storyboard import Storyboard
 from owd.tts import _quote_text
 
@@ -27,7 +28,7 @@ def normalize(text: str) -> str:
 
 @lru_cache(maxsize=32)
 def _source_text(path: str) -> str:
-    return normalize(Path(path).read_text(encoding="utf-8"))
+    return normalize(clean_text(Path(path).read_text(encoding="utf-8")))
 
 
 def quotes_in(storyboard: Storyboard) -> list[str]:
@@ -50,7 +51,8 @@ def check_quotes(storyboard: Storyboard) -> list[str]:
     for quote in quotes:
         needle = normalize(quote)
         if needle.strip() and not any(needle in text for text in texts):
-            suggestions = [repair_quote(quote, Path(source.file).read_text(encoding="utf-8")) for source in storyboard.sources]
+            suggestions = [repair_quote(quote, clean_text(Path(source.file).read_text(encoding="utf-8")))
+                           for source in storyboard.sources]
             hint = next((f"; the book says: {s!r}" for s in suggestions if s), "")
             problems.append(f"not found word for word in any source: {quote!r}{hint}")
     return problems

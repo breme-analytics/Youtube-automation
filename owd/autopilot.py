@@ -33,7 +33,6 @@ from pathlib import Path
 from typing import Callable
 from zoneinfo import ZoneInfo
 
-from owd.books import chapters, find_chapter
 from owd.channel import load_cast, load_settings
 from owd.config import OUTPUT_DIR, ROOT, cache_dir
 from owd.env import load_dotenv
@@ -65,6 +64,7 @@ class Context:
     env: dict
     log: Log
     notices: list[str] = field(default_factory=list)  # heads-ups for the owner, shown in the video's issue
+    github: object = None  # set by run() and cleanup(); used to open "the bot needs ..." issues
 
     @property
     def schedule(self) -> dict:
@@ -121,30 +121,90 @@ def _youtube(ctx: Context):
     return YouTube(credentials, log=ctx.log)
 
 
+# Telling the owner what the bot needs. One open issue per need (GitHub emails her about new issues in a
+# repository she watches); asking again while it's open adds nothing; the bot closes it once it's sorted.
+
+NEEDS_LABEL = "bot-needs"
+
+
+def _marker(key: str) -> str:
+    return f"<!-- owd-need: {key} -->"
+
+
+def ask_owner(ctx: Context, key: str, title: str, body: str) -> None:
+    github = ctx.github
+    if github is None:
+        ctx.warn(f"{title}: {body.splitlines()[0]}")
+        return
+    try:
+        if any(_marker(key) in (issue.get("body") or "") for issue in github.open_issues(NEEDS_LABEL)):
+            return
+        github.create_issue(title, f"{_marker(key)}\n{body}", labels=[NEEDS_LABEL])
+        ctx.log(f"asked the owner: {title}")
+    except Exception as error:
+        ctx.warn(f"Couldn't open the issue '{title}' ({str(error)[:200]}).")
+
+
+def resolve_need(ctx: Context, key: str, note: str) -> None:
+    github = ctx.github
+    if github is None:
+        return
+    try:
+        for issue in github.open_issues(NEEDS_LABEL):
+            if _marker(key) in (issue.get("body") or ""):
+                github.comment(issue["number"], f"Sorted: {note} Closing this.")
+                github.close_issue(issue["number"])
+    except Exception as error:
+        ctx.warn(f"Couldn't close a sorted 'bot needs' issue ({str(error)[:200]}).")
+
+
+def open_needs(ctx: Context) -> list[dict]:
+    try:
+        return [{"title": i.get("title", ""), "issue": i.get("number"), "url": i.get("html_url", "")}
+                for i in ctx.github.open_issues(NEEDS_LABEL)] if ctx.github else []
+    except Exception:
+        return []
+
+
 # Making a video
 
-
-LOW_SUPPLY = 4  # warn when this few chapters are left: two weeks' notice at two videos a week
+LOW_SUPPLY = 4  # ask for a book when this few chapters are left: two weeks' notice at two videos a week
 OUT_OF_CHAPTERS = ("Every chapter of every book in channel.toml already has a video, so there is nothing new to make. "
                    "Add a book (docs/GUIDE.md, \"Adding a book\") and the next run carries on.")
+ADD_A_BOOK = """**How to add one** (any of these):
+- **Control panel:** Books → Add a book → type its Project Gutenberg number.
+- **GitHub:** Actions → **add-book** → **Run workflow** → type the number (for example 14209 for *The Kybalion*).
+- Details and good candidates: `docs/GUIDE.md`, "Adding a book".
+
+The bot checks the book's chapters can be found before it uses it, and closes this issue once it has enough."""
 
 
-def pick_chapter(ctx: Context, state: State) -> tuple[dict, int]:
-    """The next (book, chapter number) to make. Warns when few are left; fails when none are."""
+def pick_chapter(ctx: Context, state: State):
+    """The next (book, chapter) to make. Asks for a book when few are left; fails when none are."""
+    from owd.books import book_chapters
+
     books = ctx.settings.get("books", [])
-    counts = {book["id"]: len(chapters(ROOT / book["file"])) for book in books}
-    pick = next_chapter(state, books, counts)
+    found = {book["id"]: book_chapters(book) for book in books}
+    numbers = {book_id: [chapter.number for chapter in chapters] for book_id, chapters in found.items()}
+    order = ctx.schedule.get("book_order", "balanced")
+    pick = next_chapter(state, books, numbers, order)
+    left = chapters_left(state, books, numbers) - (1 if pick else 0)  # after this one
+    if pick is None or left <= LOW_SUPPLY:
+        notice = (OUT_OF_CHAPTERS if pick is None else
+                  "This is the last chapter the bot has: the next run will stop." if left == 0 else
+                  f"Only {left} chapter{'s' if left != 1 else ''} left after this one.")
+        if pick is not None:
+            notice += " Add a book (docs/GUIDE.md, \"Adding a book\") so it keeps going."
+            ctx.notices.append(notice)
+        ctx.warn(notice)
+        ask_owner(ctx, "book", "The bot needs a new book", f"{notice}\n\n{ADD_A_BOOK}")
+    else:
+        resolve_need(ctx, "book", f"{left} chapters are waiting now.")
     if pick is None:
         raise RuntimeError(OUT_OF_CHAPTERS)
-    left = chapters_left(state, books, counts) - 1  # after this one
-    if left <= LOW_SUPPLY:
-        notice = ("This is the last chapter the bot has: the next run will stop." if left == 0 else
-                  f"Only {left} chapter{'s' if left != 1 else ''} left after this one.")
-        notice += " Add a book (docs/GUIDE.md, \"Adding a book\") so it keeps going."
-        ctx.notices.append(notice)
-        ctx.warn(notice)
     book = next(b for b in books if b["id"] == pick[0])
-    return book, pick[1]
+    chapter = next(c for c in found[pick[0]] if c.number == pick[1])
+    return book, chapter
 
 
 def write_next(ctx: Context, state: State, angle: str = "") -> tuple[VideoRecord, Path]:
@@ -154,10 +214,9 @@ def write_next(ctx: Context, state: State, angle: str = "") -> tuple[VideoRecord
     from owd.steering import llm_condenser, load_steering
     from owd.writer import Targets, write_video
 
-    book, number = pick_chapter(ctx, state)
-    book_id = book["id"]
+    book, chapter = pick_chapter(ctx, state)
+    book_id, number = book["id"], chapter.number
     book_file = ROOT / book["file"]
-    chapter = find_chapter(book_file, str(number))
     ctx.log(f"next: {book['cite']}, chapter {number} ({chapter.title.title()})")
     llm = LLM(models_from_settings(ctx.settings), log=lambda line: ctx.log(f"  model {line}"))
     steering = load_steering(condense=llm_condenser(llm))
@@ -298,6 +357,7 @@ def deliver(ctx: Context, state: State, record: VideoRecord, result, github) -> 
     if ctx.mode == "auto":
         try:
             _post_to_youtube(ctx, state, record, result, metadata)
+            resolve_need(ctx, "youtube", "the last upload to YouTube worked.")
         except Exception as error:
             if record.youtube_id:  # it's on YouTube; only an extra (thumbnail, captions) failed
                 record.notes.append(f"YouTube: {type(error).__name__}: {str(error)[:200]}")
@@ -305,6 +365,10 @@ def deliver(ctx: Context, state: State, record: VideoRecord, result, github) -> 
                 problem = f"{type(error).__name__}: {str(error)[:400]}"
                 record.notes.append(f"YouTube upload failed: {problem}")
                 ctx.warn(f"YouTube upload failed, so the owner is asked to post it by hand. {problem}")
+                if "invalid_grant" in problem or "needs the secrets" in problem:
+                    ask_owner(ctx, "youtube", "The bot can't post to YouTube",
+                              f"{' '.join(problem.split())}\n\n{explain(problem)}\n\nUntil it's fixed, every video "
+                              "comes to you as \"Ready to post\".")
     review = Path(result.review).read_text(encoding="utf-8")
     body = _issue_body(ctx, record, metadata, links, release_url, review, problem)
     if record.status == "scheduled":
@@ -502,8 +566,61 @@ def _storage_report(ctx: Context, state: State) -> None:
 # The two entry points
 
 
+def _usage(ctx: Context, github, now: datetime):
+    """This month's Actions minutes for this repository, or None if GitHub wouldn't say."""
+    from owd import minutes
+
+    try:
+        return minutes.month_usage(github, now)
+    except Exception as error:
+        ctx.warn(f"Couldn't count this month's Actions minutes ({str(error)[:200]}); the budget isn't checked this time.")
+        return None
+
+
+def _finish(ctx: Context, state: State, usage) -> None:
+    """The storage report on the run page, and state/status.json for the control panel."""
+    from owd import minutes
+    from owd.status import build_status, save_status
+
+    _storage_report(ctx, state)
+    try:
+        save_status(build_status(ctx.settings, state, minutes=usage, minutes_budget=minutes.budget(ctx.settings),
+                                 needs=open_needs(ctx)))
+    except Exception as error:
+        ctx.warn(f"Couldn't write state/status.json ({str(error)[:200]}).")
+
+
+def _over_budget(ctx: Context, usage) -> bool:
+    """Whether the next video would go over the bot's monthly minutes (and if so, tell the owner)."""
+    from owd import minutes
+
+    limit = minutes.budget(ctx.settings)
+    if usage is None:
+        return False
+    line = minutes.summary(usage, limit)
+    ctx.log(line)
+    ctx.report([f"### {line}"])
+    if minutes.fits(usage, limit):
+        resolve_need(ctx, "minutes", "this month's minutes have room for a video again.")
+        return False
+    year, month = (int(part) for part in usage.month.split("-"))
+    resets = datetime(year + month // 12, month % 12 + 1, 1, tzinfo=timezone.utc)
+    text = (f"This repository has used {usage.used:,} of the {limit:,} Actions minutes the bot may use in {usage.month} "
+            f"(channel.toml `[actions] monthly_minutes`), and a video takes about {usage.per_video}. So the bot makes no "
+            f"new video until {resets:%d %B}, when GitHub's free minutes start again.")
+    ctx.warn(text)
+    ask_owner(ctx, "minutes", "The bot paused: this month's Actions minutes are used", f"""{text}
+
+Your account's 2,000 free minutes a month are shared by all your private repositories (the trading bot too); see the
+total at **Settings → Billing and plans → Usage**.
+
+**To carry on sooner:** raise `monthly_minutes` (control panel → Settings, or `channel.toml`) if the other bots
+have room. **To use fewer:** make fewer videos a week (`make_days`). Details: `docs/GUIDE.md`, "Actions minutes".""")
+    return True
+
+
 def run(angle: str = "", log: Log = print) -> VideoRecord | None:
-    """One full run: catch up, make room, then write, render, store and deliver the next video."""
+    """One full run: catch up, make room, check the minutes, then write, render, store and deliver the next video."""
     ctx = _context(log)
     _ = ctx.mode, ctx.storage  # a mistyped setting fails now, not after an hour of rendering
     github = _github(ctx)
@@ -511,30 +628,46 @@ def run(angle: str = "", log: Log = print) -> VideoRecord | None:
         raise RuntimeError("Every video is stored on GitHub before it's posted, so `run` needs GITHUB_REPOSITORY and "
                            "GITHUB_TOKEN (the produce workflow sets both). To make a video on this computer instead, use "
                            "`python -m owd render <storyboard>`.")
+    ctx.github = github
     state = load_state()
     now = datetime.now(timezone.utc)
     catch_up(ctx, state, github, _youtube(ctx), now)
     _, room = _apply_rules(ctx, state, github, now, new=1)
     save_state(state)
-    if not room:
-        waiting = [record for record in state.stored() if record.waiting]
-        ctx.warn(f"Storage is full: {len(waiting)} videos are waiting to be posted (max_videos = "
-                 f"{ctx.storage.max_videos} in channel.toml), so no new video was made. Post one, or close its issue as "
-                 "not planned, and the next run carries on. Waiting: " + "; ".join(r.title for r in waiting))
-        _storage_report(ctx, state)
-        return None
-    record, _ = write_next(ctx, state, angle)
+    usage = _usage(ctx, github, now)
     try:
-        result = render(ctx, record)
-        deliver(ctx, state, record, result, github)
-    except Exception as error:
-        record.notes.append(f"{type(error).__name__}: {str(error)[:300]}")
-        if not record.youtube_id:  # never retry a chapter that is already on YouTube
-            record.status = "failed"
-        save_state(state)
-        raise
-    _storage_report(ctx, state)
-    return record
+        if not room:
+            waiting = [record for record in state.stored() if record.waiting]
+            ctx.warn(f"Storage is full: {len(waiting)} videos are waiting to be posted (max_videos = "
+                     f"{ctx.storage.max_videos} in channel.toml), so no new video was made. Post one, or close its issue "
+                     "as not planned, and the next run carries on. Waiting: " + "; ".join(r.title for r in waiting))
+            listing = "\n".join(f"- #{r.issue} {r.title}" if r.issue else f"- {r.title}" for r in waiting)
+            ask_owner(ctx, "storage-full", "The bot is waiting for you to post videos", f"""{len(waiting)} videos are \
+waiting for you to post them, and the bot stores at most {ctx.storage.max_videos} at a time (`channel.toml` \
+`[storage] max_videos`), so it isn't making new ones.
+
+Post them (close each video's issue once it's on YouTube), or close the ones you don't want as **not planned**.
+The next run carries on as soon as there's room, and this issue closes itself.
+
+Waiting:
+{listing}""")
+            return None
+        resolve_need(ctx, "storage-full", "there's room for a new video again.")
+        if _over_budget(ctx, usage):
+            return None
+        record, _ = write_next(ctx, state, angle)
+        try:
+            result = render(ctx, record)
+            deliver(ctx, state, record, result, github)
+        except Exception as error:
+            record.notes.append(f"{type(error).__name__}: {str(error)[:300]}")
+            if not record.youtube_id:  # never retry a chapter that is already on YouTube
+                record.status = "failed"
+            save_state(state)
+            raise
+        return record
+    finally:
+        _finish(ctx, state, usage)
 
 
 def cleanup(log: Log = print, now: datetime | None = None) -> list[str]:
@@ -543,16 +676,18 @@ def cleanup(log: Log = print, now: datetime | None = None) -> list[str]:
     github = _github(ctx)
     if github is None:
         log("No GitHub token here (GITHUB_REPOSITORY and GITHUB_TOKEN): the stored copies are cleaned up by the "
-            "cleanup workflow.")
+            "daily run on GitHub.")
         return []
+    ctx.github = github
     state = load_state()
     now = now or datetime.now(timezone.utc)
     catch_up(ctx, state, github, _youtube(ctx), now)
     deleted, _ = _apply_rules(ctx, state, github, now, new=0)
     save_state(state)
     deleted += _sweep_strays(ctx, state, github, now)
-    _storage_report(ctx, state)
+    _finish(ctx, state, _usage(ctx, github, now))
     return deleted
 
 
-__all__ = ["run", "cleanup", "catch_up", "write_next", "render", "store", "deliver", "explain", "STATE_FILE"]
+__all__ = ["run", "cleanup", "catch_up", "write_next", "render", "store", "deliver", "explain", "ask_owner",
+           "resolve_need", "pick_chapter", "STATE_FILE"]

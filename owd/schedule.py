@@ -8,6 +8,26 @@ from zoneinfo import ZoneInfo
 
 DAYS = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 MIN_LEAD = timedelta(hours=2)  # YouTube needs time to process the upload before it goes public
+DEFAULT_MAKE_DAYS = ("Mon", "Thu")
+
+
+def make_days(settings: dict) -> list[str]:
+    """The days the bot makes a video (channel.toml [schedule] make_days), as "Mon", "Tue", ..."""
+    days = settings.get("schedule", {}).get("make_days", list(DEFAULT_MAKE_DAYS))
+    result = []
+    for day in days:
+        short = str(day).strip()[:3].title()
+        if short not in DAYS:
+            raise ValueError(f"schedule.make_days: {day!r} isn't a day (use Mon, Tue, Wed, Thu, Fri, Sat or Sun)")
+        if short not in result:
+            result.append(short)
+    return sorted(result, key=DAYS.index)
+
+
+def is_make_day(settings: dict, now: datetime) -> bool:
+    """Whether `now` falls on a video day in the channel's timezone."""
+    zone = ZoneInfo(settings.get("schedule", {}).get("timezone", "UTC"))
+    return DAYS[now.astimezone(zone).weekday()] in make_days(settings)
 
 
 def next_slot(

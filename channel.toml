@@ -17,9 +17,15 @@ match_visuals = true     # a free vision model checks each clip shows what Georg
 paintings = true         # when no clip fits, show an AI painting of the moment instead (12 Oct)
 
 [schedule]
-# The bot makes one video per run of .github/workflows/produce.yml (Mondays and Thursdays by default)
-# and, in "auto" mode, schedules it to go public at the next of these times.
+# The bot runs every morning at 06:15 Nairobi (.github/workflows/produce.yml): daily checks and clean-up,
+# plus a new video on these days. Each video day costs about 1 to 2 hours of GitHub Actions minutes;
+# see [actions] below and docs/GUIDE.md, "Actions minutes". Two days = about 9 videos a month.
+make_days = ["Mon", "Thu"]
+# Which book the next video comes from: "balanced" (the book with the fewest videos so far, so the books
+# take turns; ties go to the book listed first below) or "in order" (finish each book before the next).
+book_order = "balanced"
 timezone = "Africa/Nairobi"
+# In "auto" mode, videos go public at the next of these times.
 publish_days = ["Tue", "Fri"]
 publish_time = "18:00"
 # "review": the bot stores the video and opens a GitHub issue with download links; you post it yourself.
@@ -27,6 +33,13 @@ publish_time = "18:00"
 #           secrets, docs/DEPLOY.md step 4). If YouTube doesn't publish it, the issue asks you to post the
 #           stored copy by hand instead.
 mode = "review"
+
+[actions]
+# GitHub Actions minutes this bot may use per calendar month (UTC), across all its workflows. A free
+# account's 2,000 minutes a month are shared by all its private repositories (the trading bot too), so
+# this is this bot's share. Before each video the bot adds up this month's minutes; if the video wouldn't
+# fit, it waits for next month and opens an issue to tell you. 0 = no limit.
+monthly_minutes = 1000
 
 [storage]
 # Every video is stored in the cloud before it's posted, in both modes: a GitHub release in this
@@ -39,14 +52,48 @@ keep_days_after_posting = 7
 #   the bot makes no new video until you post one, or discard it (close its issue as "not planned").
 max_videos = 4
 
-# Public-domain books the writer can use. Each file is a Project Gutenberg plain-text download
-# with a CONTENTS list; quotes are checked word for word against it.
+# Public-domain books the writer can use, from Project Gutenberg (plain text, saved unchanged in sources/).
+# Every quote is checked word for word against the book. `chapters` (optional) limits a book to those
+# chapters; remove the line to use all of them. Add a book: docs/GUIDE.md, "Adding a book".
+# Listed first = used first when books are tied (see book_order above). Added 13 Oct 2026 on the owner's
+# choice: The Kybalion for the next video, then Emerson's two essays, Meditations and The Way of Peace.
+[[books]]
+id = "the-kybalion"
+file = "sources/the-kybalion.txt"
+cite = "Three Initiates, The Kybalion (1908)"
+author = "Three Initiates"
+gutenberg = 14209
+
 [[books]]
 id = "as-a-man-thinketh"
 file = "sources/as-a-man-thinketh.txt"
 cite = "James Allen, As a Man Thinketh (1903)"
 author = "James Allen"
 gutenberg = 4507
+
+[[books]]
+id = "the-way-of-peace"
+file = "sources/the-way-of-peace.txt"
+cite = "James Allen, The Way of Peace (1907)"
+author = "James Allen"
+gutenberg = 10740
+
+[[books]]
+id = "meditations"
+file = "sources/meditations.txt"
+cite = "Marcus Aurelius, Meditations (translated by Meric Casaubon, 1634)"
+author = "Marcus Aurelius"
+gutenberg = 2680
+chapters = ["FIRST BOOK", "SECOND BOOK", "THIRD BOOK", "FOURTH BOOK", "FIFTH BOOK", "SIXTH BOOK",
+            "SEVENTH BOOK", "EIGHTH BOOK", "NINTH BOOK", "TENTH BOOK", "ELEVENTH BOOK", "TWELFTH BOOK"]
+
+[[books]]
+id = "emerson-essays"
+file = "sources/emerson-essays-first-series.txt"
+cite = "Ralph Waldo Emerson, Essays: First Series (1841)"
+author = "Ralph Waldo Emerson"
+gutenberg = 2944
+chapters = ["SELF-RELIANCE", "THE OVER-SOUL"]   # remove this line to use all twelve essays
 
 [llm]
 # Tried in this order; on a limit or an error the next one is used. All are free tiers.

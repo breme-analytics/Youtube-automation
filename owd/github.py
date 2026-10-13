@@ -151,3 +151,28 @@ class GitHub:
 
     def issue(self, number: int) -> dict:
         return self._call("GET", f"{API}/repos/{self.repo}/issues/{number}").json()
+
+    def open_issues(self, label: str) -> list[dict]:
+        """Open issues with `label` (pull requests left out)."""
+        items = self._call("GET", f"{API}/repos/{self.repo}/issues",
+                           params={"state": "open", "labels": label, "per_page": 100}).json()
+        return [item for item in items if "pull_request" not in item]
+
+    # Actions: what this repository's workflows used
+
+    def list_runs(self, created_since: str) -> list[dict]:
+        """Workflow runs created on or after `created_since` (YYYY-MM-DD), newest first."""
+        runs, page = [], 1
+        while True:
+            data = self._call("GET", f"{API}/repos/{self.repo}/actions/runs",
+                              params={"created": f">={created_since}", "per_page": 100, "page": page}).json()
+            batch = data.get("workflow_runs", [])
+            runs += batch
+            if len(batch) < 100:
+                return runs
+            page += 1
+
+    def run_jobs(self, run_id: int) -> list[dict]:
+        data = self._call("GET", f"{API}/repos/{self.repo}/actions/runs/{run_id}/jobs",
+                          params={"per_page": 100, "filter": "latest"}).json()
+        return data.get("jobs", [])

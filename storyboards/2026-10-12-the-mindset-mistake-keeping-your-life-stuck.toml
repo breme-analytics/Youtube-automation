@@ -2,6 +2,7 @@
 # Edit anything here, then render with: uv run python -m owd render storyboards/2026-10-12-the-mindset-mistake-keeping-your-life-stuck.toml
 # PROBLEM: the narration has 965 words; it needs 1250 to 1700. Add about 397 words of substance (a concrete example, a short story, a clearer explanation or a finding from RESEARCH; no filler and no recaps), mostly in these chapters: 'How Thought Crystallizes into Habit' (164 words), 'What Modern Psychology Confirms' (168 words), 'Mastering the Soil You Are Given' (181 words)
 # Expanded chapter by chapter to 1358 spoken words.
+# Painting prompts added on 13 Oct 2026 by openrouter:nvidia/nemotron-3-super-120b-a12b:free, for the re-render with matched pictures.
 title = "The Mindset Mistake Keeping Your Life Stuck"
 format = "long"
 alt_titles = ["Why Your Circumstances Keep Winning", "Stop Fighting Your Life Until You Know This", "What Blaming Bad Luck Is Quietly Costing You"]
@@ -60,6 +61,7 @@ basis = "R11"
 [[scene]]
 chapter = "The Trap of Fighting the Outer World"
 visual = "rain window"
+image = "A rain‑streaked window in a modest room, a shadowy figure pressing palms against the glass, soft grey light filtering through."
 text = '''
 You spend years battling the stubborn facts of your life. The difficult boss, the empty bank account, the exhausting daily grind that never seems to lift.
 
@@ -67,6 +69,7 @@ You spend years battling the stubborn facts of your life. The difficult boss, th
 
 [[scene]]
 visual = "fog road"
+image = "A winding country road swallowed by thick fog, a solitary silhouette walking forward, lantern glow barely piercing the mist."
 text = '''
 Most of us treat these conditions as uninvited invaders. We exhaust our energy pushing back against external walls, yet somehow wake up facing the exact same frustrations year after year.
 
@@ -74,6 +77,7 @@ Most of us treat these conditions as uninvited invaders. We exhaust our energy p
 
 [[scene]]
 visual = "clock gears"
+image = "An antique clock face exposed, gears turning slowly, a faint silhouette reflected in the polished metal, warm amber light."
 text = '''
 In 1903, an unassuming British thinker named James Allen offered an unsettling diagnosis. He argued that your daily fight against circumstances is entirely backwards.
 
@@ -82,6 +86,7 @@ In 1903, an unassuming British thinker named James Allen offered an unsettling d
 [[scene]]
 chapter = "The Cultivated Soil of the Mind"
 visual = "library books"
+image = "A quiet cottage study lined with wooden shelves, volumes stacked, a lone silhouette reading by a desk lamp's soft glow."
 text = '''
 Allen retired to a quiet cottage in Devon to write. He wanted to understand why so many capable people remain trapped in bitter discontent, endlessly waiting for their fortunes to turn.
 
@@ -89,6 +94,7 @@ Allen retired to a quiet cottage in Devon to write. He wanted to understand why 
 
 [[scene]]
 visual = "book pages"
+image = "Open pages of a weathered journal, inked lines forming a sprouting seed, a faint hand silhouette turning the page."
 text = '''
 His core metaphor was simple, earthy, and unforgiving. He asked the reader to stop viewing the mind as a passive mirror, and start seeing it as living earth.
 
@@ -96,6 +102,7 @@ His core metaphor was simple, earthy, and unforgiving. He asked the reader to st
 
 [[scene]]
 visual = "seedling soil"
+image = "Dark fertile soil cradling a tiny green seedling, a blurred silhouette of a gardener's hands hovering above, earthy light."
 text = '''
 Allen introduced his central argument with an image every gardener understands.
 
@@ -103,6 +110,7 @@ Allen introduced his central argument with an image every gardener understands.
 
 [[scene]]
 visual = "forest sunlight"
+image = "Sunbeams piercing a dense forest canopy, illuminating moss‑covered ground, a vague silhouette standing still among the trees."
 text = '''
 > Man's mind may be likened to a garden, which may be intelligently cultivated or allowed to run wild; but whether cultivated or neglected, it must, and will, bring forth. If no useful seeds are put into it, then an abundance of useless weed-seeds will fall therein, and will continue to produce their kind.
 
@@ -110,6 +118,7 @@ text = '''
 
 [[scene]]
 visual = "ink water"
+image = "A shallow pool of still water darkened by swirling ink, ripples fading, a faint silhouette reflected like a ghost."
 text = '''
 Neglect the soil, and weeds do not ask for permission. They spread because neglect is itself a choice, inviting whatever stray seeds blow in on the wind.
 
@@ -117,6 +126,7 @@ Neglect the soil, and weeds do not ask for permission. They spread because negle
 
 [[scene]]
 visual = "storm clouds"
+image = "Heavy storm clouds gathering over a barren hill, lightning hinting at distance, a lone silhouette bracing against the wind."
 text = '''
 When we dwell on grievance and dread, we plant toxic briars. Yet we express utter shock when those prickly vines wrap themselves around our work and our households.
 
@@ -124,6 +134,7 @@ When we dwell on grievance and dread, we plant toxic briars. Yet we express utte
 
 [[scene]]
 visual = "crossroads road"
+image = "A deserted crossroads under a pale sky, two diverging paths disappearing into haze, a silhouette pausing at the center."
 text = '''
 Allen pushed this idea to an uncompromising conclusion. He declared that you do not attract what you daydream about, but what you silently embody.
 
@@ -131,6 +142,7 @@ Allen pushed this idea to an uncompromising conclusion. He declared that you do 
 
 [[scene]]
 visual = "door light"
+image = "An old wooden door ajar, warm light spilling onto a stone step, a silhouette hesitating in the threshold."
 text = '''
 He summarized the basic human bind in one blunt sentence.
 
@@ -138,6 +150,7 @@ He summarized the basic human bind in one blunt sentence.
 
 [[scene]]
 visual = "candle flame"
+image = "A single candle flickering in a dark chamber, its flame casting trembling shadows, a silhouette seated quietly beside it."
 text = '''
 > Men are anxious to improve their circumstances, but are unwilling to improve themselves; they therefore remain bound.
 
@@ -145,6 +158,7 @@ text = '''
 
 [[scene]]
 visual = "hourglass sand"
+image = "An hourglass half‑filled with golden sand, grains slipping slowly, a blurred silhouette watching the flow from behind."
 text = '''
 We demand a promotion while doing slipshod work. We crave warmth from others while harbouring quiet resentment. But how does this mental climate turn into physical reality?
 
@@ -153,6 +167,7 @@ We demand a promotion while doing slipshod work. We crave warmth from others whi
 [[scene]]
 chapter = "How Thought Crystallizes into Habit"
 visual = "smoke swirl"
+image = "Thin smoke curling in a still room, forming delicate spirals, a faint silhouette outlined against the soft haze."
 text = '''
 Allen knew people would call his theory pure mysticism. To answer them, he mapped the hidden chain that links a private impulse to an inescapable life situation.
 
@@ -160,6 +175,7 @@ Allen knew people would call his theory pure mysticism. To answer them, he mappe
 
 [[scene]]
 visual = "light particles"
+image = "Motes of light drifting in a sunlit attic, each particle tracing slow arcs, a silhouette seated reading by the window."
 text = '''
 You cannot hide a sustained mental habit behind a polite smile. Repetition acts like frost on glass, hardening invisible moisture into rigid geometric patterns.
 
@@ -167,6 +183,7 @@ You cannot hide a sustained mental habit behind a polite smile. Repetition acts 
 
 [[scene]]
 visual = "footprints sand"
+image = "Bare footprints trailing across wet sand near the shore, tide gently erasing them, a silhouette walking away."
 text = '''
 He described this gradual transformation with remarkable psychological precision.
 
@@ -174,6 +191,7 @@ He described this gradual transformation with remarkable psychological precision
 
 [[scene]]
 visual = "mirror reflection"
+image = "An ornate mirror reflecting a dim room, a silhouette's back visible, light catching the edge of the glass."
 text = '''
 > Men imagine that thought can be kept secret, but it cannot; it rapidly crystallizes into habit, and habit solidifies into circumstance.
 
@@ -181,6 +199,7 @@ text = '''
 
 [[scene]]
 visual = "brain neurons"
+image = "A glowing neural network visualized in dark space, bright nodes pulsing, a silhouette observing the pattern from afar."
 text = '''
 Consider how indecision works in everyday life. A chronic fear of making mistakes crystallizes into constant procrastination, which eventually solidifies into lost careers and missed chances.
 
@@ -188,6 +207,7 @@ Consider how indecision works in everyday life. A chronic fear of making mistake
 
 [[scene]]
 visual = "forest dark"
+image = "A moonlit forest path shrouded in deep shadows, faint glimmers on leaves, a silhouette moving cautiously forward."
 text = '''
 Conversely, persistent courage shapes decisive physical actions. Those reliable actions build a reputation, and that reputation unlocks doors that remain firmly shut to the timid.
 
@@ -195,6 +215,7 @@ Conversely, persistent courage shapes decisive physical actions. Those reliable 
 
 [[scene]]
 visual = "lake calm"
+image = "A tranquil lake at dawn, mirror‑still water reflecting pale sky, a solitary silhouette seated on a wooden dock."
 text = '''
 Allen made sure to clarify that you cannot simply order the world around like a sovereign king. The leverage is far quieter, and far more demanding.
 
@@ -202,6 +223,7 @@ Allen made sure to clarify that you cannot simply order the world around like a 
 
 [[scene]]
 visual = "temple"
+image = "An ancient stone temple doorway framed by vines, soft light filtering through, a silhouette standing reverently inside."
 text = '''
 > A man cannot directly choose his circumstances, but he can choose his thoughts, and so indirectly, yet surely, shape his circumstances.
 
@@ -209,6 +231,7 @@ text = '''
 
 [[scene]]
 visual = "milky way"
+image = "The Milky Way arching over a quiet desert plain, stars spilling silver light, a silhouette gazing upward in awe."
 text = '''
 It sounds like a tidy, inspiring formula for total mastery. But when we test his claims against modern clinical evidence, half of his structure begins to fracture.
 
@@ -217,6 +240,7 @@ It sounds like a tidy, inspiring formula for total mastery. But when we test his
 [[scene]]
 chapter = "What Modern Psychology Confirms"
 visual = "brain neurons"
+image = "A cross‑section of glowing neurons firing in sequence, soft luminescence, a silhouette's profile illuminated by the neural light."
 text = '''
 Let us give Allen credit where modern science backs him up. Writing in 1903, he did not possess brain scans or clinical trials, yet he understood that internal states alter our physical reality.
 
@@ -224,6 +248,7 @@ Let us give Allen credit where modern science backs him up. Writing in 1903, he 
 
 [[scene]]
 visual = "light particles"
+image = "Tiny luminous particles drifting in a darkened chamber, forming fleeting constellations, a silhouette watching their dance."
 text = '''
 Consider how attention governs the physical body. In 2026, researchers discovered that where you point your focus can directly shape the body's inflammatory response, altering swelling in about ninety percent of participants.
 
@@ -231,6 +256,7 @@ Consider how attention governs the physical body. In 2026, researchers discovere
 
 [[scene]]
 visual = "candle flame"
+image = "A steady candle flame enclosed in glass, warm glow illuminating a silhouette's hands folded in quiet contemplation."
 text = '''
 When volunteers paid calm, mindful attention to physical irritation rather than frantically distracting themselves, the biological swelling shrank. The mind was not imagining relief; the tissues responded to focused, non-reactive presence.
 
@@ -238,6 +264,7 @@ When volunteers paid calm, mindful attention to physical irritation rather than 
 
 [[scene]]
 visual = "meditation silhouette"
+image = "A seated figure in lotus pose on a rocky outcrop, sunrise hues bathing the scene, silhouette outlined against the light."
 text = '''
 The heart tells the same story. Cardiovascular studies show that eight to twelve weeks of daily mindfulness, optimism, and gratitude training measurably lowers blood pressure and calms vascular inflammation.
 
@@ -245,6 +272,7 @@ The heart tells the same story. Cardiovascular studies show that eight to twelve
 
 [[scene]]
 visual = "lotus flower"
+image = "A single lotus blossom rising from still water, petals opening to soft pink light, a silhouette reflected in the pond."
 text = '''
 Daily mental cultivation bears measurable physiological fruit. Allen called it tending the garden, and modern medicine confirms that persistent, quiet reflection shields the cardiovascular system from the corrosive wear of chronic tension.
 
@@ -252,6 +280,7 @@ Daily mental cultivation bears measurable physiological fruit. Allen called it t
 
 [[scene]]
 visual = "smoke swirl"
+image = "Smoke spiraling upward from an extinguished candle, forming delicate wisps, a silhouette watching the fading trails."
 text = '''
 Consider what happens when that mental garden is neglected. Psychologists studying monotony recently discovered that severe, unresolved boredom drives people toward impulsive hostility and aggression, purely to escape the dull ache of an empty mind.
 
@@ -259,6 +288,7 @@ Consider what happens when that mental garden is neglected. Psychologists studyi
 
 [[scene]]
 visual = "ink water"
+image = "Ink droplets falling into a clear basin, creating expanding rings, a silhouette's hand barely disturbing the surface."
 text = '''
 When someone lacks internal purpose, the untended mind craves stimulation at any cost. They start quarrels, seek reckless thrills, or pick fights online, manufacturing external chaos simply to outrun their own inner void.
 
@@ -266,6 +296,7 @@ When someone lacks internal purpose, the untended mind craves stimulation at any
 
 [[scene]]
 visual = "fog road"
+image = "A mist‑shrouded highway disappearing into gray, a lone silhouette's outline barely visible ahead, headlights diffused."
 text = '''
 Allen observed this exact dynamic over a century ago. A mind left uncultivated does not stay quietly dormant; it breeds aggressive, erratic impulses that quickly ruin marriages, derail careers, and poison friendships.
 
@@ -273,6 +304,7 @@ Allen observed this exact dynamic over a century ago. A mind left uncultivated d
 
 [[scene]]
 visual = "mirror reflection"
+image = "A tarnished mirror reflecting a dim hallway, a silhouette's back turned, faint light catching the glass edge."
 text = '''
 We also know that mental habits crystallize into visible life patterns. A person who secretly nurses resentments gradually trains their brain to perceive hostility everywhere, creating defensive habits that alienate allies and invite real conflict.
 
@@ -280,6 +312,7 @@ We also know that mental habits crystallize into visible life patterns. A person
 
 [[scene]]
 visual = "tree seasons"
+image = "A solitary tree showing four seasonal quarters—budding, leafy, golden, bare—against a shifting sky, silhouette of a passerby below."
 text = '''
 Conversely, practicing deliberate patience gradually rewires your default reactions. Over months, you speak more softly, listen before judging, and naturally draw respectful people into your orbit. Our inner habits truly construct our social landscape.
 
@@ -287,6 +320,7 @@ Conversely, practicing deliberate patience gradually rewires your default reacti
 
 [[scene]]
 visual = "clock gears"
+image = "An intricate clock mechanism exposed, brass gears turning in sync, a silhouette's reflection glinting on the metal."
 text = '''
 Modern cognitive science agrees with Allen on this crucial point: your recurring thoughts shape your daily actions, your actions sculpt your habits, and your habits inevitably carve out your life trajectory.
 
@@ -294,6 +328,7 @@ Modern cognitive science agrees with Allen on this crucial point: your recurring
 
 [[scene]]
 visual = "seedling soil"
+image = "Rich dark earth cradling a sprouting seed, tiny roots visible, a silhouette's hand gently covering the soil."
 text = '''
 You cannot drift into mental negligence and expect peace of mind, just as you cannot ignore a patch of fertile earth and expect roses instead of choking thistles.
 
@@ -301,6 +336,7 @@ You cannot drift into mental negligence and expect peace of mind, just as you ca
 
 [[scene]]
 visual = "storm clouds"
+image = "Ominous clouds rolling over a deserted plain, distant thunder hinted, a silhouette standing firm against the gust."
 text = '''
 Up to this point, the Victorian philosopher stands on solid ground. Yet Allen did not stop at personal responsibility; he pushed his garden metaphor into a far darker and deeply flawed conclusion.
 
@@ -309,6 +345,7 @@ Up to this point, the Victorian philosopher stands on solid ground. Yet Allen di
 [[scene]]
 chapter = "The Cruel Flaw of Total Blame"
 visual = "storm clouds"
+image = "Heavy tempest clouds pressing low, lightning flickering within, a silhouette bracing with arms crossed against the wind."
 text = '''
 This is where we must part company with the old essayist. Allen crossed the line from personal responsibility into outright moral cruelty.
 
@@ -316,6 +353,7 @@ This is where we must part company with the old essayist. Allen crossed the line
 
 [[scene]]
 visual = "fog road"
+image = "A deserted lane swallowed by thick fog, streetlamps haloed faintly, a silhouette trudging forward with uncertain steps."
 text = '''
 He insisted that the world operates on absolute moral mechanics. In his view, there is no such thing as chance, bad luck, or tragic misfortune.
 
@@ -323,6 +361,7 @@ He insisted that the world operates on absolute moral mechanics. In his view, th
 
 [[scene]]
 visual = "rain window"
+image = "Rain tracing silver lines on a windowpane, a silhouette's forehead resting against the cool glass, muted interior light."
 text = '''
 He stated his sweeping dogma without a shred of hesitation.
 
@@ -330,6 +369,7 @@ He stated his sweeping dogma without a shred of hesitation.
 
 [[scene]]
 visual = "forest dark"
+image = "Moonlight filtering through sparse trees, casting long shadows on moss, a silhouette standing still, breath visible in cold air."
 text = '''
 > Suffering is always the effect of wrong thought in some direction. It is an indication that the individual is out of harmony with himself, with the Law of his being.
 
@@ -337,6 +377,7 @@ text = '''
 
 [[scene]]
 visual = "crossroads road"
+image = "A barren crossroads under a stormy sky, two cracked paths diverging, a silhouette hesitating, wind whipping loose dust."
 text = '''
 That single sentence has poisoned self-help literature for over a century. It tells the injured person that their suffering is proof of personal wickedness.
 
@@ -344,6 +385,7 @@ That single sentence has poisoned self-help literature for over a century. It te
 
 [[scene]]
 visual = "hourglass sand"
+image = "Sand pouring steadily through glass neck of an hourglass, each grain catching light, a silhouette observing the passage."
 text = '''
 Epidemiologists know that social isolation steals up to six healthy years from a person's life. But this isolation is often driven by economic shifts and bereavement, not impure character.
 
@@ -351,6 +393,7 @@ Epidemiologists know that social isolation steals up to six healthy years from a
 
 [[scene]]
 visual = "tree seasons"
+image = "A lone tree silhouetted against a gradient sky, roots gripping rocky soil, branches stretching in four directional arms."
 text = '''
 Earthquakes do not check your moral ledger before striking. Tyrants do not oppress communities because the victims secretly harboured base desires in their hearts.
 
@@ -358,6 +401,7 @@ Earthquakes do not check your moral ledger before striking. Tyrants do not oppre
 
 [[scene]]
 visual = "book pages"
+image = "Yellowed pages of an open ledger, inked symbols forming a wilted vine, a silhouette's finger tracing the lines."
 text = '''
 Allen lived in late-Victorian comfort and mistook social privilege for spiritual law. Believing every tragedy is deserved is not wisdom; it is a defensive fantasy.
 
@@ -365,6 +409,7 @@ Allen lived in late-Victorian comfort and mistook social privilege for spiritual
 
 [[scene]]
 visual = "lake calm"
+image = "Dawn mist hovering over a glassy lake, distant hills faint, a silhouette seated on a weathered wooden bench."
 text = '''
 If we discard his victim-blaming, can anything useful be salvaged from his writing? The answer lies in how we choose to interpret our storms.
 
@@ -373,6 +418,7 @@ If we discard his victim-blaming, can anything useful be salvaged from his writi
 [[scene]]
 chapter = "Mastering the Soil You Are Given"
 visual = "aurora sky"
+image = "Vibrant aurora curtains dancing over a silent snowy horizon, stars pale, a silhouette gazing upward, breath forming mist."
 text = '''
 We cannot choose the weather, the economic climate, or the family into which we were born. Terrible things happen to gentle, upright people every single day.
 
@@ -380,6 +426,7 @@ We cannot choose the weather, the economic climate, or the family into which we 
 
 [[scene]]
 visual = "meditation silhouette"
+image = "A figure seated in quiet meditation on a smooth stone, soft sunrise light enveloping the scene, silhouette outlined by glow."
 text = '''
 Yet Allen's garden metaphor remains brilliant if you strip away his cosmic arrogance. You are not the creator of the weather, but you remain the keeper of your plot.
 
@@ -387,6 +434,7 @@ Yet Allen's garden metaphor remains brilliant if you strip away his cosmic arrog
 
 [[scene]]
 visual = "door light"
+image = "A half‑open door revealing a darkened corridor, warm light spilling onto the floor, a silhouette pausing at the threshold."
 text = '''
 When misfortune lands on your doorstep, cursing the sky changes nothing. Ruminating over unfairness only poisons the soil where your next choice must take root.
 
@@ -394,6 +442,7 @@ When misfortune lands on your doorstep, cursing the sky changes nothing. Ruminat
 
 [[scene]]
 visual = "sunrise mountains"
+image = "Early sunrise cresting rugged mountain peaks, valleys cloaked in violet shadow, a silhouette standing on a rocky ledge."
 text = '''
 Stop waiting for your external conditions to become soft and accommodating before you practice discipline. Start planting small, sturdy habits right in the middle of the rocky ground.
 
@@ -401,6 +450,7 @@ Stop waiting for your external conditions to become soft and accommodating befor
 
 [[scene]]
 visual = "candle flame"
+image = "A candle flame sheltered in a glass holder, steady light casting soft shadows, a silhouette's hands folded in reverence."
 text = '''
 Cultivate thirty minutes of quiet study, five minutes of conscious breathing, or a deliberate refusal to spread petty gossip. These modest seeds matter.
 
@@ -408,6 +458,7 @@ Cultivate thirty minutes of quiet study, five minutes of conscious breathing, or
 
 [[scene]]
 visual = "galaxy stars"
+image = "A vast spiral galaxy swirling in deep space, brilliant cores and faint arms, a silhouette floating before the cosmic glow."
 text = '''
 Circumstance does not define your character; it merely gives you the stage upon which to test it. You do not command the world, but you rule yourself.
 
@@ -415,6 +466,7 @@ Circumstance does not define your character; it merely gives you the stage upon 
 
 [[scene]]
 visual = "lotus flower"
+image = "A lotus blossom opening atop still water, petals catching dawn light, a silhouette's reflection shimmering beneath the surface."
 text = '''
 If you wish to explore how more timeless thinkers help us navigate modern psychological life, join us by subscribing for our next investigation.
 
