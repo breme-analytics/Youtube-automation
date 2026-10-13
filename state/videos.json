@@ -1,3 +1,44 @@
 {
-  "videos": []
+  "videos": [
+    {
+      "slug": "2026-10-12-the-mindset-mistake-keeping-your-life-stuck",
+      "title": "The Mindset Mistake Keeping Your Life Stuck",
+      "book": "as-a-man-thinketh",
+      "chapter": 2,
+      "storyboard": "storyboards/2026-10-12-the-mindset-mistake-keeping-your-life-stuck.toml",
+      "status": "local",
+      "made_at": "2026-10-12T09:00:00+00:00",
+      "release_tag": "",
+      "stored_at": "",
+      "stored_bytes": 0,
+      "issue": 0,
+      "youtube_id": "",
+      "publish_at": "",
+      "posted_at": "",
+      "cleaned_at": "",
+      "notes": [
+        "Made on the Mac and re-rendered on 13 Oct 2026 with every fix. Post it from output/videos/2026-10-12-the-mindset-mistake-keeping-your-life-stuck-v2/ on the Mac (POSTING.md there). It isn't stored in the cloud."
+      ]
+    },
+    {
+      "slug": "2026-10-12-openrouter-ch4",
+      "title": "The Aimless Mistake That Keeps You Drifting",
+      "book": "as-a-man-thinketh",
+      "chapter": 4,
+      "storyboard": "storyboards/2026-10-12-openrouter-ch4.toml",
+      "status": "local",
+      "made_at": "2026-10-12T15:00:00+00:00",
+      "release_tag": "",
+      "stored_at": "",
+      "stored_bytes": 0,
+      "issue": 0,
+      "youtube_id": "",
+      "publish_at": "",
+      "posted_at": "",
+      "cleaned_at": "",
+      "notes": [
+        "Made on the Mac and re-rendered on 13 Oct 2026 with every fix. Post it from output/videos/2026-10-12-openrouter-ch4-v2/ on the Mac (POSTING.md there). It isn't stored in the cloud."
+      ]
+    }
+  ]
 }
