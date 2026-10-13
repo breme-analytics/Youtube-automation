@@ -1,0 +1,125 @@
+{
+  "updated": "2026-10-13T22:52:58+00:00",
+  "mode": "review",
+  "schedule": {
+    "make_days": [
+      "Mon",
+      "Thu"
+    ],
+    "timezone": "Africa/Nairobi",
+    "run_time_utc": "03:15",
+    "publish_days": [
+      "Tue",
+      "Fri"
+    ],
+    "publish_time": "18:00",
+    "book_order": "balanced"
+  },
+  "storage": {
+    "stored": 1,
+    "max_videos": 4,
+    "keep_days_after_posting": 7
+  },
+  "books": [
+    {
+      "id": "the-kybalion",
+      "cite": "Three Initiates, The Kybalion (1908)",
+      "chapters": 15,
+      "made": 1,
+      "left": 14
+    },
+    {
+      "id": "as-a-man-thinketh",
+      "cite": "James Allen, As a Man Thinketh (1903)",
+      "chapters": 7,
+      "made": 2,
+      "left": 5
+    },
+    {
+      "id": "the-way-of-peace",
+      "cite": "James Allen, The Way of Peace (1907)",
+      "chapters": 7,
+      "made": 0,
+      "left": 7
+    },
+    {
+      "id": "meditations",
+      "cite": "Marcus Aurelius, Meditations (translated by Meric Casaubon, 1634)",
+      "chapters": 12,
+      "made": 0,
+      "left": 12
+    },
+    {
+      "id": "emerson-essays",
+      "cite": "Ralph Waldo Emerson, Essays: First Series (1841)",
+      "chapters": 2,
+      "made": 0,
+      "left": 2
+    }
+  ],
+  "chapters_left": 40,
+  "next": {
+    "book": "the-way-of-peace",
+    "cite": "James Allen, The Way of Peace (1907)",
+    "chapter": 1,
+    "title": "The Power Of Meditation"
+  },
+  "videos": [
+    {
+      "slug": "2026-10-12-the-mindset-mistake-keeping-your-life-stuck",
+      "title": "The Mindset Mistake Keeping Your Life Stuck",
+      "status": "local",
+      "book": "as-a-man-thinketh",
+      "chapter": 2,
+      "made_at": "2026-10-12T09:00:00+00:00",
+      "issue": 0,
+      "release": "",
+      "youtube_id": "",
+      "publish_at": "",
+      "posted_at": "",
+      "delete_on": ""
+    },
+    {
+      "slug": "2026-10-12-openrouter-ch4",
+      "title": "The Aimless Mistake That Keeps You Drifting",
+      "status": "local",
+      "book": "as-a-man-thinketh",
+      "chapter": 4,
+      "made_at": "2026-10-12T15:00:00+00:00",
+      "issue": 0,
+      "release": "",
+      "youtube_id": "",
+      "publish_at": "",
+      "posted_at": "",
+      "delete_on": ""
+    },
+    {
+      "slug": "2026-10-13-what-mental-alchemy-is-quietly-costing-you",
+      "title": "What 'Mental Alchemy' Is Quietly Costing You",
+      "status": "released",
+      "book": "the-kybalion",
+      "chapter": 1,
+      "made_at": "2026-10-13T21:49:53+00:00",
+      "issue": 1,
+      "release": "video-2026-10-13-what-mental-alchemy-is-quietly-costing-you",
+      "youtube_id": "",
+      "publish_at": "",
+      "posted_at": "",
+      "delete_on": ""
+    }
+  ],
+  "needs": [],
+  "minutes": {
+    "month": "2026-10",
+    "used": 22,
+    "budget": 1000,
+    "per_video": 120,
+    "measured": false,
+    "by_workflow": {
+      "produce": 1,
+      "tests": 13,
+      "cleanup": 1,
+      "image": 7
+    }
+  }
+}

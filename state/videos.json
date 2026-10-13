@@ -39,6 +39,24 @@
       "notes": [
         "Made on the Mac and re-rendered on 13 Oct 2026 with every fix. Post it from output/videos/2026-10-12-openrouter-ch4-v2/ on the Mac (POSTING.md there). It isn't stored in the cloud."
       ]
+    },
+    {
+      "slug": "2026-10-13-what-mental-alchemy-is-quietly-costing-you",
+      "title": "What 'Mental Alchemy' Is Quietly Costing You",
+      "book": "the-kybalion",
+      "chapter": 1,
+      "storyboard": "storyboards/2026-10-13-what-mental-alchemy-is-quietly-costing-you.toml",
+      "status": "released",
+      "made_at": "2026-10-13T21:49:53+00:00",
+      "release_tag": "video-2026-10-13-what-mental-alchemy-is-quietly-costing-you",
+      "stored_at": "2026-10-13T22:52:57+00:00",
+      "stored_bytes": 548155641,
+      "issue": 1,
+      "youtube_id": "",
+      "publish_at": "",
+      "posted_at": "",
+      "cleaned_at": "",
+      "notes": []
     }
   ]
 }
