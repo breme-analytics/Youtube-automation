@@ -57,6 +57,27 @@
       "posted_at": "",
       "cleaned_at": "",
       "notes": []
+    },
+    {
+      "slug": "2026-10-15-the-meditation-mistake-that-keeps-you-stuck",
+      "title": "The Meditation Mistake That Keeps You Stuck",
+      "book": "the-way-of-peace",
+      "chapter": 1,
+      "storyboard": "storyboards/2026-10-15-the-meditation-mistake-that-keeps-you-stuck.toml",
+      "status": "released",
+      "made_at": "2026-10-15T04:04:13+00:00",
+      "release_tag": "video-2026-10-15-the-meditation-mistake-that-keeps-you-stuck",
+      "stored_at": "2026-10-15T04:43:16+00:00",
+      "stored_bytes": 569713508,
+      "issue": 2,
+      "youtube_id": "",
+      "publish_at": "",
+      "posted_at": "",
+      "cleaned_at": "",
+      "notes": [
+        "the quote [46, 47, 48] is 102 words; keep quotes to 70",
+        "the quote [49, 50, 51] is 111 words; keep quotes to 70"
+      ]
     }
   ]
 }

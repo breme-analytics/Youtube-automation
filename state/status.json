@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-14T03:46:01+00:00",
+  "updated": "2026-10-15T04:43:17+00:00",
   "mode": "review",
   "schedule": {
     "make_days": [
@@ -16,7 +16,7 @@
     "book_order": "balanced"
   },
   "storage": {
-    "stored": 1,
+    "stored": 2,
     "max_videos": 4,
     "keep_days_after_posting": 7
   },
@@ -39,8 +39,8 @@
       "id": "the-way-of-peace",
       "cite": "James Allen, The Way of Peace (1907)",
       "chapters": 7,
-      "made": 0,
-      "left": 7
+      "made": 1,
+      "left": 6
     },
     {
       "id": "meditations",
@@ -57,12 +57,12 @@
       "left": 2
     }
   ],
-  "chapters_left": 40,
+  "chapters_left": 39,
   "next": {
-    "book": "the-way-of-peace",
-    "cite": "James Allen, The Way of Peace (1907)",
+    "book": "meditations",
+    "cite": "Marcus Aurelius, Meditations (translated by Meric Casaubon, 1634)",
     "chapter": 1,
-    "title": "The Power Of Meditation"
+    "title": "First Book"
   },
   "videos": [
     {
@@ -106,17 +106,31 @@
       "publish_at": "",
       "posted_at": "",
       "delete_on": ""
+    },
+    {
+      "slug": "2026-10-15-the-meditation-mistake-that-keeps-you-stuck",
+      "title": "The Meditation Mistake That Keeps You Stuck",
+      "status": "released",
+      "book": "the-way-of-peace",
+      "chapter": 1,
+      "made_at": "2026-10-15T04:04:13+00:00",
+      "issue": 2,
+      "release": "video-2026-10-15-the-meditation-mistake-that-keeps-you-stuck",
+      "youtube_id": "",
+      "publish_at": "",
+      "posted_at": "",
+      "delete_on": ""
     }
   ],
   "needs": [],
   "minutes": {
     "month": "2026-10",
-    "used": 97,
+    "used": 98,
     "budget": 1000,
     "per_video": 75,
     "measured": true,
     "by_workflow": {
-      "produce": 76,
+      "produce": 77,
       "tests": 13,
       "cleanup": 1,
       "image": 7
