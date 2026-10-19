@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-18T03:44:20+00:00",
+  "updated": "2026-10-19T05:03:30+00:00",
   "mode": "review",
   "schedule": {
     "make_days": [
@@ -16,7 +16,7 @@
     "book_order": "balanced"
   },
   "storage": {
-    "stored": 2,
+    "stored": 3,
     "max_videos": 4,
     "keep_days_after_posting": 7
   },
@@ -46,8 +46,8 @@
       "id": "meditations",
       "cite": "Marcus Aurelius, Meditations (translated by Meric Casaubon, 1634)",
       "chapters": 12,
-      "made": 0,
-      "left": 12
+      "made": 1,
+      "left": 11
     },
     {
       "id": "emerson-essays",
@@ -57,12 +57,12 @@
       "left": 2
     }
   ],
-  "chapters_left": 39,
+  "chapters_left": 38,
   "next": {
-    "book": "meditations",
-    "cite": "Marcus Aurelius, Meditations (translated by Meric Casaubon, 1634)",
-    "chapter": 1,
-    "title": "First Book"
+    "book": "emerson-essays",
+    "cite": "Ralph Waldo Emerson, Essays: First Series (1841)",
+    "chapter": 2,
+    "title": "Self-Reliance"
   },
   "videos": [
     {
@@ -120,17 +120,31 @@
       "publish_at": "",
       "posted_at": "",
       "delete_on": ""
+    },
+    {
+      "slug": "2026-10-19-the-stoic-mistake-that-keeps-you-bitter",
+      "title": "The Stoic Mistake That Keeps You Bitter",
+      "status": "released",
+      "book": "meditations",
+      "chapter": 1,
+      "made_at": "2026-10-19T03:55:58+00:00",
+      "issue": 3,
+      "release": "video-2026-10-19-the-stoic-mistake-that-keeps-you-bitter",
+      "youtube_id": "",
+      "publish_at": "",
+      "posted_at": "",
+      "delete_on": ""
     }
   ],
   "needs": [],
   "minutes": {
     "month": "2026-10",
-    "used": 158,
+    "used": 160,
     "budget": 1000,
     "per_video": 66,
     "measured": true,
     "by_workflow": {
-      "produce": 137,
+      "produce": 139,
       "tests": 13,
       "cleanup": 1,
       "image": 7

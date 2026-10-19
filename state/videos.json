@@ -78,6 +78,24 @@
         "the quote [46, 47, 48] is 102 words; keep quotes to 70",
         "the quote [49, 50, 51] is 111 words; keep quotes to 70"
       ]
+    },
+    {
+      "slug": "2026-10-19-the-stoic-mistake-that-keeps-you-bitter",
+      "title": "The Stoic Mistake That Keeps You Bitter",
+      "book": "meditations",
+      "chapter": 1,
+      "storyboard": "storyboards/2026-10-19-the-stoic-mistake-that-keeps-you-bitter.toml",
+      "status": "released",
+      "made_at": "2026-10-19T03:55:58+00:00",
+      "release_tag": "video-2026-10-19-the-stoic-mistake-that-keeps-you-bitter",
+      "stored_at": "2026-10-19T05:03:30+00:00",
+      "stored_bytes": 571600144,
+      "issue": 3,
+      "youtube_id": "",
+      "publish_at": "",
+      "posted_at": "",
+      "cleaned_at": "",
+      "notes": []
     }
   ]
 }
