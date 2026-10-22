@@ -46,7 +46,7 @@
       "book": "the-kybalion",
       "chapter": 1,
       "storyboard": "storyboards/2026-10-13-what-mental-alchemy-is-quietly-costing-you.toml",
-      "status": "released",
+      "status": "posted",
       "made_at": "2026-10-13T21:49:53+00:00",
       "release_tag": "video-2026-10-13-what-mental-alchemy-is-quietly-costing-you",
       "stored_at": "2026-10-13T22:52:57+00:00",
@@ -54,7 +54,7 @@
       "issue": 1,
       "youtube_id": "",
       "publish_at": "",
-      "posted_at": "",
+      "posted_at": "2026-10-22T03:33:32+00:00",
       "cleaned_at": "",
       "notes": []
     },
@@ -64,7 +64,7 @@
       "book": "the-way-of-peace",
       "chapter": 1,
       "storyboard": "storyboards/2026-10-15-the-meditation-mistake-that-keeps-you-stuck.toml",
-      "status": "released",
+      "status": "posted",
       "made_at": "2026-10-15T04:04:13+00:00",
       "release_tag": "video-2026-10-15-the-meditation-mistake-that-keeps-you-stuck",
       "stored_at": "2026-10-15T04:43:16+00:00",
@@ -72,7 +72,7 @@
       "issue": 2,
       "youtube_id": "",
       "publish_at": "",
-      "posted_at": "",
+      "posted_at": "2026-10-22T03:44:20+00:00",
       "cleaned_at": "",
       "notes": [
         "the quote [46, 47, 48] is 102 words; keep quotes to 70",
@@ -96,6 +96,26 @@
       "posted_at": "",
       "cleaned_at": "",
       "notes": []
+    },
+    {
+      "slug": "2026-10-22-the-self-reliance-mistake-that-keeps-you-small",
+      "title": "The Self-Reliance Mistake That Keeps You Small",
+      "book": "emerson-essays",
+      "chapter": 2,
+      "storyboard": "storyboards/2026-10-22-the-self-reliance-mistake-that-keeps-you-small.toml",
+      "status": "released",
+      "made_at": "2026-10-22T03:50:53+00:00",
+      "release_tag": "video-2026-10-22-the-self-reliance-mistake-that-keeps-you-small",
+      "stored_at": "2026-10-22T04:41:55+00:00",
+      "stored_bytes": 539231266,
+      "issue": 4,
+      "youtube_id": "",
+      "publish_at": "",
+      "posted_at": "",
+      "cleaned_at": "",
+      "notes": [
+        "Narration quotes 'The voices which we hear in solitude grow faint and inaudible as we enter into the world.' itself: check it isn't presented as the book's words"
+      ]
     }
   ]
 }

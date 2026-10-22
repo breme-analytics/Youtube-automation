@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-21T03:47:12+00:00",
+  "updated": "2026-10-22T04:41:55+00:00",
   "mode": "review",
   "schedule": {
     "make_days": [
@@ -16,7 +16,7 @@
     "book_order": "balanced"
   },
   "storage": {
-    "stored": 3,
+    "stored": 4,
     "max_videos": 4,
     "keep_days_after_posting": 7
   },
@@ -53,16 +53,16 @@
       "id": "emerson-essays",
       "cite": "Ralph Waldo Emerson, Essays: First Series (1841)",
       "chapters": 2,
-      "made": 0,
-      "left": 2
+      "made": 1,
+      "left": 1
     }
   ],
-  "chapters_left": 38,
+  "chapters_left": 37,
   "next": {
-    "book": "emerson-essays",
-    "cite": "Ralph Waldo Emerson, Essays: First Series (1841)",
+    "book": "the-kybalion",
+    "cite": "Three Initiates, The Kybalion (1908)",
     "chapter": 2,
-    "title": "Self-Reliance"
+    "title": "The Seven Hermetic Principles"
   },
   "videos": [
     {
@@ -96,7 +96,7 @@
     {
       "slug": "2026-10-13-what-mental-alchemy-is-quietly-costing-you",
       "title": "What 'Mental Alchemy' Is Quietly Costing You",
-      "status": "released",
+      "status": "posted",
       "book": "the-kybalion",
       "chapter": 1,
       "made_at": "2026-10-13T21:49:53+00:00",
@@ -104,13 +104,13 @@
       "release": "video-2026-10-13-what-mental-alchemy-is-quietly-costing-you",
       "youtube_id": "",
       "publish_at": "",
-      "posted_at": "",
-      "delete_on": ""
+      "posted_at": "2026-10-22T03:33:32+00:00",
+      "delete_on": "2026-10-29T03:33:32+00:00"
     },
     {
       "slug": "2026-10-15-the-meditation-mistake-that-keeps-you-stuck",
       "title": "The Meditation Mistake That Keeps You Stuck",
-      "status": "released",
+      "status": "posted",
       "book": "the-way-of-peace",
       "chapter": 1,
       "made_at": "2026-10-15T04:04:13+00:00",
@@ -118,8 +118,8 @@
       "release": "video-2026-10-15-the-meditation-mistake-that-keeps-you-stuck",
       "youtube_id": "",
       "publish_at": "",
-      "posted_at": "",
-      "delete_on": ""
+      "posted_at": "2026-10-22T03:44:20+00:00",
+      "delete_on": "2026-10-29T03:44:20+00:00"
     },
     {
       "slug": "2026-10-19-the-stoic-mistake-that-keeps-you-bitter",
@@ -134,17 +134,31 @@
       "publish_at": "",
       "posted_at": "",
       "delete_on": ""
+    },
+    {
+      "slug": "2026-10-22-the-self-reliance-mistake-that-keeps-you-small",
+      "title": "The Self-Reliance Mistake That Keeps You Small",
+      "status": "released",
+      "book": "emerson-essays",
+      "chapter": 2,
+      "made_at": "2026-10-22T03:50:53+00:00",
+      "issue": 4,
+      "release": "video-2026-10-22-the-self-reliance-mistake-that-keeps-you-small",
+      "youtube_id": "",
+      "publish_at": "",
+      "posted_at": "",
+      "delete_on": ""
     }
   ],
   "needs": [],
   "minutes": {
     "month": "2026-10",
-    "used": 236,
+    "used": 238,
     "budget": 1000,
     "per_video": 75,
     "measured": true,
     "by_workflow": {
-      "produce": 215,
+      "produce": 217,
       "tests": 13,
       "cleanup": 1,
       "image": 7
