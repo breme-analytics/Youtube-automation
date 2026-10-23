@@ -33,3 +33,28 @@ feeds) live in `channel.toml`.
   Baumeister). Follow `references/titles-power-of-bad.md`.
 - YouTube know-how and do's and don'ts for long-form: `references/youtube-success-in-30-days.md`
   (notes from Brian Chesson's book).
+
+Here is a summary of your channel’s performance for **OLD WISDOM DECODED** over the **last 28 days** (September 25 – October 22, 2026):
+
+-----
+
+### Key Channel Metrics
+
+| Metric | Last 28 Days | Previous 28 Days | Change |
+| :--- | :--- | :--- | :--- |
+| **Views** | 8 | 0 | +8 |
+| **Watch Time** | \~34 min 26 sec | 0 hr | +34.4 min |
+| **Average View Duration (AVD)** | 4 min 18 sec | 0:00 | +4:18 |
+| **Average Percentage Viewed** | 41.0% | 0.0% | +41.0% |
+| **Impressions** | 4 | 0 | +4 |
+| **Subscribers (Net)** | 0 | 0 | 0 |
+
+-----
+
+
+### Recommendations
+
+*   **Strong Viewer Retention**: When viewers press play, they are staying for a solid portion of your long-form videos—achieving an overall **41% average view percentage** and several deep completions (such as 5+ and 10+ minutes). This suggests that the philosophical depth, pacing, and core message connect well with the viewers who find it.
+*   **Packaging & Discoverability**: With only 4 impressions logged from browse/search in this period, the primary opportunity is helping more viewers discover your videos. Consider experimenting with:
+    *   **Title Hooks**: Leaning into clear tension or curiosity-driven questions (e.g., contrasting common beliefs vs. deeper wisdom).
+    *   **Thumbnail Clarity**: Simple, high-contrast imagery with readable focal elements that immediately communicate the central dilemma or question.
