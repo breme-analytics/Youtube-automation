@@ -85,7 +85,7 @@
       "book": "meditations",
       "chapter": 1,
       "storyboard": "storyboards/2026-10-19-the-stoic-mistake-that-keeps-you-bitter.toml",
-      "status": "released",
+      "status": "posted",
       "made_at": "2026-10-19T03:55:58+00:00",
       "release_tag": "video-2026-10-19-the-stoic-mistake-that-keeps-you-bitter",
       "stored_at": "2026-10-19T05:03:30+00:00",
@@ -93,7 +93,7 @@
       "issue": 3,
       "youtube_id": "",
       "publish_at": "",
-      "posted_at": "",
+      "posted_at": "2026-10-23T20:54:31+00:00",
       "cleaned_at": "",
       "notes": []
     },

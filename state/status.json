@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-23T03:47:05+00:00",
+  "updated": "2026-10-24T03:45:50+00:00",
   "mode": "review",
   "schedule": {
     "make_days": [
@@ -124,7 +124,7 @@
     {
       "slug": "2026-10-19-the-stoic-mistake-that-keeps-you-bitter",
       "title": "The Stoic Mistake That Keeps You Bitter",
-      "status": "released",
+      "status": "posted",
       "book": "meditations",
       "chapter": 1,
       "made_at": "2026-10-19T03:55:58+00:00",
@@ -132,8 +132,8 @@
       "release": "video-2026-10-19-the-stoic-mistake-that-keeps-you-bitter",
       "youtube_id": "",
       "publish_at": "",
-      "posted_at": "",
-      "delete_on": ""
+      "posted_at": "2026-10-23T20:54:31+00:00",
+      "delete_on": "2026-10-30T20:54:31+00:00"
     },
     {
       "slug": "2026-10-22-the-self-reliance-mistake-that-keeps-you-small",
@@ -153,13 +153,13 @@
   "needs": [],
   "minutes": {
     "month": "2026-10",
-    "used": 293,
+    "used": 297,
     "budget": 1000,
     "per_video": 66,
     "measured": true,
     "by_workflow": {
-      "produce": 272,
-      "tests": 13,
+      "produce": 273,
+      "tests": 16,
       "cleanup": 1,
       "image": 7
     }
