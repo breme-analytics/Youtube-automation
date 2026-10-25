@@ -21,8 +21,32 @@
 - Long-form, about 8 to 12 minutes. Shorts are paused for now.
 - Open a question early and answer it at the end. End chapters on cliffhangers. Use short silences
   before reveals. Follow `references/retention-mario-joos.md`.
-- The hook repeats the title's promise in the first 15 seconds, and the video must deliver on it.
 - One voice only: George, the older British narrator, reads everything, including book quotes.
+- **The opening hook (first 5 to 15 seconds) is the most important part of the script.** By
+  second 15, a new viewer must know what the video is about, why it matters to them, and why
+  they should stay until the end. Aim for about 30 to 40 spoken words, no more than 15 seconds.
+  The video must deliver exactly what the hook promises.
+  - **Seconds 0 to 5: the tension.** Start on a surprising claim, a sharp question or a
+    relatable problem the viewer already feels, in one or two short sentences. Use the title's
+    main idea so the viewer feels they are in the right place.
+  - **Seconds 5 to 10: the stakes.** Say what is at issue: what the book claims, what most people
+    assume, and why it matters to the viewer's own thinking or life.
+  - **Seconds 10 to 15: the promise and the open loop.** Say in one sentence what this video
+    will test or reveal, and plant a question that only the end of the video answers. Hint at
+    the answer without giving it away (for example, "one part of this holds up, and one
+    doesn't"). Never tease something the video does not answer.
+  - **Never open with** a greeting, "welcome to the channel", "in this video we will...", a
+    thank-you, a request to subscribe or like, a date or biography of the author, or a book
+    quote. Those can come later. The first sentence goes straight to the idea.
+  - Keep the sentences short and spoken, and keep the first picture striking and on-topic. Put a
+    short [pause] before the promise (seconds 10 to 15) so it lands, but never at the very
+    start.
+  - The hook still follows the hard limits: no promises of results, no "this will change your
+    life", no claims that George is an expert. The promise is about what the video will explore
+    or test, not what it will do for the viewer.
+  - Tone example (do not reuse the words): "Most of us blame our circumstances for where we are.
+    In 1903, James Allen said that's the very thing keeping us there. Was he right? Stay to the
+    end: one part of his claim holds up, and one doesn't."
 
 ### Titles, thumbnails and descriptions
 - Every title contains something people actually search for (the book, author or topic) plus a
@@ -59,4 +83,31 @@
 - Captions on every video. (12 Oct)
 
 ### Reference notes
+- **The opening hook (first 5 to 15 seconds) is the most important part of the script.** By
+  second 15, a new viewer must know what the video is about, why it matters to them, and why
+  they should stay until the end. Aim for about 30 to 40 spoken words, no more than 15 seconds.
+  - **Seconds 0 to 5: the tension.** Start on a surprising claim, a sharp question or a
+    relatable problem the viewer already feels, in one or two short sentences. Use the title's
+    main idea so the viewer feels they are in the right place.
+  - **Seconds 5 to 10: the stakes.** Say what is at issue: what the book claims, what most people
+    assume, and why it matters to the viewer's own thinking or life.
+  - **Seconds 10 to 15: the promise and the open loop.** Say in one sentence what this video
+    will test or reveal, and plant a question that only the end of the video answers. Hint at
+    the answer without giving it away (for example, "one part of this holds up, and one
+    doesn't"). The video must deliver exactly what the hook promises. Never tease something the
+    video does not answer.
+  - **Never open with** a greeting, "welcome to the channel", "in this video we will...", a
+    thank-you, a request to subscribe or like, a date or biography of the author, or a book
+    quote. Those can come later. The first sentence goes straight to the idea.
+  - Keep the sentences short and spoken, and keep the first picture striking and on-topic. Put a
+    short [pause] before the promise (seconds 10 to 15) so it lands, but never at the very
+    start.
+  - The hook still follows the hard limits: no promises of results, no "this will change your
+    life", no claims that George is an expert. The promise is about what the video will explore
+    or test, not what it will do for the viewer.
+  - Tone example (do not reuse the words): "Most of us blame our circumstances for where we are.
+    In 1903, James Allen said that's the very thing keeping us there. Was he right? Stay to the
+    end: one part of his claim holds up, and one doesn't."
+
+-### Reference notes
 - YouTube do's and don'ts for long-form: `references/youtube-success-in-30-days.md`
