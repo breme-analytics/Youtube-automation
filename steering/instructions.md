@@ -1,60 +1,62 @@
-# Your instructions to the bot
-
-Write here, in plain English, how you want the bot to work. Before it writes every video, the bot
-reads this file and every document in `references/`, and follows them ahead of its own defaults
-(YouTube's rules and the safety rules still come first). Development agents read them too.
-
-**Two ways to steer:**
-
-1. **Type** instructions in the list below.
-2. **Upload a document** into `references/`: a PDF, a Word file (.docx), a text file or Markdown. On GitHub,
-   open the `steering/references` folder, click **Add file > Upload files**, and commit. Long documents (a
-   whole book) are condensed once into a page of rules, saved next to the file as `<name>.digest.md`; open it
-   to see exactly what the bot took from your document, and edit it if you like (add `<!-- edited -->` at the
-   top so it's kept). To switch a document off, move it into `references/off/`.
-
-You can point at a document by name ("use references/titles-power-of-bad.md for titles"). Keep the newest
-instructions at the top of the list. Settings that aren't about writing (voice, length, posting times,
-feeds) live in `channel.toml`.
-
 ## Current instructions
 
-- Pictures must match what George is saying at that moment, so they support the story instead of
-  distracting from it. When no footage shows the idea, use a painting of it. (12 Oct)
-- Add captions to every video. (12 Oct)
-- Add suspense: open a question early and answer it at the end, end chapters on cliffhangers, and use
-  short silences before reveals. Follow Mario Joos (`references/retention-mario-joos.md`). (12 Oct)
-- Make long-form videos (about 8 to 12 minutes). Shorts are paused for now.
-- One voice only: George, the older British narrator, reads everything, including the book quotes.
-- Visuals are about the mind and the spirit (cosmos, light, candles, old books, water, mist,
-  stillness, meditation), never wildlife unless the script is literally about an animal.
-  Follow `references/visual-style.md`.
-- Titles and thumbnail text use the negativity effect from *The Power of Bad* (Tierney and
-  Baumeister). Follow `references/titles-power-of-bad.md`.
-- YouTube know-how and do's and don'ts for long-form: `references/youtube-success-in-30-days.md`
-  (notes from Brian Chesson's book).
+### The channel
+- Old Wisdom Decoded explains public-domain classics of the mind (The Kybalion, James Allen,
+  Marcus Aurelius, Emerson) in modern English and tests their ideas against modern psychology.
+  It never just reads the books aloud.
+- The viewer is a curious adult interested in self-improvement and philosophy who wants clear,
+  honest, practical ideas, not hype.
+- Every video leaves the viewer with one idea they can think about or try that day.
 
-Here is a summary of your channel’s performance for **OLD WISDOM DECODED** over the **last 28 days** (September 25 – October 22, 2026):
+### Hard limits (these never bend)
+- No promises of results or guaranteed change. No health, medical or money advice. Meditation and
+  stress topics are explained as ideas, not treatment.
+- George never claims or implies he is a human expert, therapist or doctor.
+- Name a study, researcher, year or statistic only if it appears in the research notes the bot was
+  given. If unsure, state the idea more generally or leave it out. Never invent a source.
+- Book quotes are word for word from the source text.
+- Never use a living teacher's recordings, footage or text.
 
------
+### Script
+- Long-form, about 8 to 12 minutes. Shorts are paused for now.
+- Open a question early and answer it at the end. End chapters on cliffhangers. Use short silences
+  before reveals. Follow `references/retention-mario-joos.md`.
+- The hook repeats the title's promise in the first 15 seconds, and the video must deliver on it.
+- One voice only: George, the older British narrator, reads everything, including book quotes.
 
-### Key Channel Metrics
+### Titles, thumbnails and descriptions
+- Every title contains something people actually search for (the book, author or topic) plus a
+  hook. Keep it to about 60 to 65 characters.
+  Example: "As a Man Thinketh Explained: Why Blaming Circumstances Fails"
+- Use the negativity effect (`references/titles-power-of-bad.md`), but choose the pattern that
+  fits the chapter. Patterns: "[Book] Explained: [tension]" / "Why [Author] Was Right (and Wrong)
+  About [Topic]" / "What Modern Psychology Says About [Idea]" / "The [Topic] Mistake That Keeps
+  You [Stuck]". The last one is one option among several, not the default.
+- Thumbnail text is 2 to 4 words, high contrast, readable on a phone.
+- Description: the first two lines name the book, author, chapter and the question the video
+  answers. Then chapters, the AI disclosure line, and credits last.
 
-| Metric | Last 28 Days | Previous 28 Days | Change |
-| :--- | :--- | :--- | :--- |
-| **Views** | 8 | 0 | +8 |
-| **Watch Time** | \~34 min 26 sec | 0 hr | +34.4 min |
-| **Average View Duration (AVD)** | 4 min 18 sec | 0:00 | +4:18 |
-| **Average Percentage Viewed** | 41.0% | 0.0% | +41.0% |
-| **Impressions** | 4 | 0 | +4 |
-| **Subscribers (Net)** | 0 | 0 | 0 |
+### Visuals and captions
+- Pictures match what George is saying at that moment. When no footage shows the idea, use a
+  painting of it. (12 Oct)
+- Fast, visually busy pacing. Use a new picture every 3 to 5 seconds, roughly one per sentence,
+  and split long sentences into two pictures. Vary the rhythm (a 2-second cut, then a 5-second
+  one) so it never feels like a metronome.
+- Choose footage with strong movement and vivid color: time-lapses, camera fly-throughs,
+  drone shots, flowing water, fire, lightning, light trails, particles, spinning galaxies,
+  speeding clouds, crowds in motion, sunbursts. When searching, favor words like "timelapse",
+  "aerial", "fast", "flowing", "glowing", "neon", "explosion of light".
+- Prefer high-contrast, saturated clips over dim or muted ones. Reject static, slow or washed-out
+  footage, such as a single candle sitting still or a person sitting motionless.
+- The subject still has to fit the mind-and-spirit theme (cosmos, light, fire, water, storms,
+  old books, cities, the human brain and body in motion), and the picture must still match the
+  words at that moment. Flashy never means random. Never use wildlife unless the script is
+  literally about an animal.
+- Flashy means vivid and moving, not strobing. Never use rapid flashing or flickering
+  (more than 3 flashes per second).
+- Slow down on purpose at the big moments: hold one striking shot through a [pause], a
+  cliffhanger or a book quote, so the fast pace has contrast.
+- Captions on every video. (12 Oct)
 
------
-
-
-### Recommendations
-
-*   **Strong Viewer Retention**: When viewers press play, they are staying for a solid portion of your long-form videos—achieving an overall **41% average view percentage** and several deep completions (such as 5+ and 10+ minutes). This suggests that the philosophical depth, pacing, and core message connect well with the viewers who find it.
-*   **Packaging & Discoverability**: With only 4 impressions logged from browse/search in this period, the primary opportunity is helping more viewers discover your videos. Consider experimenting with:
-    *   **Title Hooks**: Leaning into clear tension or curiosity-driven questions (e.g., contrasting common beliefs vs. deeper wisdom).
-    *   **Thumbnail Clarity**: Simple, high-contrast imagery with readable focal elements that immediately communicate the central dilemma or question.
+### Reference notes
+- YouTube do's and don'ts for long-form: `references/youtube-success-in-30-days.md`
