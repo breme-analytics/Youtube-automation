@@ -46,7 +46,7 @@
       "book": "the-kybalion",
       "chapter": 1,
       "storyboard": "storyboards/2026-10-13-what-mental-alchemy-is-quietly-costing-you.toml",
-      "status": "posted",
+      "status": "cleaned",
       "made_at": "2026-10-13T21:49:53+00:00",
       "release_tag": "video-2026-10-13-what-mental-alchemy-is-quietly-costing-you",
       "stored_at": "2026-10-13T22:52:57+00:00",
@@ -55,7 +55,7 @@
       "youtube_id": "",
       "publish_at": "",
       "posted_at": "2026-10-22T03:33:32+00:00",
-      "cleaned_at": "",
+      "cleaned_at": "2026-10-26T03:50:34+00:00",
       "notes": []
     },
     {
@@ -115,6 +115,32 @@
       "cleaned_at": "",
       "notes": [
         "Narration quotes 'The voices which we hear in solitude grow faint and inaudible as we enter into the world.' itself: check it isn't presented as the book's words"
+      ]
+    },
+    {
+      "slug": "2026-10-26-the-kybalion-s-7-principles-what-psychology-got-wrong",
+      "title": "The Kybalion's 7 Principles: What Psychology Got Wrong",
+      "book": "the-kybalion",
+      "chapter": 2,
+      "storyboard": "storyboards/2026-10-26-the-kybalion-s-7-principles-what-psychology-got-wrong.toml",
+      "status": "released",
+      "made_at": "2026-10-26T03:52:26+00:00",
+      "release_tag": "video-2026-10-26-the-kybalion-s-7-principles-what-psychology-got-wrong",
+      "stored_at": "2026-10-26T04:35:25+00:00",
+      "stored_bytes": 590214393,
+      "issue": 5,
+      "youtube_id": "",
+      "publish_at": "",
+      "posted_at": "",
+      "cleaned_at": "",
+      "notes": [
+        "Narration quotes 'The All is Mind; the Universe is Mental.' itself: check it isn't presented as the book's words",
+        "Narration quotes 'As above, so below; as below, so above.' itself: check it isn't presented as the book's words",
+        "Narration quotes 'Nothing rests; everything moves; everything vibrates.' itself: check it isn't presented as the book's words",
+        "Narration quotes 'Everything is dual. Opposites are identical in nature, different in degree.' itself: check it isn't presented as the book's words",
+        "Narration quotes 'Everything flows, out and in. The pendulum swing manifests in everything.' itself: check it isn't presented as the book's words",
+        "Narration quotes 'Every cause has its effect. Chance is but a name for law not recognized.' itself: check it isn't presented as the book's words",
+        "Narration quotes 'Gender is in everything. Everything has its masculine and feminine principles.' itself: check it isn't presented as the book's words"
       ]
     }
   ]

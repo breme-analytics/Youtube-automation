@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25T03:46:43+00:00",
+  "updated": "2026-10-26T04:35:26+00:00",
   "mode": "review",
   "schedule": {
     "make_days": [
@@ -25,8 +25,8 @@
       "id": "the-kybalion",
       "cite": "Three Initiates, The Kybalion (1908)",
       "chapters": 15,
-      "made": 1,
-      "left": 14
+      "made": 2,
+      "left": 13
     },
     {
       "id": "as-a-man-thinketh",
@@ -57,12 +57,12 @@
       "left": 1
     }
   ],
-  "chapters_left": 37,
+  "chapters_left": 36,
   "next": {
-    "book": "the-kybalion",
-    "cite": "Three Initiates, The Kybalion (1908)",
+    "book": "the-way-of-peace",
+    "cite": "James Allen, The Way of Peace (1907)",
     "chapter": 2,
-    "title": "The Seven Hermetic Principles"
+    "title": "The Two Masters, Self And Truth"
   },
   "videos": [
     {
@@ -96,16 +96,16 @@
     {
       "slug": "2026-10-13-what-mental-alchemy-is-quietly-costing-you",
       "title": "What 'Mental Alchemy' Is Quietly Costing You",
-      "status": "posted",
+      "status": "cleaned",
       "book": "the-kybalion",
       "chapter": 1,
       "made_at": "2026-10-13T21:49:53+00:00",
       "issue": 1,
-      "release": "video-2026-10-13-what-mental-alchemy-is-quietly-costing-you",
+      "release": "",
       "youtube_id": "",
       "publish_at": "",
       "posted_at": "2026-10-22T03:33:32+00:00",
-      "delete_on": "2026-10-29T03:33:32+00:00"
+      "delete_on": ""
     },
     {
       "slug": "2026-10-15-the-meditation-mistake-that-keeps-you-stuck",
@@ -148,18 +148,32 @@
       "publish_at": "",
       "posted_at": "",
       "delete_on": ""
+    },
+    {
+      "slug": "2026-10-26-the-kybalion-s-7-principles-what-psychology-got-wrong",
+      "title": "The Kybalion's 7 Principles: What Psychology Got Wrong",
+      "status": "released",
+      "book": "the-kybalion",
+      "chapter": 2,
+      "made_at": "2026-10-26T03:52:26+00:00",
+      "issue": 5,
+      "release": "video-2026-10-26-the-kybalion-s-7-principles-what-psychology-got-wrong",
+      "youtube_id": "",
+      "publish_at": "",
+      "posted_at": "",
+      "delete_on": ""
     }
   ],
   "needs": [],
   "minutes": {
     "month": "2026-10",
-    "used": 298,
+    "used": 304,
     "budget": 1000,
     "per_video": 66,
     "measured": true,
     "by_workflow": {
-      "produce": 274,
-      "tests": 16,
+      "produce": 276,
+      "tests": 20,
       "cleanup": 1,
       "image": 7
     }

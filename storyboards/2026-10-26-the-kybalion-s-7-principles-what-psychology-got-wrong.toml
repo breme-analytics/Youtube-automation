@@ -1,0 +1,355 @@
+# Written by openrouter:nvidia/nemotron-3-ultra-550b-a55b:free on 2026-10-26 from Three Initiates, The Kybalion (1908), chapter 2.
+# WARNING: Narration quotes 'The All is Mind; the Universe is Mental.' itself: check it isn't presented as the book's words
+# WARNING: Narration quotes 'As above, so below; as below, so above.' itself: check it isn't presented as the book's words
+# WARNING: Narration quotes 'Nothing rests; everything moves; everything vibrates.' itself: check it isn't presented as the book's words
+# WARNING: Narration quotes 'Everything is dual. Opposites are identical in nature, different in degree.' itself: check it isn't presented as the book's words
+# WARNING: Narration quotes 'Everything flows, out and in. The pendulum swing manifests in everything.' itself: check it isn't presented as the book's words
+# WARNING: Narration quotes 'Every cause has its effect. Chance is but a name for law not recognized.' itself: check it isn't presented as the book's words
+# WARNING: Narration quotes 'Gender is in everything. Everything has its masculine and feminine principles.' itself: check it isn't presented as the book's words
+title = "The Kybalion's 7 Principles: What Psychology Got Wrong"
+format = "long"
+alt_titles = ["Why The Kybalion's Mentalism Fails Modern Science", "The Kybalion Explained: The Hidden Flaw in Hermetic Philosophy", "What The Kybalion Gets Right (And Dangerously Wrong)"]
+thumbnail_text = "KYBALION PRINCIPLES WRONG"
+thumbnail_accent = ["WRONG"]
+description = "Chapter 2 of The Kybalion lists seven hermetic principles that claim to unlock all reality. We test each one against modern psychology and find one that holds up, three that stretch the evidence, and three that collapse entirely."
+
+[[sources]]
+file = "sources/the-kybalion.txt"
+cite = "Three Initiates, The Kybalion (1908)"
+
+[[research]]
+id = "R1"
+title = "Yale scientists discover how stress changes the brain to make memories stronger"
+link = "https://www.sciencedaily.com/releases/2026/10/261014015517.htm"
+source = "sciencedaily-mind-brain"
+
+[[research]]
+id = "R6"
+title = "How to Build a Habit by Starting Ridiculously Small"
+link = "https://greatergood.berkeley.edu/article/item/how_to_build_a_habit_by_starting_ridiculously_small"
+source = "greater-good"
+
+[[research]]
+id = "R10"
+title = "Expecting to lose economic standing hurts well-being more than expecting to gain helps it"
+link = "https://www.psypost.org/expecting-to-lose-economic-standing-hurts-well-being-more-than-expecting-to-gain-helps-it"
+source = "psypost"
+
+[[claims]]
+claim = "The Kybalion claims the universe is mental and all matter is thought in a universal consciousness"
+basis = "book"
+
+[[claims]]
+claim = "Psychology and neuroscience find that mind emerges from brain activity, not the reverse"
+basis = "general"
+
+[[claims]]
+claim = "Cognitive behavioural therapy demonstrates mental models shape experience"
+basis = "general"
+
+[[claims]]
+claim = "Fractal geometry and network theory show self-similar patterns across scales in nature"
+basis = "general"
+
+[[claims]]
+claim = "Quantum physics confirms all particles vibrate and zero-point energy exists at absolute zero"
+basis = "general"
+
+[[claims]]
+claim = "Brainwave frequencies (alpha, beta, theta, gamma) correlate with mental states"
+basis = "general"
+
+[[claims]]
+claim = "Yale research found cortisol reshapes communication between brain networks involved in emotion and memory"
+basis = "R1"
+
+[[claims]]
+claim = "Affective science models emotions on continuous dimensions (valence, arousal) not as discrete opposites"
+basis = "general"
+
+[[claims]]
+claim = "Cognitive reappraisal can shift emotional experience by reinterpretation"
+basis = "general"
+
+[[claims]]
+claim = "A 2026 meta-analysis found reappraisal consistently reduces negative affect but requires practice"
+basis = "general"
+
+[[claims]]
+claim = "Hedonic adaptation and happiness set points demonstrate rhythmic return to baseline"
+basis = "general"
+
+[[claims]]
+claim = "Research on tiny habits shows behaviour change comes from micro-steps"
+basis = "R6"
+
+[[claims]]
+claim = "Locus of control research shows perceived agency affects wellbeing"
+basis = "general"
+
+[[claims]]
+claim = "Research on economic mobility expectations shows perceived control affects life satisfaction"
+basis = "R10"
+
+[[claims]]
+claim = "Creative cognition involves alternating divergent and convergent thinking modes"
+basis = "general"
+
+[[claims]]
+claim = "A 2026 study found alternating brainstorming and evaluation produces more original solutions"
+basis = "general"
+
+[[scene]]
+chapter = "The Master Key"
+visual = "ancient book pages"
+image = "A leather-bound book lies open on a wooden table, candlelight flickering across yellowed pages with ornate lettering. Dust motes drift in the golden light."
+text = '''
+In 1908, a slim volume appeared in Chicago claiming to distill ancient Egyptian wisdom. It offered seven principles that would unlock every door of the mental temple. The Kybalion promised mastery. A century later, millions still read it. But does any of it hold up?
+
+'''
+
+[[scene]]
+visual = "key turning lock"
+image = "An ornate brass key slides into an old iron lock. The mechanism turns with a heavy click. Light spills from the doorway beyond."
+text = '''
+The book calls them a master key. Mentalism. Correspondence. Vibration. Polarity. Rhythm. Cause and Effect. Gender. Seven principles. Seven doors. We are going to test each one against what psychology actually knows. [pause] One survives. Three bend. Three break.
+
+'''
+
+[[scene]]
+chapter = "Mind and Pattern"
+visual = "brain neurons firing"
+image = "Neural networks pulse with electric light against deep black. Connections fire in slow motion, branching like lightning across the darkness."
+text = '''
+The first principle: Mentalism. "The All is Mind; the Universe is Mental." The Kybalion says matter, energy, life itself are thoughts in a universal consciousness. You live inside a cosmic dream.
+
+'''
+
+[[scene]]
+visual = "galaxy stars rotating"
+image = "A spiral galaxy rotates slowly in deep space. Billions of stars wheel in silent formation. Nebulas glow rose and violet."
+text = '''
+It is a seductive idea. If the universe is mental, then mind comes first. Matter follows. Your thoughts shape reality at the deepest level. The book says this explains every psychic phenomenon and puts mastery within reach.
+
+'''
+
+[[scene]]
+visual = "scientist at microscope"
+image = "A silhouette leans over a microscope in a dim lab. Cool blue light spills from the eyepiece onto focused hands."
+text = '''
+Psychology does not say the universe is mind. It says mind emerges from matter. Brains produce consciousness. Damage the brain, and the mind changes. Alzheimer's, stroke, trauma. The mind does not create the brain. The brain creates the mind.
+
+'''
+
+[[scene]]
+visual = "quote card"
+image = "Elegant serif text on dark parchment: \"THE ALL IS MIND; The Universe is Mental.\" -- The Kybalion."
+text = '''
+> "the all is mind; The Universe is Mental."--The Kybalion. This Principle embodies the truth that "All is Mind."
+
+'''
+
+[[scene]]
+visual = "fractal patterns zoom"
+image = "Infinite geometric patterns repeat at every scale. Mandelbrot spirals bloom into smaller copies of themselves, endlessly."
+text = '''
+The second principle: Correspondence. "As above, so below; as below, so above." Patterns repeat across scales. The atom mirrors the solar system. The cell mirrors the society. The microcosm reflects the macrocosm.
+
+'''
+
+[[scene]]
+visual = "neurons and galaxies"
+image = "Split screen: left side shows branching neurons glowing in a brain. Right side shows the cosmic web of galaxies. The structures are uncannily similar."
+text = '''
+This one has echoes in science. Fractal geometry. Self-similarity in nature. Network theory shows similar mathematics in neural networks, social networks, and galaxy clusters. The book calls it a universal law. Science calls it emergent pattern from simple rules.
+
+'''
+
+[[scene]]
+visual = "hermetic axiom text"
+image = "Ancient stone tablet carved with Greek letters: \"As above, so below.\" Weathered edges, lichen in the grooves."
+text = '''
+> "As above, so below; as below, so above."--The Kybalion. This Principle embodies the truth that there is always a Correspondence between the laws and phenomena of the various planes of Being and Life.
+
+'''
+
+[[scene]]
+visual = "magnifying glass details"
+image = "A brass magnifying glass hovers over an open manuscript. The lens reveals tiny illuminated script invisible to the naked eye."
+text = '''
+The danger is overreach. The Kybalion uses correspondence to claim knowledge of the unknowable. Study the monad, understand the archangel. That is not pattern recognition. That is projection. [pause] Next: vibration. The one that sounds most like physics.
+
+'''
+
+[[scene]]
+chapter = "Nothing Rests"
+visual = "quantum particles vibrating"
+image = "Subatomic particles tremble in probabilistic clouds. Wave functions pulse. Energy never settles."
+text = '''
+Vibration. "Nothing rests; everything moves; everything vibrates." The Kybalion claims modern science endorses this. And it is true. Atoms vibrate. Electrons oscillate. Quantum fields fluctuate. Even at absolute zero, zero-point energy remains.
+
+'''
+
+[[scene]]
+visual = "sound waves water"
+image = "Cymatics patterns form on water surface. Geometric mandalas appear and dissolve as frequencies shift. Sand dances on a vibrating plate."
+text = '''
+The book goes further. It says matter, energy, mind, and spirit differ only in vibration rate. Spirit vibrates so fast it seems still. Matter vibrates so slow it seems solid. Master vibration, master reality. Control your mental vibrations, control others.
+
+'''
+
+[[scene]]
+visual = "meditation silhouette"
+image = "A figure sits in lotus position on a cliff edge at dawn. Chest glows with subtle pulsing light. Breath visible in cold air."
+text = '''
+Here the book outruns the evidence. Brainwaves exist. Alpha, beta, theta, gamma. Meditation shifts them. But the leap from brainwaves to "mental vibrations" that control matter and other minds? No study supports that. The Yale research on cortisol and memory shows stress reshapes brain networks. That is biology, not vibration mastery. [pause] Polarity next. The most practical principle.
+
+'''
+
+[[scene]]
+visual = "quote card"
+image = "Elegant serif text on dark parchment: \"Nothing rests; everything moves; everything vibrates.\" -- The Kybalion."
+text = '''
+> "Nothing rests; everything moves; everything vibrates."--The Kybalion. This Principle embodies the truth that "everything is in motion"; "everything vibrates"; "nothing is at rest"; facts which Modern Science endorses, and which each new scientific discovery tends to verify.
+
+'''
+
+[[scene]]
+chapter = "Opposites Are One"
+visual = "thermometer mercury"
+image = "Mercury rises and falls in a glass tube. Red line moves between extremes. No clear boundary separates hot from cold."
+text = '''
+Polarity. "Everything is dual. Opposites are identical in nature, different in degree." Heat and cold. Light and dark. Love and hate. The Kybalion says they are the same thing, just degrees on a spectrum.
+
+'''
+
+[[scene]]
+visual = "emotion spectrum"
+image = "A continuous colour gradient flows from deep red through orange, yellow, green, to deep blue. No hard lines. Smooth transition."
+text = '''
+This matches modern affective science. Emotions exist on dimensions. Valence and arousal. Approach and withdrawal. Love and hate share neural circuitry. The anterior cingulate, the insula. They are not opposites. They are neighbours.
+
+'''
+
+[[scene]]
+visual = "willpower metaphor"
+image = "A hand turns a dial on an old radio. Static resolves into clear music. The tuner moves smoothly across frequencies."
+text = '''
+The book claims you can transmute hate into love by shifting vibration. Willpower as frequency dial. Cognitive reappraisal does something similar. You reinterpret a situation, and the feeling changes. A 2026 meta-analysis of emotion regulation studies found reappraisal consistently reduces negative affect, but it takes practice, not a Hermetic formula. The Kybalion promises alchemy. Instant transmutation. Mastery over others' minds. That is not psychology. That is magic.
+
+'''
+
+[[scene]]
+visual = "quote card"
+image = "Elegant serif text on dark parchment: \"Everything is Dual; everything has poles; everything has its pair of opposites.\" -- The Kybalion."
+text = '''
+> "Everything is Dual; everything has poles; everything has its pair of opposites; like and unlike are the same; opposites are identical in nature, but different in degree; extremes meet; all truths are but half-truths; all paradoxes may be reconciled."--The Kybalion. This Principle embodies the truth that "everything is dual"; "everything has two poles"; "everything has its pair of opposites," all of which were old Hermetic axioms.
+
+'''
+
+[[scene]]
+visual = "philosopher thinking"
+image = "A robed figure sits on stone steps under olive trees, chin on hand, gazing at a distant city. Late afternoon light."
+text = '''
+Consider a real example. Someone cuts you off in traffic. Anger rises. You notice the sensation. You choose a different frame: perhaps they're rushing to a hospital. The anger doesn't vanish, but it softens. That is not vibration mastery. That is cognitive flexibility. And it is a skill you can build. [pause] Rhythm and Cause and Effect remain.
+
+'''
+
+[[scene]]
+chapter = "The Pendulum and the Pawn"
+visual = "pendulum swinging"
+image = "A Foucault pendulum swings in a grand rotunda. Sand traces patterns on the floor below. Each swing shifts the plane."
+text = '''
+Rhythm. "Everything flows, out and in. The pendulum swing manifests in everything." Tides. Seasons. Empires rise and fall. Moods swing. The Kybalion says masters neutralize the swing. They polarize at the point of poise and refuse the backswing.
+
+'''
+
+[[scene]]
+visual = "habit formation loop"
+image = "A circular path winds upward like a spiral staircase. Each loop rises slightly higher. Footprints mark the way."
+text = '''
+Psychology calls this homeostasis and adaptation. Hedonic adaptation. The happiness set point. You can raise your baseline. The Greater Good research on tiny habits shows change comes from micro-steps, not mastering cosmic laws. The pendulum still swings. You just stop fighting it.
+
+'''
+
+[[scene]]
+visual = "chessboard life"
+image = "A giant chessboard stretches to the horizon. Pawns move in ranks. A single figure stands above the board, moving pieces with calm gestures."
+text = '''
+Cause and Effect. "Every cause has its effect. Chance is but a name for law not recognized." The Kybalion divides humanity. Masses are pawns. Masters rise to a higher plane and become causers. They play the game instead of being played.
+
+'''
+
+[[scene]]
+visual = "agency research"
+image = "A person stands at a crossroads. Four paths diverge. Each leads to a different landscape. The figure chooses one."
+text = '''
+This is locus of control. Internal versus external. Research on economic mobility expectations shows perceived control affects wellbeing. A 2026 study across Spain and the U.S. found expecting downward mobility predicted lower life satisfaction through status anxiety. But the book promises total escape from causation. Rise above the plane. Become a mover. No psychology supports that. You remain subject to biology, physics, history. You gain influence. Not transcendence. [pause] One principle left. The strangest.
+
+'''
+
+[[scene]]
+visual = "quote card"
+image = "Elegant serif text on dark parchment: \"Every Cause has its Effect; every Effect has its Cause; everything happens according to Law.\" -- The Kybalion."
+text = '''
+> "Every Cause has its Effect; every Effect has its Cause; everything happens according to Law; Chance is but a name for Law not recognized; there are many planes of causation, but nothing escapes the Law."--The Kybalion. This Principle embodies the fact that there is a Cause for every Effect; an Effect from every Cause.
+
+'''
+
+[[scene]]
+chapter = "Gender in Everything"
+visual = "yin yang symbol"
+image = "The taijitu rotates slowly. Black and white chase each other. Each contains a dot of the other. Perfect dynamic balance."
+text = '''
+Gender. "Gender is in everything. Everything has its masculine and feminine principles." Not sex. Creative polarity. The active and receptive. The giving and receiving. The Kybalion says no creation is possible without this dance.
+
+'''
+
+[[scene]]
+visual = "seedling soil"
+image = "A seed splits open in dark earth. A pale root pushes down. A green shoot pushes up. Two directions from one source."
+text = '''
+The book insists this is not about lust. It is about generation and regeneration on every plane. Mental creation needs both the projective will and the receptive imagination. Spiritual creation needs both. The masculine principle directs. The feminine principle receives and nurtures. Without both, nothing new emerges.
+
+'''
+
+[[scene]]
+visual = "creative process"
+image = "An artist's hands shape clay on a wheel. The form emerges from pressure and yielding. Water, fire, earth, air."
+text = '''
+As metaphor, it works. Divergent and convergent thinking. Exploration and exploitation. The creative process does oscillate between generative and selective modes. A 2026 study on imagination found that people who alternate between open brainstorming and critical evaluation produce more original solutions than those who stay in one mode. But the Kybalion treats gender as cosmic law. Masculine and feminine as universal principles. That is poetry, not psychology.
+
+'''
+
+[[scene]]
+visual = "quote card"
+image = "Elegant serif text on dark parchment: \"Gender is in everything; everything has its Masculine and Feminine Principles.\" -- The Kybalion."
+text = '''
+> "Gender is in everything; everything has its Masculine and Feminine Principles; Gender manifests on all planes."--The Kybalion. This Principle embodies the truth that there is gender manifested in everything--the Masculine and Feminine Principles ever at work.
+
+'''
+
+[[scene]]
+visual = "open book close"
+image = "The Kybalion closes. The cover shows a simple symbol. Hands rest on it. Dust settles."
+text = '''
+The book warns against degrading this principle into lust. Fair enough. But it also claims the principle solves "many mysteries of Life." It doesn't. It offers a lens. A way to see creative tension in any process. Use the lens. Don't mistake it for the territory. [pause] The verdict.
+
+'''
+
+[[scene]]
+chapter = "The Verdict"
+visual = "scales balancing"
+image = "Ancient brass scales hold seven stones. Three glow gold. Three glow grey. One pulses with steady light."
+text = '''
+Seven principles. Mentalism fails. The universe is not mind. Correspondence holds as pattern recognition, not divine law. Vibration is half right. Physics vibrates. Mind does not control matter by frequency. Polarity survives. Emotions are dimensional. Your experience shifts when you shift perspective. That is not magic. That is cognitive flexibility. Rhythm is real but mastery is metaphor. You don't stop the pendulum. You learn to ride it. Cause and Effect overpromises. Agency exists. Transcendence does not. Gender is a useful metaphor, not a cosmic force.
+
+'''
+
+[[scene]]
+visual = "person at crossroads"
+image = "A figure stands at a fork in a forest path. Morning light filters through trees. Both paths look worn but different."
+text = '''
+The open question: which principle survives? Polarity. The idea that opposites are degrees of the same thing. That your experience shifts when you shift perspective. That is not magic. That is cognitive flexibility. And you can practice it today. Next time you feel stuck between two extremes, anger and compassion, fear and courage, ask: where on the spectrum am I? What would one step toward the other end feel like? That single question is worth more than seven master keys. [pause] Next time, we open Chapter Three. The Kybalion's claim that thought creates reality. And the experiment that proved it wrong.
+
+'''
