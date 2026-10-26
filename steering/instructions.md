@@ -104,9 +104,9 @@
   - The hook still follows the hard limits: no promises of results, no "this will change your
     life", no claims that George is an expert. The promise is about what the video will explore
     or test, not what it will do for the viewer.
-  - Tone example (do not reuse the words): "Most of us blame our circumstances for where we are.
-    In 1903, James Allen said that's the very thing keeping us there. Was he right? Stay to the
-    end: one part of his claim holds up, and one doesn't."
+   - Tone example (do not reuse the words): "Most of us blame our circumstances for where we are.
+    In 1903, James Allen said that's the very thing keeping us there. [pause] Was he right? One
+    part of his claim holds up against modern psychology. The other part doesn't."
 
 -### Reference notes
 - YouTube do's and don'ts for long-form: `references/youtube-success-in-30-days.md`
