@@ -66,10 +66,9 @@
 - Fast, visually busy pacing. Use a new picture every 3 to 5 seconds, roughly one per sentence,
   and split long sentences into two pictures. Vary the rhythm (a 2-second cut, then a 5-second
   one) so it never feels like a metronome.
-- Choose footage with strong movement and vivid color: time-lapses, camera fly-throughs,
-  drone shots, flowing water, fire, lightning, light trails, particles, spinning galaxies,
-  speeding clouds, crowds in motion, sunbursts. When searching, favor words like "timelapse",
-  "aerial", "fast", "flowing", "glowing", "neon", "explosion of light".
+- Choose footage with strong movement and vivid color. Use the search table in
+  `references/visual-style.md`, adding a motion word where it helps. Search terms stay 2 to 4
+  words with the subject first.
 - Prefer high-contrast, saturated clips over dim or muted ones. Reject static, slow or washed-out
   footage, such as a single candle sitting still or a person sitting motionless.
 - The subject still has to fit the mind-and-spirit theme (cosmos, light, fire, water, storms,
