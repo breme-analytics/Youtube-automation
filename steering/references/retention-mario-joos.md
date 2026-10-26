@@ -49,9 +49,10 @@ consulting company for large YouTube channels. Paraphrased from his own words in
 
 ## How this channel applies them
 
-- **Hook (first 20 to 30 seconds):** open on the stakes the title raised, confirm the promise, and open
-  one question (the "open loop") that only the final chapter answers. No greeting, no "in this video",
-  no channel intro.
+- **Hook (first 5 to 15 seconds):** follow the opening-hook rules in `steering/instructions.md`
+  (tension, then stakes, then the promise and one open loop that only the final chapter answers).
+  Confirm the title's promise early (principle 11) by raising it as a question, not an
+  announcement (principle 19). No greeting, no "in this video", no channel intro.
 - **Cliffhangers:** every chapter except the last ends on a turn, a question or a reveal that the next
   chapter delivers.
 - **Silence:** "[pause]" before 3 to 6 reveals holds a beat of silence in George's narration (principle 16).
@@ -60,7 +61,10 @@ consulting company for large YouTube channels. Paraphrased from his own words in
 - **No recaps.** A one-line callback is fine; a summary isn't.
 - **Pictures match the words:** each scene shows what its sentence means. A free vision model checks every
   stock clip against the narration and rejects any that distracts; if no clip fits, a painting of the
-  moment is used instead. Camera movement stays slow and purposeful (principle 23).
+  moment is used instead. Movement inside the stock footage (time-lapse, flowing water, light trails) is
+  welcome and chosen per `references/visual-style.md`. Zooms and pans added by the renderer stay slow
+  and purposeful (principle 23). Cut speed is set in `steering/instructions.md`: a new picture every 3 to
+  5 seconds, shorter for simple visuals (principle 5).
 - **Captions:** the spoken phrase appears at the bottom with the current word in gold (principle 22;
   many people watch with the sound off). They hide while a quote card or chapter title is on screen.
 - **Ending:** the strongest insight comes last (the peak) and answers the open question, then one
