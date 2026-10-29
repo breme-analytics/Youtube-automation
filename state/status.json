@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-28T03:56:22+00:00",
+  "updated": "2026-10-29T05:21:09+00:00",
   "mode": "review",
   "schedule": {
     "make_days": [
@@ -39,8 +39,8 @@
       "id": "the-way-of-peace",
       "cite": "James Allen, The Way of Peace (1907)",
       "chapters": 7,
-      "made": 1,
-      "left": 6
+      "made": 2,
+      "left": 5
     },
     {
       "id": "meditations",
@@ -57,12 +57,12 @@
       "left": 1
     }
   ],
-  "chapters_left": 36,
+  "chapters_left": 35,
   "next": {
-    "book": "the-way-of-peace",
-    "cite": "James Allen, The Way of Peace (1907)",
+    "book": "meditations",
+    "cite": "Marcus Aurelius, Meditations (translated by Meric Casaubon, 1634)",
     "chapter": 2,
-    "title": "The Two Masters, Self And Truth"
+    "title": "Second Book"
   },
   "videos": [
     {
@@ -110,16 +110,16 @@
     {
       "slug": "2026-10-15-the-meditation-mistake-that-keeps-you-stuck",
       "title": "The Meditation Mistake That Keeps You Stuck",
-      "status": "posted",
+      "status": "cleaned",
       "book": "the-way-of-peace",
       "chapter": 1,
       "made_at": "2026-10-15T04:04:13+00:00",
       "issue": 2,
-      "release": "video-2026-10-15-the-meditation-mistake-that-keeps-you-stuck",
+      "release": "",
       "youtube_id": "",
       "publish_at": "",
       "posted_at": "2026-10-22T03:44:20+00:00",
-      "delete_on": "2026-10-29T03:44:20+00:00"
+      "delete_on": ""
     },
     {
       "slug": "2026-10-19-the-stoic-mistake-that-keeps-you-bitter",
@@ -162,17 +162,31 @@
       "publish_at": "",
       "posted_at": "",
       "delete_on": ""
+    },
+    {
+      "slug": "2026-10-29-james-allen-s-two-masters-the-self-denial-trap",
+      "title": "James Allen's Two Masters: The Self-Denial Trap",
+      "status": "released",
+      "book": "the-way-of-peace",
+      "chapter": 2,
+      "made_at": "2026-10-29T04:11:18+00:00",
+      "issue": 6,
+      "release": "video-2026-10-29-james-allen-s-two-masters-the-self-denial-trap",
+      "youtube_id": "",
+      "publish_at": "",
+      "posted_at": "",
+      "delete_on": ""
     }
   ],
   "needs": [],
   "minutes": {
     "month": "2026-10",
-    "used": 362,
+    "used": 364,
     "budget": 1000,
     "per_video": 58,
     "measured": true,
     "by_workflow": {
-      "produce": 323,
+      "produce": 325,
       "tests": 31,
       "cleanup": 1,
       "image": 7
