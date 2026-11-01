@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-31T03:55:55+00:00",
+  "updated": "2026-11-01T04:00:27+00:00",
   "mode": "review",
   "schedule": {
     "make_days": [
@@ -180,16 +180,13 @@
   ],
   "needs": [],
   "minutes": {
-    "month": "2026-10",
-    "used": 448,
+    "month": "2026-11",
+    "used": 1,
     "budget": 1000,
-    "per_video": 58,
-    "measured": true,
+    "per_video": 120,
+    "measured": false,
     "by_workflow": {
-      "produce": 409,
-      "tests": 31,
-      "cleanup": 1,
-      "image": 7
+      "produce": 1
     }
   }
 }
