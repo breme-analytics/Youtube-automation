@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-01T04:00:27+00:00",
+  "updated": "2026-11-02T05:09:54+00:00",
   "mode": "review",
   "schedule": {
     "make_days": [
@@ -16,7 +16,7 @@
     "book_order": "balanced"
   },
   "storage": {
-    "stored": 3,
+    "stored": 4,
     "max_videos": 4,
     "keep_days_after_posting": 7
   },
@@ -46,8 +46,8 @@
       "id": "meditations",
       "cite": "Marcus Aurelius, Meditations (translated by Meric Casaubon, 1634)",
       "chapters": 12,
-      "made": 1,
-      "left": 11
+      "made": 2,
+      "left": 10
     },
     {
       "id": "emerson-essays",
@@ -57,12 +57,12 @@
       "left": 1
     }
   ],
-  "chapters_left": 35,
+  "chapters_left": 34,
   "next": {
-    "book": "meditations",
-    "cite": "Marcus Aurelius, Meditations (translated by Meric Casaubon, 1634)",
-    "chapter": 2,
-    "title": "Second Book"
+    "book": "emerson-essays",
+    "cite": "Ralph Waldo Emerson, Essays: First Series (1841)",
+    "chapter": 9,
+    "title": "The Over-Soul"
   },
   "videos": [
     {
@@ -176,17 +176,31 @@
       "publish_at": "",
       "posted_at": "",
       "delete_on": ""
+    },
+    {
+      "slug": "2026-11-02-marcus-aurelius-the-habit-that-keeps-you-drained",
+      "title": "Marcus Aurelius: The Habit That Keeps You Drained",
+      "status": "released",
+      "book": "meditations",
+      "chapter": 2,
+      "made_at": "2026-11-02T04:22:41+00:00",
+      "issue": 7,
+      "release": "video-2026-11-02-marcus-aurelius-the-habit-that-keeps-you-drained",
+      "youtube_id": "",
+      "publish_at": "",
+      "posted_at": "",
+      "delete_on": ""
     }
   ],
   "needs": [],
   "minutes": {
     "month": "2026-11",
-    "used": 1,
+    "used": 3,
     "budget": 1000,
     "per_video": 120,
     "measured": false,
     "by_workflow": {
-      "produce": 1
+      "produce": 3
     }
   }
 }

@@ -160,6 +160,24 @@
       "posted_at": "",
       "cleaned_at": "",
       "notes": []
+    },
+    {
+      "slug": "2026-11-02-marcus-aurelius-the-habit-that-keeps-you-drained",
+      "title": "Marcus Aurelius: The Habit That Keeps You Drained",
+      "book": "meditations",
+      "chapter": 2,
+      "storyboard": "storyboards/2026-11-02-marcus-aurelius-the-habit-that-keeps-you-drained.toml",
+      "status": "released",
+      "made_at": "2026-11-02T04:22:41+00:00",
+      "release_tag": "video-2026-11-02-marcus-aurelius-the-habit-that-keeps-you-drained",
+      "stored_at": "2026-11-02T05:09:54+00:00",
+      "stored_bytes": 493538919,
+      "issue": 7,
+      "youtube_id": "",
+      "publish_at": "",
+      "posted_at": "",
+      "cleaned_at": "",
+      "notes": []
     }
   ]
 }
