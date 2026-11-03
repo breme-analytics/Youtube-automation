@@ -32,7 +32,7 @@ publish_time = "18:00"
 # "auto":   the bot stores the video, uploads it to YouTube as private and schedules it (needs the YouTube
 #           secrets, docs/DEPLOY.md step 4). If YouTube doesn't publish it, the issue asks you to post the
 #           stored copy by hand instead.
-mode = "review"
+mode = "auto"
 
 [actions]
 # GitHub Actions minutes this bot may use per calendar month (UTC), across all its workflows. A free
