@@ -1,6 +1,6 @@
 {
-  "updated": "2026-11-03T04:02:14+00:00",
-  "mode": "review",
+  "updated": "2026-11-04T04:05:32+00:00",
+  "mode": "auto",
   "schedule": {
     "make_days": [
       "Mon",
@@ -138,7 +138,7 @@
     {
       "slug": "2026-10-22-the-self-reliance-mistake-that-keeps-you-small",
       "title": "The Self-Reliance Mistake That Keeps You Small",
-      "status": "released",
+      "status": "posted",
       "book": "emerson-essays",
       "chapter": 2,
       "made_at": "2026-10-22T03:50:53+00:00",
@@ -146,8 +146,8 @@
       "release": "video-2026-10-22-the-self-reliance-mistake-that-keeps-you-small",
       "youtube_id": "",
       "publish_at": "",
-      "posted_at": "",
-      "delete_on": ""
+      "posted_at": "2026-11-03T07:29:50+00:00",
+      "delete_on": "2026-11-10T07:29:50+00:00"
     },
     {
       "slug": "2026-10-26-the-kybalion-s-7-principles-what-psychology-got-wrong",
@@ -195,12 +195,13 @@
   "needs": [],
   "minutes": {
     "month": "2026-11",
-    "used": 65,
+    "used": 73,
     "budget": 1000,
     "per_video": 63,
     "measured": true,
     "by_workflow": {
-      "produce": 65
+      "produce": 66,
+      "tests": 7
     }
   }
 }
