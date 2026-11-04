@@ -2,10 +2,10 @@
 # Voices: https://huggingface.co/hexgrad/Kokoro-82M/blob/main/VOICES.md (English ones only)
 
 [voices]
-narrator = "bm_george"   # the older British storyteller reads everything, quotes included
-narrator_speed = 1.0
-quote = ""               # empty: one voice only (owner's choice, 11 Oct 2026)
-quote_speed = 0.95
+narrator = "am_michael"   # Main narrator handling script commentary & questions
+narrator_speed = 0.98
+quote = "bm_george"       # George reads all cited quotes
+quote_speed = 0.95        # Reads quotes slightly slower for weight and clarity
 
 [video]
 format = "long"          # Shorts are paused (owner's choice, 11 Oct 2026)
