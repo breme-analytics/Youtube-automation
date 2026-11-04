@@ -2,10 +2,10 @@
 # Voices: https://huggingface.co/hexgrad/Kokoro-82M/blob/main/VOICES.md (English ones only)
 
 [voices]
-narrator = "am_michael"   # Main narrator handling script commentary & questions
+narrator = "bm_lewis"     # Main narrator handling script commentary & questions (UK Lewis)
 narrator_speed = 0.98
-quote = "bm_george"       # George reads all cited quotes
-quote_speed = 0.95        # Reads quotes slightly slower for weight and clarity
+quote = "am_michael"     # Michael reads all cited quotes (US Michael)
+quote_speed = 0.95       # Reads quotes slightly slower for weight and clarity
 
 [video]
 format = "long"          # Shorts are paused (owner's choice, 11 Oct 2026)
