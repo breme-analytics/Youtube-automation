@@ -103,7 +103,7 @@
       "book": "emerson-essays",
       "chapter": 2,
       "storyboard": "storyboards/2026-10-22-the-self-reliance-mistake-that-keeps-you-small.toml",
-      "status": "posted",
+      "status": "cleaned",
       "made_at": "2026-10-22T03:50:53+00:00",
       "release_tag": "video-2026-10-22-the-self-reliance-mistake-that-keeps-you-small",
       "stored_at": "2026-10-22T04:41:55+00:00",
@@ -112,7 +112,7 @@
       "youtube_id": "",
       "publish_at": "",
       "posted_at": "2026-11-03T07:29:50+00:00",
-      "cleaned_at": "",
+      "cleaned_at": "2026-11-05T04:07:09+00:00",
       "notes": [
         "Narration quotes 'The voices which we hear in solitude grow faint and inaudible as we enter into the world.' itself: check it isn't presented as the book's words"
       ]
@@ -178,6 +178,26 @@
       "posted_at": "",
       "cleaned_at": "",
       "notes": []
+    },
+    {
+      "slug": "2026-11-05-emerson-s-over-soul-explained-why-forcing-wisdom-fails",
+      "title": "Emerson's Over-Soul Explained: Why Forcing Wisdom Fails",
+      "book": "emerson-essays",
+      "chapter": 9,
+      "storyboard": "storyboards/2026-11-05-emerson-s-over-soul-explained-why-forcing-wisdom-fails.toml",
+      "status": "released",
+      "made_at": "2026-11-05T04:15:57+00:00",
+      "release_tag": "video-2026-11-05-emerson-s-over-soul-explained-why-forcing-wisdom-fails",
+      "stored_at": "2026-11-05T05:24:42+00:00",
+      "stored_bytes": 574960189,
+      "issue": 9,
+      "youtube_id": "",
+      "publish_at": "",
+      "posted_at": "",
+      "cleaned_at": "",
+      "notes": [
+        "YouTube upload failed: YouTubeError: Couldn't get a YouTube access token (400). invalid_grant: the sign-in has expired or was revoked. If the OAuth app is still in Testing, publish it; then run `python -m owd youtube-login` again and update YOUTUBE_REFRESH_TOKEN."
+      ]
     }
   ]
 }

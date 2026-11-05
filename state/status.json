@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-04T04:05:32+00:00",
+  "updated": "2026-11-05T05:24:43+00:00",
   "mode": "auto",
   "schedule": {
     "make_days": [
@@ -53,16 +53,16 @@
       "id": "emerson-essays",
       "cite": "Ralph Waldo Emerson, Essays: First Series (1841)",
       "chapters": 2,
-      "made": 1,
-      "left": 1
+      "made": 2,
+      "left": 0
     }
   ],
-  "chapters_left": 34,
+  "chapters_left": 33,
   "next": {
-    "book": "emerson-essays",
-    "cite": "Ralph Waldo Emerson, Essays: First Series (1841)",
-    "chapter": 9,
-    "title": "The Over-Soul"
+    "book": "the-kybalion",
+    "cite": "Three Initiates, The Kybalion (1908)",
+    "chapter": 3,
+    "title": "Mental Transmutation"
   },
   "videos": [
     {
@@ -138,16 +138,16 @@
     {
       "slug": "2026-10-22-the-self-reliance-mistake-that-keeps-you-small",
       "title": "The Self-Reliance Mistake That Keeps You Small",
-      "status": "posted",
+      "status": "cleaned",
       "book": "emerson-essays",
       "chapter": 2,
       "made_at": "2026-10-22T03:50:53+00:00",
       "issue": 4,
-      "release": "video-2026-10-22-the-self-reliance-mistake-that-keeps-you-small",
+      "release": "",
       "youtube_id": "",
       "publish_at": "",
       "posted_at": "2026-11-03T07:29:50+00:00",
-      "delete_on": "2026-11-10T07:29:50+00:00"
+      "delete_on": ""
     },
     {
       "slug": "2026-10-26-the-kybalion-s-7-principles-what-psychology-got-wrong",
@@ -190,17 +190,31 @@
       "publish_at": "",
       "posted_at": "",
       "delete_on": ""
+    },
+    {
+      "slug": "2026-11-05-emerson-s-over-soul-explained-why-forcing-wisdom-fails",
+      "title": "Emerson's Over-Soul Explained: Why Forcing Wisdom Fails",
+      "status": "released",
+      "book": "emerson-essays",
+      "chapter": 9,
+      "made_at": "2026-11-05T04:15:57+00:00",
+      "issue": 9,
+      "release": "video-2026-11-05-emerson-s-over-soul-explained-why-forcing-wisdom-fails",
+      "youtube_id": "",
+      "publish_at": "",
+      "posted_at": "",
+      "delete_on": ""
     }
   ],
   "needs": [],
   "minutes": {
     "month": "2026-11",
-    "used": 73,
+    "used": 75,
     "budget": 1000,
     "per_video": 63,
     "measured": true,
     "by_workflow": {
-      "produce": 66,
+      "produce": 68,
       "tests": 7
     }
   }
