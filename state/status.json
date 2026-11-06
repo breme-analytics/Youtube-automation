@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-05T05:24:43+00:00",
+  "updated": "2026-11-06T04:04:18+00:00",
   "mode": "auto",
   "schedule": {
     "make_days": [
@@ -206,15 +206,21 @@
       "delete_on": ""
     }
   ],
-  "needs": [],
+  "needs": [
+    {
+      "title": "The bot can't post to YouTube",
+      "issue": 8,
+      "url": "https://github.com/breme-analytics/Youtube-automation/issues/8"
+    }
+  ],
   "minutes": {
     "month": "2026-11",
-    "used": 75,
+    "used": 154,
     "budget": 1000,
-    "per_video": 63,
+    "per_video": 72,
     "measured": true,
     "by_workflow": {
-      "produce": 68,
+      "produce": 147,
       "tests": 7
     }
   }
