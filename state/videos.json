@@ -123,7 +123,7 @@
       "book": "the-kybalion",
       "chapter": 2,
       "storyboard": "storyboards/2026-10-26-the-kybalion-s-7-principles-what-psychology-got-wrong.toml",
-      "status": "released",
+      "status": "cleaned",
       "made_at": "2026-10-26T03:52:26+00:00",
       "release_tag": "video-2026-10-26-the-kybalion-s-7-principles-what-psychology-got-wrong",
       "stored_at": "2026-10-26T04:35:25+00:00",
@@ -131,8 +131,8 @@
       "issue": 5,
       "youtube_id": "",
       "publish_at": "",
-      "posted_at": "",
-      "cleaned_at": "",
+      "posted_at": "2026-11-08T21:32:46+00:00",
+      "cleaned_at": "2026-11-09T04:10:25+00:00",
       "notes": [
         "Narration quotes 'The All is Mind; the Universe is Mental.' itself: check it isn't presented as the book's words",
         "Narration quotes 'As above, so below; as below, so above.' itself: check it isn't presented as the book's words",
@@ -196,6 +196,27 @@
       "posted_at": "",
       "cleaned_at": "",
       "notes": [
+        "YouTube upload failed: YouTubeError: Couldn't get a YouTube access token (400). invalid_grant: the sign-in has expired or was revoked. If the OAuth app is still in Testing, publish it; then run `python -m owd youtube-login` again and update YOUTUBE_REFRESH_TOKEN."
+      ]
+    },
+    {
+      "slug": "2026-11-09-the-kybalion-s-mental-transmutation-can-thoughts-change-real",
+      "title": "The Kybalion's Mental Transmutation: Can Thoughts Change Reality?",
+      "book": "the-kybalion",
+      "chapter": 3,
+      "storyboard": "storyboards/2026-11-09-the-kybalion-s-mental-transmutation-can-thoughts-change-real.toml",
+      "status": "released",
+      "made_at": "2026-11-09T04:23:34+00:00",
+      "release_tag": "video-2026-11-09-the-kybalion-s-mental-transmutation-can-thoughts-change-real",
+      "stored_at": "2026-11-09T05:26:00+00:00",
+      "stored_bytes": 541621604,
+      "issue": 10,
+      "youtube_id": "",
+      "publish_at": "",
+      "posted_at": "",
+      "cleaned_at": "",
+      "notes": [
+        "the title is 65 characters; keep it to 60",
         "YouTube upload failed: YouTubeError: Couldn't get a YouTube access token (400). invalid_grant: the sign-in has expired or was revoked. If the OAuth app is still in Testing, publish it; then run `python -m owd youtube-login` again and update YOUTUBE_REFRESH_TOKEN."
       ]
     }

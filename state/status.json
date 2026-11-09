@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-08T04:03:35+00:00",
+  "updated": "2026-11-09T05:26:01+00:00",
   "mode": "auto",
   "schedule": {
     "make_days": [
@@ -25,8 +25,8 @@
       "id": "the-kybalion",
       "cite": "Three Initiates, The Kybalion (1908)",
       "chapters": 15,
-      "made": 2,
-      "left": 13
+      "made": 3,
+      "left": 12
     },
     {
       "id": "as-a-man-thinketh",
@@ -57,12 +57,12 @@
       "left": 0
     }
   ],
-  "chapters_left": 33,
+  "chapters_left": 32,
   "next": {
-    "book": "the-kybalion",
-    "cite": "Three Initiates, The Kybalion (1908)",
-    "chapter": 3,
-    "title": "Mental Transmutation"
+    "book": "as-a-man-thinketh",
+    "cite": "James Allen, As a Man Thinketh (1903)",
+    "chapter": 1,
+    "title": "Thought And Character"
   },
   "videos": [
     {
@@ -152,15 +152,15 @@
     {
       "slug": "2026-10-26-the-kybalion-s-7-principles-what-psychology-got-wrong",
       "title": "The Kybalion's 7 Principles: What Psychology Got Wrong",
-      "status": "released",
+      "status": "cleaned",
       "book": "the-kybalion",
       "chapter": 2,
       "made_at": "2026-10-26T03:52:26+00:00",
       "issue": 5,
-      "release": "video-2026-10-26-the-kybalion-s-7-principles-what-psychology-got-wrong",
+      "release": "",
       "youtube_id": "",
       "publish_at": "",
-      "posted_at": "",
+      "posted_at": "2026-11-08T21:32:46+00:00",
       "delete_on": ""
     },
     {
@@ -204,6 +204,20 @@
       "publish_at": "",
       "posted_at": "",
       "delete_on": ""
+    },
+    {
+      "slug": "2026-11-09-the-kybalion-s-mental-transmutation-can-thoughts-change-real",
+      "title": "The Kybalion's Mental Transmutation: Can Thoughts Change Reality?",
+      "status": "released",
+      "book": "the-kybalion",
+      "chapter": 3,
+      "made_at": "2026-11-09T04:23:34+00:00",
+      "issue": 10,
+      "release": "video-2026-11-09-the-kybalion-s-mental-transmutation-can-thoughts-change-real",
+      "youtube_id": "",
+      "publish_at": "",
+      "posted_at": "",
+      "delete_on": ""
     }
   ],
   "needs": [
@@ -215,12 +229,12 @@
   ],
   "minutes": {
     "month": "2026-11",
-    "used": 156,
+    "used": 158,
     "budget": 1000,
     "per_video": 72,
     "measured": true,
     "by_workflow": {
-      "produce": 149,
+      "produce": 151,
       "tests": 7
     }
   }
