@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-12T11:16:43+00:00",
+  "updated": "2026-11-13T11:02:48+00:00",
   "mode": "auto",
   "schedule": {
     "make_days": [
@@ -222,6 +222,11 @@
   ],
   "needs": [
     {
+      "title": "The bot is waiting for you to post videos",
+      "issue": 11,
+      "url": "https://github.com/breme-analytics/Youtube-automation/issues/11"
+    },
+    {
       "title": "The bot can't post to YouTube",
       "issue": 8,
       "url": "https://github.com/breme-analytics/Youtube-automation/issues/8"
@@ -229,12 +234,12 @@
   ],
   "minutes": {
     "month": "2026-11",
-    "used": 238,
+    "used": 240,
     "budget": 1000,
     "per_video": 78,
     "measured": true,
     "by_workflow": {
-      "produce": 231,
+      "produce": 233,
       "tests": 7
     }
   }
