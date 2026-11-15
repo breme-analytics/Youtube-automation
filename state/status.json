@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-14T10:29:07+00:00",
+  "updated": "2026-11-15T10:56:29+00:00",
   "mode": "auto",
   "schedule": {
     "make_days": [
@@ -234,12 +234,12 @@
   ],
   "minutes": {
     "month": "2026-11",
-    "used": 241,
+    "used": 242,
     "budget": 1000,
     "per_video": 78,
     "measured": true,
     "by_workflow": {
-      "produce": 234,
+      "produce": 235,
       "tests": 7
     }
   }
