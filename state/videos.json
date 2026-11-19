@@ -205,7 +205,7 @@
       "book": "the-kybalion",
       "chapter": 3,
       "storyboard": "storyboards/2026-11-09-the-kybalion-s-mental-transmutation-can-thoughts-change-real.toml",
-      "status": "released",
+      "status": "cleaned",
       "made_at": "2026-11-09T04:23:34+00:00",
       "release_tag": "video-2026-11-09-the-kybalion-s-mental-transmutation-can-thoughts-change-real",
       "stored_at": "2026-11-09T05:26:00+00:00",
@@ -213,11 +213,32 @@
       "issue": 10,
       "youtube_id": "",
       "publish_at": "",
-      "posted_at": "",
-      "cleaned_at": "",
+      "posted_at": "2026-11-18T21:03:22+00:00",
+      "cleaned_at": "2026-11-19T11:43:53+00:00",
       "notes": [
         "the title is 65 characters; keep it to 60",
         "YouTube upload failed: YouTubeError: Couldn't get a YouTube access token (400). invalid_grant: the sign-in has expired or was revoked. If the OAuth app is still in Testing, publish it; then run `python -m owd youtube-login` again and update YOUTUBE_REFRESH_TOKEN."
+      ]
+    },
+    {
+      "slug": "2026-11-19-as-a-man-thinketh-the-thought-mistake-that-keeps-you-stuck",
+      "title": "As a Man Thinketh: The Thought Mistake That Keeps You Stuck",
+      "book": "as-a-man-thinketh",
+      "chapter": 1,
+      "storyboard": "storyboards/2026-11-19-as-a-man-thinketh-the-thought-mistake-that-keeps-you-stuck.toml",
+      "status": "scheduled",
+      "made_at": "2026-11-19T11:45:43+00:00",
+      "release_tag": "video-2026-11-19-as-a-man-thinketh-the-thought-mistake-that-keeps-you-stuck",
+      "stored_at": "2026-11-19T12:05:32+00:00",
+      "stored_bytes": 489774311,
+      "issue": 12,
+      "youtube_id": "Rl6a_W5cGPI",
+      "publish_at": "2026-11-20T15:00:00+00:00",
+      "posted_at": "",
+      "cleaned_at": "",
+      "notes": [
+        "Quote moved from S12 to S13 to match its first words 'By the right'",
+        "YouTube: captions file refused (YouTube's automatic captions are used)"
       ]
     }
   ]

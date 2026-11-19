@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-18T11:45:20+00:00",
+  "updated": "2026-11-19T12:05:52+00:00",
   "mode": "auto",
   "schedule": {
     "make_days": [
@@ -32,8 +32,8 @@
       "id": "as-a-man-thinketh",
       "cite": "James Allen, As a Man Thinketh (1903)",
       "chapters": 7,
-      "made": 2,
-      "left": 5
+      "made": 3,
+      "left": 4
     },
     {
       "id": "the-way-of-peace",
@@ -57,12 +57,12 @@
       "left": 0
     }
   ],
-  "chapters_left": 32,
+  "chapters_left": 31,
   "next": {
-    "book": "as-a-man-thinketh",
-    "cite": "James Allen, As a Man Thinketh (1903)",
-    "chapter": 1,
-    "title": "Thought And Character"
+    "book": "the-way-of-peace",
+    "cite": "James Allen, The Way of Peace (1907)",
+    "chapter": 3,
+    "title": "The Acquirement Of Spiritual Power"
   },
   "videos": [
     {
@@ -208,24 +208,33 @@
     {
       "slug": "2026-11-09-the-kybalion-s-mental-transmutation-can-thoughts-change-real",
       "title": "The Kybalion's Mental Transmutation: Can Thoughts Change Reality?",
-      "status": "released",
+      "status": "cleaned",
       "book": "the-kybalion",
       "chapter": 3,
       "made_at": "2026-11-09T04:23:34+00:00",
       "issue": 10,
-      "release": "video-2026-11-09-the-kybalion-s-mental-transmutation-can-thoughts-change-real",
+      "release": "",
       "youtube_id": "",
       "publish_at": "",
+      "posted_at": "2026-11-18T21:03:22+00:00",
+      "delete_on": ""
+    },
+    {
+      "slug": "2026-11-19-as-a-man-thinketh-the-thought-mistake-that-keeps-you-stuck",
+      "title": "As a Man Thinketh: The Thought Mistake That Keeps You Stuck",
+      "status": "scheduled",
+      "book": "as-a-man-thinketh",
+      "chapter": 1,
+      "made_at": "2026-11-19T11:45:43+00:00",
+      "issue": 12,
+      "release": "video-2026-11-19-as-a-man-thinketh-the-thought-mistake-that-keeps-you-stuck",
+      "youtube_id": "Rl6a_W5cGPI",
+      "publish_at": "2026-11-20T15:00:00+00:00",
       "posted_at": "",
       "delete_on": ""
     }
   ],
   "needs": [
-    {
-      "title": "The bot is waiting for you to post videos",
-      "issue": 11,
-      "url": "https://github.com/breme-analytics/Youtube-automation/issues/11"
-    },
     {
       "title": "The bot can't post to YouTube",
       "issue": 8,
@@ -234,12 +243,12 @@
   ],
   "minutes": {
     "month": "2026-11",
-    "used": 246,
+    "used": 248,
     "budget": 1000,
     "per_video": 78,
     "measured": true,
     "by_workflow": {
-      "produce": 239,
+      "produce": 241,
       "tests": 7
     }
   }
