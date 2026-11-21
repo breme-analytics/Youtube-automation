@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-20T11:43:13+00:00",
+  "updated": "2026-11-21T11:05:38+00:00",
   "mode": "auto",
   "schedule": {
     "make_days": [
@@ -222,7 +222,7 @@
     {
       "slug": "2026-11-19-as-a-man-thinketh-the-thought-mistake-that-keeps-you-stuck",
       "title": "As a Man Thinketh: The Thought Mistake That Keeps You Stuck",
-      "status": "scheduled",
+      "status": "posted",
       "book": "as-a-man-thinketh",
       "chapter": 1,
       "made_at": "2026-11-19T11:45:43+00:00",
@@ -230,19 +230,19 @@
       "release": "video-2026-11-19-as-a-man-thinketh-the-thought-mistake-that-keeps-you-stuck",
       "youtube_id": "Rl6a_W5cGPI",
       "publish_at": "2026-11-20T15:00:00+00:00",
-      "posted_at": "",
-      "delete_on": ""
+      "posted_at": "2026-11-20T15:00:00+00:00",
+      "delete_on": "2026-11-27T15:00:00+00:00"
     }
   ],
   "needs": [],
   "minutes": {
     "month": "2026-11",
-    "used": 271,
+    "used": 272,
     "budget": 1000,
     "per_video": 70,
     "measured": true,
     "by_workflow": {
-      "produce": 264,
+      "produce": 265,
       "tests": 7
     }
   }

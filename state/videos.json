@@ -226,7 +226,7 @@
       "book": "as-a-man-thinketh",
       "chapter": 1,
       "storyboard": "storyboards/2026-11-19-as-a-man-thinketh-the-thought-mistake-that-keeps-you-stuck.toml",
-      "status": "scheduled",
+      "status": "posted",
       "made_at": "2026-11-19T11:45:43+00:00",
       "release_tag": "video-2026-11-19-as-a-man-thinketh-the-thought-mistake-that-keeps-you-stuck",
       "stored_at": "2026-11-19T12:05:32+00:00",
@@ -234,7 +234,7 @@
       "issue": 12,
       "youtube_id": "Rl6a_W5cGPI",
       "publish_at": "2026-11-20T15:00:00+00:00",
-      "posted_at": "",
+      "posted_at": "2026-11-20T15:00:00+00:00",
       "cleaned_at": "",
       "notes": [
         "Quote moved from S12 to S13 to match its first words 'By the right'",
