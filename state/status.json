@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-25T12:58:44+00:00",
+  "updated": "2026-11-26T13:24:03+00:00",
   "mode": "auto",
   "schedule": {
     "make_days": [
@@ -16,7 +16,7 @@
     "book_order": "balanced"
   },
   "storage": {
-    "stored": 3,
+    "stored": 4,
     "max_videos": 4,
     "keep_days_after_posting": 7
   },
@@ -39,8 +39,8 @@
       "id": "the-way-of-peace",
       "cite": "James Allen, The Way of Peace (1907)",
       "chapters": 7,
-      "made": 2,
-      "left": 5
+      "made": 3,
+      "left": 4
     },
     {
       "id": "meditations",
@@ -57,12 +57,12 @@
       "left": 0
     }
   ],
-  "chapters_left": 31,
+  "chapters_left": 30,
   "next": {
-    "book": "the-way-of-peace",
-    "cite": "James Allen, The Way of Peace (1907)",
+    "book": "meditations",
+    "cite": "Marcus Aurelius, Meditations (translated by Meric Casaubon, 1634)",
     "chapter": 3,
-    "title": "The Acquirement Of Spiritual Power"
+    "title": "Third Book"
   },
   "videos": [
     {
@@ -232,17 +232,31 @@
       "publish_at": "2026-11-20T15:00:00+00:00",
       "posted_at": "2026-11-20T15:00:00+00:00",
       "delete_on": ""
+    },
+    {
+      "slug": "2026-11-26-why-chasing-willpower-keeps-you-emotionally-weak",
+      "title": "Why Chasing Willpower Keeps You Emotionally Weak",
+      "status": "scheduled",
+      "book": "the-way-of-peace",
+      "chapter": 3,
+      "made_at": "2026-11-26T12:45:45+00:00",
+      "issue": 14,
+      "release": "video-2026-11-26-why-chasing-willpower-keeps-you-emotionally-weak",
+      "youtube_id": "YXcSfSfZtTY",
+      "publish_at": "2026-11-27T15:00:00+00:00",
+      "posted_at": "",
+      "delete_on": ""
     }
   ],
   "needs": [],
   "minutes": {
     "month": "2026-11",
-    "used": 295,
+    "used": 297,
     "budget": 1000,
     "per_video": 70,
     "measured": true,
     "by_workflow": {
-      "produce": 288,
+      "produce": 290,
       "tests": 7
     }
   }
