@@ -247,7 +247,7 @@
       "book": "the-way-of-peace",
       "chapter": 3,
       "storyboard": "storyboards/2026-11-26-why-chasing-willpower-keeps-you-emotionally-weak.toml",
-      "status": "scheduled",
+      "status": "posted",
       "made_at": "2026-11-26T12:45:45+00:00",
       "release_tag": "video-2026-11-26-why-chasing-willpower-keeps-you-emotionally-weak",
       "stored_at": "2026-11-26T13:23:48+00:00",
@@ -255,7 +255,7 @@
       "issue": 14,
       "youtube_id": "YXcSfSfZtTY",
       "publish_at": "2026-11-27T15:00:00+00:00",
-      "posted_at": "",
+      "posted_at": "2026-11-27T15:00:00+00:00",
       "cleaned_at": "",
       "notes": [
         "YouTube: captions file refused (YouTube's automatic captions are used)"
